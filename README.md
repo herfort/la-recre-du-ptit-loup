@@ -1,2 +1,8 @@
-# la-recre-du-ptit-loup
-Portail d'inscription - Association La Récré Du P'tit Loup
+
+# La Récré Du P'tit Loup
+
+Structure de démarrage du portail :
+- Inscriptions familles
+- Séances lundi/mardi/jeudi
+- Prévu pour connexion Supabase
+- Déploiement Vercel
