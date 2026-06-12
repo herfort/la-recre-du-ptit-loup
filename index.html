@@ -1,77 +1,189 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>La Récré Du P'tit Loup</title>
-<link rel="stylesheet" href="style.css">
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+    background:#f5f5f5;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    margin-top:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+h1{
+    text-align:center;
+}
+
+input, textarea, select{
+    width:100%;
+    padding:10px;
+    margin-top:5px;
+    margin-bottom:15px;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    opacity:0.9;
+}
+
+#message{
+    margin-top:15px;
+    font-weight:bold;
+}
+</style>
 </head>
+
 <body>
+
 <h1>🐺 La Récré Du P'tit Loup</h1>
-<p>Lundi, Mardi, Jeudi — 9h30 à 11h15</p>
+
+<p style="text-align:center;">
+Lundi • Mardi • Jeudi<br>
+9h30 à 11h15
+</p>
 
 <div class="card">
+
 <h2>Inscription</h2>
+
 <label>Nom de l'accompagnateur</label>
-<input id="adult">
+<input type="text" id="adult">
+
 <label>Prénom(s) des enfant(s)</label>
 <textarea id="kids"></textarea>
+
 <label>Séance</label>
 <select id="session">
-<option>Lundi</option>
-<option>Mardi</option>
-<option>Jeudi</option>
+<option value="Lundi">Lundi</option>
+<option value="Mardi">Mardi</option>
+<option value="Jeudi">Jeudi</option>
 </select>
-<button>Envoyer</button>
+
+<button id="submitBtn">
+Envoyer l'inscription
+</button>
+
+<div id="message"></div>
+
 </div>
 
 <div class="card">
 <h2>Informations</h2>
+
 <p>30 enfants maximum par séance.</p>
-<p>Email : larecreduptitloup@gmail.com</p>
-<p>Téléphone : 06 62 37 46 38</p>
-<p>72 rue de la Planquette, 60290 Laigneville</p>
+
+<p>
+📧 larecreduptitloup@gmail.com
+</p>
+
+<p>
+📞 06 62 37 46 38
+</p>
+
+<p>
+📍 72 rue de la Planquette<br>
+60290 Laigneville
+</p>
+
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabaseUrl = "https://jbialegbayusckjajjanq.supabase.co";
-const supabaseKey = "sb_publishable__buDYmorRpoNxxjFGq56Iw_28SaX6IG";
 
-const supabaseClient = supabase.createClient(
-  supabaseUrl,
-  supabaseKey
+const SUPABASE_URL =
+"https://jbialegbayusckjajjanq.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable__buDYmorRpoNxxjFGq56Iw_28SaX6IG";
+
+const { createClient } = supabase;
+
+const client = createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
 );
 
-document.querySelector("button").addEventListener("click", async () => {
+document
+.getElementById("submitBtn")
+.addEventListener("click", envoyerInscription);
 
-  const accompagnateur =
-    document.getElementById("adult").value;
+async function envoyerInscription(){
 
-  const enfant =
-    document.getElementById("kids").value;
+    const accompagnateur =
+        document.getElementById("adult").value.trim();
 
-  const seance =
-    document.getElementById("session").value;
+    const enfant =
+        document.getElementById("kids").value.trim();
 
-  const { error } = await supabaseClient
+    const seance =
+        document.getElementById("session").value;
+
+    const message =
+        document.getElementById("message");
+
+    if(!accompagnateur || !enfant){
+
+        message.innerHTML =
+        "Veuillez remplir tous les champs.";
+
+        return;
+    }
+
+    message.innerHTML =
+    "Enregistrement en cours...";
+
+    const { error } =
+    await client
     .from("inscriptions")
     .insert([
-      {
-        accompagnateur: accompagnateur,
-        enfant: enfant,
-        seance: seance,
-        statut: "Inscrit"
-      }
+        {
+            accompagnateur: accompagnateur,
+            enfant: enfant,
+            seance: seance,
+            statut: "Inscrit"
+        }
     ]);
 
-  if (error) {
-    alert("Erreur : " + error.message);
-  } else {
-    alert("Inscription enregistrée avec succès !");
-  }
-});
+    if(error){
+
+        message.innerHTML =
+        "Erreur : " + error.message;
+
+        console.error(error);
+
+        return;
+    }
+
+    message.innerHTML =
+    "✅ Inscription enregistrée avec succès.";
+
+    document.getElementById("adult").value = "";
+    document.getElementById("kids").value = "";
+}
+
 </script>
 
 </body>
