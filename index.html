@@ -32,5 +32,47 @@
 <p>Téléphone : 06 62 37 46 38</p>
 <p>72 rue de la Planquette, 60290 Laigneville</p>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseUrl = "https://jbialegbayusckjajjanq.supabase.co";
+const supabaseKey = "sb_publishable__buDYmorRpoNxxjFGq56Iw_28SaX6IG";
+
+const supabaseClient = supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
+
+document.querySelector("button").addEventListener("click", async () => {
+
+  const accompagnateur =
+    document.getElementById("adult").value;
+
+  const enfant =
+    document.getElementById("kids").value;
+
+  const seance =
+    document.getElementById("session").value;
+
+  const { error } = await supabaseClient
+    .from("inscriptions")
+    .insert([
+      {
+        accompagnateur: accompagnateur,
+        enfant: enfant,
+        seance: seance,
+        statut: "Inscrit"
+      }
+    ]);
+
+  if (error) {
+    alert("Erreur : " + error.message);
+  } else {
+    alert("Inscription enregistrée avec succès !");
+  }
+});
+</script>
+
 </body>
 </html>
