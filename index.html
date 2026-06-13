@@ -114,7 +114,7 @@ Envoyer l'inscription
 <script>
 
 const SUPABASE_URL =
-"https://jbialegbayusckjajjanq.supabase.co";
+"https://jbialegbayusckjjajnq.supabase.co;
 
 const SUPABASE_KEY =
 "sb_publishable__buDYmorRpoNxxjFGq56Iw_28SaX6IG";
@@ -125,7 +125,8 @@ const client = createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
-
+console.log("URL =", SUPABASE_URL);
+console.log("KEY =", SUPABASE_KEY);
 document
 .getElementById("submitBtn")
 .addEventListener("click", envoyerInscription);
@@ -178,20 +179,18 @@ async function envoyerInscription(){
             return;
         }
 
-        message.innerHTML =
-        "✅ Inscription enregistrée.";
+message.innerHTML =
+"✅ Inscription enregistrée.";
 
-    } catch(err){
+document.getElementById("adult").value = "";
+document.getElementById("kids").value = "";
 
-        console.error(err);
+} catch(err){
 
-        message.innerHTML =
-        "ERREUR RESEAU : " + err.message;
-    }
-}
+    console.error(err);
 
-    document.getElementById("adult").value = "";
-    document.getElementById("kids").value = "";
+    message.innerHTML =
+    "ERREUR RESEAU : " + err.message;
 }
 
 </script>
