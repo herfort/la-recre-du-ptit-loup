@@ -155,30 +155,40 @@ async function envoyerInscription(){
     message.innerHTML =
     "Enregistrement en cours...";
 
-    const { error } =
-    await client
-    .from("inscriptions")
-    .insert([
-        {
-            accompagnateur: accompagnateur,
-            enfant: enfant,
-            seance: seance,
-            statut: "Inscrit"
-        }
-    ]);
+    try {
 
-    if(error){
+        const { data, error } = await client
+        .from("inscriptions")
+        .insert([
+            {
+                accompagnateur,
+                enfant,
+                seance,
+                statut: "Inscrit"
+            }
+        ])
+        .select();
+
+        console.log("DATA :", data);
+        console.log("ERROR :", error);
+
+        if(error){
+            message.innerHTML =
+            "Erreur : " + JSON.stringify(error);
+            return;
+        }
 
         message.innerHTML =
-        "Erreur : " + error.message;
+        "✅ Inscription enregistrée.";
 
-        console.error(error);
+    } catch(err){
 
-        return;
+        console.error(err);
+
+        message.innerHTML =
+        "ERREUR RESEAU : " + err.message;
     }
-
-    message.innerHTML =
-    "✅ Inscription enregistrée avec succès.";
+}
 
     document.getElementById("adult").value = "";
     document.getElementById("kids").value = "";
