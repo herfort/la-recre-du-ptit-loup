@@ -144,7 +144,23 @@ async function envoyerInscription(){
 
     const message =
         document.getElementById("message");
+// Vérifier le nombre d'inscriptions
+const { count, error: countError } = await client
+  .from("inscriptions")
+  .select("*", { count: "exact", head: true })
+  .eq("seance", seance);
 
+if (countError) {
+  message.innerHTML =
+    "Erreur lors de la vérification des places.";
+  return;
+}
+
+if (count >= 30) {
+  message.innerHTML =
+    "❌ Cette séance est complète.";
+  return;
+}
     if(!accompagnateur || !enfant){
 
         message.innerHTML =
