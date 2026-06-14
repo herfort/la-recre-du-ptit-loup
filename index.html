@@ -80,7 +80,9 @@ Lundi • Mardi • Jeudi<br>
 <option value="Mardi">Mardi</option>
 <option value="Jeudi">Jeudi</option>
 </select>
-
+<p id="places">
+  Places restantes : 30 / 30
+</p>
 <button id="submitBtn">
 Envoyer l'inscription
 </button>
@@ -130,7 +132,23 @@ console.log("KEY =", SUPABASE_KEY);
 document
 .getElementById("submitBtn")
 .addEventListener("click", envoyerInscription);
+document
+  .getElementById("session")
+  .addEventListener("change", afficherPlaces);
 
+async function afficherPlaces() {
+
+  const seance =
+    document.getElementById("session").value;
+
+  const { count } = await client
+    .from("inscriptions")
+    .select("*", { count: "exact", head: true })
+    .eq("seance", seance);
+
+  document.getElementById("places").innerHTML =
+    "Places restantes : " + (30 - count) + " / 30";
+}
 async function envoyerInscription(){
 
     const accompagnateur =
@@ -197,7 +215,7 @@ if (count >= 30) {
 
 message.innerHTML =
 "✅ Inscription enregistrée.";
-
+await afficherPlaces();
 document.getElementById("adult").value = "";
 document.getElementById("kids").value = "";
 
@@ -209,7 +227,7 @@ document.getElementById("kids").value = "";
     "ERREUR RESEAU : " + err.message;
 }
     }
+afficherPlaces();
 </script>
-
 </body>
 </html>
