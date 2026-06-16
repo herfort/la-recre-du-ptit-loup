@@ -96,9 +96,10 @@ Lundi • Mardi • Jeudi<br>
 </p>
 <button id="submitBtn">
 Envoyer l'inscription
-    <button id="pdfBtn">
-📄 Télécharger la feuille de présence
 </button>
+
+<button id="pdfBtn">
+📄 Télécharger la feuille de présence
 </button>
 
 <div id="message"></div>
@@ -126,8 +127,8 @@ Envoyer l'inscription
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-document
-  .getElementById("pdfBtn")
+
+<script>
   .addEventListener("click", genererPDF);
 
 async function genererPDF() {
@@ -174,14 +175,14 @@ async function genererPDF() {
 
   data.forEach(inscription => {
 
-    doc.text(
-      "☐  " +
-      inscription.accompagnateur +
-      " - " +
-      inscription.enfant,
-      20,
-      y
-    );
+   doc.text(
+  "[ ] " +
+  inscription.accompagnateur +
+  " - " +
+  inscription.enfant,
+  20,
+  y
+);
 
     y += 8;
 
@@ -276,7 +277,9 @@ async function envoyerInscription(){
   document.getElementById("kid3").value.trim(),
   document.getElementById("kid4").value.trim()
 ].filter(e => e !== "");
-
+document.querySelectorAll(
+  '#dates input[type="checkbox"]'
+).forEach(cb => cb.checked = false);
     const dates = Array.from(
   document.querySelectorAll(
     '#dates input[type="checkbox"]:checked'
