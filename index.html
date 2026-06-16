@@ -83,12 +83,21 @@ Lundi • Mardi • Jeudi<br>
 <label>Enfant 4</label>
 <input type="text" id="kid4">
 
-<label>Séance</label>
-<select id="session">
-<option value="Lundi">Lundi</option>
-<option value="Mardi">Mardi</option>
-<option value="Jeudi">Jeudi</option>
-</select>
+<label>Dates du mois</label>
+
+<div id="dates">
+
+<label><input type="checkbox" value="2026-09-03"> Jeudi 3 septembre</label><br>
+
+<label><input type="checkbox" value="2026-09-07"> Lundi 7 septembre</label><br>
+
+<label><input type="checkbox" value="2026-09-10"> Jeudi 10 septembre</label><br>
+
+<label><input type="checkbox" value="2026-09-14"> Lundi 14 septembre</label><br>
+
+<label><input type="checkbox" value="2026-09-17"> Jeudi 17 septembre</label><br>
+
+</div>
 <p id="places">
   Places restantes : 30 / 30
 </p>
@@ -170,8 +179,11 @@ async function envoyerInscription(){
   document.getElementById("kid4").value.trim()
 ].filter(e => e !== "");
 
-    const seance =
-        document.getElementById("session").value;
+    const dates = Array.from(
+  document.querySelectorAll(
+    '#dates input[type="checkbox"]:checked'
+  )
+).map(cb => cb.value);
 
     const message =
         document.getElementById("message");
@@ -194,7 +206,11 @@ if (count + nbEnfants > 30) {
     "❌ Il ne reste pas assez de places pour cette inscription.";
   return;
 }
-
+if (dates.length === 0) {
+  message.innerHTML =
+    "Veuillez sélectionner au moins une date.";
+  return;
+}
     if(!accompagnateur || enfants.length === 0){
 
         message.innerHTML =
@@ -208,12 +224,18 @@ if (count + nbEnfants > 30) {
 
     try {
 
-        const inscriptions = enfants.map(enfant => ({
-  accompagnateur,
-  enfant,
-  seance,
-  statut: "Inscrit"
-}));
+    const inscriptions = [];
+
+dates.forEach(date => {
+  enfants.forEach(enfant => {
+    inscriptions.push({
+      accompagnateur,
+      enfant,
+      seance: date,
+      statut: "Inscrit"
+    });
+  });
+});
 
 const { data, error } = await client
   .from("inscriptions")
