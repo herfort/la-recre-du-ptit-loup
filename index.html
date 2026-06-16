@@ -71,8 +71,17 @@ Lundi • Mardi • Jeudi<br>
 <label>Nom de l'accompagnateur</label>
 <input type="text" id="adult">
 
-<label>Prénom(s) des enfant(s)</label>
-<textarea id="kids"></textarea>
+<label>Enfant 1</label>
+<input type="text" id="kid1">
+
+<label>Enfant 2</label>
+<input type="text" id="kid2">
+
+<label>Enfant 3</label>
+<input type="text" id="kid3">
+
+<label>Enfant 4</label>
+<input type="text" id="kid4">
 
 <label>Séance</label>
 <select id="session">
@@ -154,8 +163,12 @@ async function envoyerInscription(){
     const accompagnateur =
         document.getElementById("adult").value.trim();
 
-    const enfant =
-        document.getElementById("kids").value.trim();
+    const enfants = [
+  document.getElementById("kid1").value.trim(),
+  document.getElementById("kid2").value.trim(),
+  document.getElementById("kid3").value.trim(),
+  document.getElementById("kid4").value.trim()
+].filter(e => e !== "");
 
     const seance =
         document.getElementById("session").value;
@@ -174,12 +187,15 @@ if (countError) {
   return;
 }
 
-if (count >= 30) {
+const nbEnfants = enfants.length;
+
+if (count + nbEnfants > 30) {
   message.innerHTML =
-    "❌ Cette séance est complète.";
+    "❌ Il ne reste pas assez de places pour cette inscription.";
   return;
 }
-    if(!accompagnateur || !enfant){
+}
+    if(!accompagnateur || enfants.length === 0){
 
         message.innerHTML =
         "Veuillez remplir tous les champs.";
@@ -192,17 +208,18 @@ if (count >= 30) {
 
     try {
 
-        const { data, error } = await client
-        .from("inscriptions")
-        .insert([
-            {
-                accompagnateur,
-                enfant,
-                seance,
-                statut: "Inscrit"
-            }
-        ])
-        .select();
+        const inscriptions = enfants.map(enfant => ({
+  accompagnateur,
+  enfant,
+  seance,
+  statut: "Inscrit"
+}));
+
+const { data, error } = await client
+  .from("inscriptions")
+  .insert(inscriptions)
+  .select();
+            
 
         console.log("DATA :", data);
         console.log("ERROR :", error);
@@ -217,7 +234,10 @@ message.innerHTML =
 "✅ Inscription enregistrée.";
 await afficherPlaces();
 document.getElementById("adult").value = "";
-document.getElementById("kids").value = "";
+document.getElementById("kid1").value = "";
+document.getElementById("kid2").value = "";
+document.getElementById("kid3").value = "";
+document.getElementById("kid4").value = "";
 
 } catch(err){
 
