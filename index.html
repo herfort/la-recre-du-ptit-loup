@@ -13,7 +13,32 @@ body{
     padding:20px;
     background:#f5f5f5;
 }
+.date-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px;
+    margin-bottom:8px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    background:white;
+}
 
+.date-item input{
+    width:22px;
+    height:22px;
+    margin:0;
+}
+
+.date-item span:nth-child(2){
+    flex:1;
+}
+
+.date-item span:last-child{
+    font-weight:bold;
+    color:#2e7d32;
+    white-space:nowrap;
+}
 .card{
     background:white;
     padding:20px;
@@ -47,7 +72,31 @@ button{
 button:hover{
     opacity:0.9;
 }
+.date-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px;
+    margin-bottom:8px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    background:#fafafa;
+}
 
+.date-item input[type="checkbox"]{
+    width:auto;
+    margin:0;
+}
+
+.date-item span:first-of-type{
+    flex:1;
+}
+
+.date-item span:last-of-type{
+    font-weight:bold;
+    color:#2e7d32;
+}
 #message{
     margin-top:15px;
     font-weight:bold;
@@ -87,10 +136,6 @@ Lundi • Mardi • Jeudi<br>
 
 <div id="dates"></div>
 
-
-   
-
-</div>
 <div id="places"></div>
 <button id="submitBtn">
 Envoyer l'inscription
@@ -131,24 +176,47 @@ Envoyer l'inscription
 document
   .getElementById("pdfBtn")
   .addEventListener("click", genererPDF);
-async function afficherPlaces() {
-
-  const bloc = document.getElementById("places");
-
-  bloc.innerHTML = "<h3>Places restantes</h3>";
+async function afficherPlacesParDate() {
 
   const toutesLesDates = [
-    { date: "2026-09-07", texte: "Lundi 7 septembre" },
-    { date: "2026-09-10", texte: "Jeudi 10 septembre" },
-    { date: "2026-09-14", texte: "Lundi 14 septembre" },
-    { date: "2026-09-15", texte: "Mardi 15 septembre" },
-    { date: "2026-09-17", texte: "Jeudi 17 septembre" },
-    { date: "2026-09-21", texte: "Lundi 21 septembre" },
-    { date: "2026-09-22", texte: "Mardi 22 septembre" },
-    { date: "2026-09-24", texte: "Jeudi 24 septembre" },
-    { date: "2026-09-28", texte: "Lundi 28 septembre" },
-    { date: "2026-09-29", texte: "Mardi 29 septembre" }
+    "2026-09-07",
+    "2026-09-10",
+    "2026-09-14",
+    "2026-09-15",
+    "2026-09-17",
+    "2026-09-21",
+    "2026-09-22",
+    "2026-09-24",
+    "2026-09-28",
+    "2026-09-29"
   ];
+
+  for (const date of toutesLesDates) {
+
+    const { count } = await client
+      .from("inscriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("seance", date);
+
+const restant = Math.max(0, 30 - (count || 0));
+
+    const placeElement =
+      document.getElementById(`places-${date}`);
+
+    if(placeElement){
+
+      if(restant <= 5){
+        placeElement.innerHTML =
+          `⚠️ ${restant} places`;
+      } else {
+        placeElement.innerHTML =
+          `${restant} places`;
+      }
+
+    }
+  }
+}
+
 
   for (const item of toutesLesDates) {
 
@@ -278,12 +346,13 @@ function genererDates() {
       return;
     }
 
-    bloc.innerHTML += `
-      <label>
-        <input type="checkbox" value="${item.date}">
-        ${item.texte}
-      </label><br>
-    `;
+bloc.innerHTML += `
+  <label class="date-item">
+    <input type="checkbox" value="${item.date}">
+    <span>${item.texte}</span>
+    <span id="places-${item.date}">...</span>
+  </label>
+`;
   });
 } 
 console.log("URL =", SUPABASE_URL);
@@ -366,7 +435,7 @@ const { data, error } = await client
 
 message.innerHTML =
 "✅ Inscription enregistrée.";
-await afficherPlaces();
+await afficherPlacesParDate();
 document.getElementById("adult").value = "";
 document.getElementById("kid1").value = "";
 document.getElementById("kid2").value = "";
@@ -383,9 +452,17 @@ document.querySelectorAll(
     message.innerHTML =
     "ERREUR RESEAU : " + err.message;
 }
-    }
-genererDates();
-afficherPlaces();
+ } catch(err){
+
+    console.error(err);
+
+    message.innerHTML =
+    "ERREUR RESEAU : " + err.message;
+}
+
+}
+    genererDates();
+afficherPlacesParDate();
 </script>
 </body>
 </html>
