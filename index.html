@@ -86,36 +86,9 @@ Lundi • Mardi • Jeudi<br>
 <label>Dates du mois</label>
 
 <div id="dates"></div>
-function genererDates() {
 
-  const toutesLesDates = [
-    { date: "2026-09-03", texte: "Jeudi 3 septembre" },
-    { date: "2026-09-07", texte: "Lundi 7 septembre" },
-    { date: "2026-09-08", texte: "Mardi 8 septembre" },
-    { date: "2026-09-10", texte: "Jeudi 10 septembre" },
-    { date: "2026-09-14", texte: "Lundi 14 septembre" },
-    { date: "2026-09-15", texte: "Mardi 15 septembre" },
-    { date: "2026-09-17", texte: "Jeudi 17 septembre" }
-  ];
 
-  const bloc = document.getElementById("dates");
-
-  bloc.innerHTML = "";
-
-  toutesLesDates.forEach(item => {
-
-    if (mardisAnnules.includes(item.date)) {
-      return;
-    }
-
-    bloc.innerHTML += `
-      <label>
-        <input type="checkbox" value="${item.date}">
-        ${item.texte}
-      </label><br>
-    `;
-  });
-}
+   
 
 </div>
 <p id="places">
