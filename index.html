@@ -129,6 +129,9 @@ Envoyer l'inscription
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
+document
+  .getElementById("pdfBtn")
   .addEventListener("click", genererPDF);
 
 async function genererPDF() {
@@ -202,7 +205,7 @@ async function genererPDF() {
     "presence-" + dateChoisie + ".pdf"
   );
 }
-<script>
+
 
 const SUPABASE_URL =
 "https://jbialegbayusckjjajnq.supabase.co";
@@ -277,9 +280,7 @@ async function envoyerInscription(){
   document.getElementById("kid3").value.trim(),
   document.getElementById("kid4").value.trim()
 ].filter(e => e !== "");
-document.querySelectorAll(
-  '#dates input[type="checkbox"]'
-).forEach(cb => cb.checked = false);
+
     const dates = Array.from(
   document.querySelectorAll(
     '#dates input[type="checkbox"]:checked'
@@ -344,7 +345,10 @@ document.getElementById("kid1").value = "";
 document.getElementById("kid2").value = "";
 document.getElementById("kid3").value = "";
 document.getElementById("kid4").value = "";
-
+        
+document.querySelectorAll(
+  '#dates input[type="checkbox"]'
+).forEach(cb => cb.checked = false);
 } catch(err){
 
     console.error(err);
