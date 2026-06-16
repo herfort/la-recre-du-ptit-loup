@@ -85,17 +85,37 @@ Lundi • Mardi • Jeudi<br>
 
 <label>Dates du mois</label>
 
-<div id="dates">
+<div id="dates"></div>
+function genererDates() {
 
-<label><input type="checkbox" value="2026-09-03"> Jeudi 3 septembre</label><br>
+  const toutesLesDates = [
+    { date: "2026-09-03", texte: "Jeudi 3 septembre" },
+    { date: "2026-09-07", texte: "Lundi 7 septembre" },
+    { date: "2026-09-08", texte: "Mardi 8 septembre" },
+    { date: "2026-09-10", texte: "Jeudi 10 septembre" },
+    { date: "2026-09-14", texte: "Lundi 14 septembre" },
+    { date: "2026-09-15", texte: "Mardi 15 septembre" },
+    { date: "2026-09-17", texte: "Jeudi 17 septembre" }
+  ];
 
-<label><input type="checkbox" value="2026-09-07"> Lundi 7 septembre</label><br>
+  const bloc = document.getElementById("dates");
 
-<label><input type="checkbox" value="2026-09-10"> Jeudi 10 septembre</label><br>
+  bloc.innerHTML = "";
 
-<label><input type="checkbox" value="2026-09-14"> Lundi 14 septembre</label><br>
+  toutesLesDates.forEach(item => {
 
-<label><input type="checkbox" value="2026-09-17"> Jeudi 17 septembre</label><br>
+    if (mardisAnnules.includes(item.date)) {
+      return;
+    }
+
+    bloc.innerHTML += `
+      <label>
+        <input type="checkbox" value="${item.date}">
+        ${item.texte}
+      </label><br>
+    `;
+  });
+}
 
 </div>
 <p id="places">
@@ -145,28 +165,51 @@ const client = createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
+   const mardisAnnules = [
+  "2026-09-08",
+  "2026-11-10"
+];
+
+function genererDates() {
+
+  const toutesLesDates = [
+    { date: "2026-09-03", texte: "Jeudi 3 septembre" },
+    { date: "2026-09-07", texte: "Lundi 7 septembre" },
+    { date: "2026-09-08", texte: "Mardi 8 septembre" },
+    { date: "2026-09-10", texte: "Jeudi 10 septembre" },
+    { date: "2026-09-14", texte: "Lundi 14 septembre" },
+    { date: "2026-09-15", texte: "Mardi 15 septembre" },
+    { date: "2026-09-17", texte: "Jeudi 17 septembre" }
+  ];
+
+  const bloc = document.getElementById("dates");
+
+  bloc.innerHTML = "";
+
+  toutesLesDates.forEach(item => {
+
+    if (mardisAnnules.includes(item.date)) {
+      return;
+    }
+
+    bloc.innerHTML += `
+      <label>
+        <input type="checkbox" value="${item.date}">
+        ${item.texte}
+      </label><br>
+    `;
+  });
+} 
 console.log("URL =", SUPABASE_URL);
 console.log("KEY =", SUPABASE_KEY);
 document
 .getElementById("submitBtn")
 .addEventListener("click", envoyerInscription);
-document
-  .getElementById("session")
-  .addEventListener("change", afficherPlaces);
 
-async function afficherPlaces() {
 
-  const seance =
-    document.getElementById("session").value;
+ 
 
-  const { count } = await client
-    .from("inscriptions")
-    .select("*", { count: "exact", head: true })
-    .eq("seance", seance);
 
-  document.getElementById("places").innerHTML =
-    "Places restantes : " + (30 - count) + " / 30";
-}
 async function envoyerInscription(){
 
     const accompagnateur =
@@ -188,24 +231,7 @@ async function envoyerInscription(){
     const message =
         document.getElementById("message");
 // Vérifier le nombre d'inscriptions
-const { count, error: countError } = await client
-  .from("inscriptions")
-  .select("*", { count: "exact", head: true })
-  .eq("seance", seance);
 
-if (countError) {
-  message.innerHTML =
-    "Erreur lors de la vérification des places.";
-  return;
-}
-
-const nbEnfants = enfants.length;
-
-if (count + nbEnfants > 30) {
-  message.innerHTML =
-    "❌ Il ne reste pas assez de places pour cette inscription.";
-  return;
-}
 if (dates.length === 0) {
   message.innerHTML =
     "Veuillez sélectionner au moins une date.";
@@ -254,7 +280,7 @@ const { data, error } = await client
 
 message.innerHTML =
 "✅ Inscription enregistrée.";
-await afficherPlaces();
+
 document.getElementById("adult").value = "";
 document.getElementById("kid1").value = "";
 document.getElementById("kid2").value = "";
@@ -269,7 +295,7 @@ document.getElementById("kid4").value = "";
     "ERREUR RESEAU : " + err.message;
 }
     }
-afficherPlaces();
+genererDates();
 </script>
 </body>
 </html>
