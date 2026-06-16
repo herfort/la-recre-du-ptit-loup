@@ -91,9 +91,7 @@ Lundi • Mardi • Jeudi<br>
    
 
 </div>
-<p id="places">
-  Places restantes : 30 / 30
-</p>
+<div id="places"></div>
 <button id="submitBtn">
 Envoyer l'inscription
 </button>
@@ -133,7 +131,36 @@ Envoyer l'inscription
 document
   .getElementById("pdfBtn")
   .addEventListener("click", genererPDF);
+async function afficherPlaces() {
 
+  const bloc = document.getElementById("places");
+
+  bloc.innerHTML = "<h3>Places restantes</h3>";
+
+  const toutesLesDates = [
+    { date: "2026-09-07", texte: "Lundi 7 septembre" },
+    { date: "2026-09-10", texte: "Jeudi 10 septembre" },
+    { date: "2026-09-14", texte: "Lundi 14 septembre" },
+    { date: "2026-09-15", texte: "Mardi 15 septembre" },
+    { date: "2026-09-17", texte: "Jeudi 17 septembre" },
+    { date: "2026-09-21", texte: "Lundi 21 septembre" },
+    { date: "2026-09-22", texte: "Mardi 22 septembre" },
+    { date: "2026-09-24", texte: "Jeudi 24 septembre" },
+    { date: "2026-09-28", texte: "Lundi 28 septembre" },
+    { date: "2026-09-29", texte: "Mardi 29 septembre" }
+  ];
+
+  for (const item of toutesLesDates) {
+
+    const { count } = await client
+      .from("inscriptions")
+      .select("*", { count: "exact", head: true })
+      .eq("seance", item.date);
+
+    bloc.innerHTML +=
+      `<p>${item.texte} : ${30 - count} places restantes</p>`;
+  }
+}
 async function genererPDF() {
 
   const dateChoisie = prompt(
@@ -339,7 +366,7 @@ const { data, error } = await client
 
 message.innerHTML =
 "✅ Inscription enregistrée.";
-
+await afficherPlaces();
 document.getElementById("adult").value = "";
 document.getElementById("kid1").value = "";
 document.getElementById("kid2").value = "";
@@ -358,6 +385,7 @@ document.querySelectorAll(
 }
     }
 genererDates();
+afficherPlaces();
 </script>
 </body>
 </html>
