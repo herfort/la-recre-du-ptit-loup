@@ -54,7 +54,7 @@ button:hover{
 }
 </style>
 </head>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <body>
 
 <h1>🐺 La Récré Du P'tit Loup</h1>
@@ -96,6 +96,9 @@ Lundi • Mardi • Jeudi<br>
 </p>
 <button id="submitBtn">
 Envoyer l'inscription
+    <button id="pdfBtn">
+📄 Télécharger la feuille de présence
+</button>
 </button>
 
 <div id="message"></div>
@@ -123,7 +126,81 @@ Envoyer l'inscription
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+document
+  .getElementById("pdfBtn")
+  .addEventListener("click", genererPDF);
 
+async function genererPDF() {
+
+  const dateChoisie = prompt(
+    "Entrez la date (AAAA-MM-JJ)"
+  );
+
+  if (!dateChoisie) return;
+
+  const { data, error } = await client
+    .from("inscriptions")
+    .select("*")
+    .eq("seance", dateChoisie)
+    .order("accompagnateur");
+
+  if (error) {
+    alert("Erreur : " + error.message);
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(16);
+  doc.text("La Récré du P'tit Loup", 20, 20);
+
+  doc.setFontSize(12);
+  doc.text(
+    "Feuille de présence - " + dateChoisie,
+    20,
+    30
+  );
+
+  let y = 45;
+
+  doc.text(
+    "Présent | Accompagnateur | Enfant",
+    20,
+    y
+  );
+
+  y += 10;
+
+  data.forEach(inscription => {
+
+    doc.text(
+      "☐  " +
+      inscription.accompagnateur +
+      " - " +
+      inscription.enfant,
+      20,
+      y
+    );
+
+    y += 8;
+
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+  });
+
+  doc.text(
+    "Total enfants : " + data.length,
+    20,
+    y + 10
+  );
+
+  doc.save(
+    "presence-" + dateChoisie + ".pdf"
+  );
+}
 <script>
 
 const SUPABASE_URL =
