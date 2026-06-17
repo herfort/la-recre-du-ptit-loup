@@ -302,14 +302,44 @@ function genererDates() {
 }
 async function afficherPlacesParDate() {
 
-  const cases =
-    document.querySelectorAll(
-      "#dates input[type='checkbox']"
-    );
+  const cases = document.querySelectorAll(
+    "#dates input[type='checkbox']"
+  );
 
   for (const checkbox of cases) {
 
     const date = checkbox.value;
+
+    const { count } = await client
+      .from("inscriptions")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("seance", date);
+
+    const restant = Math.max(
+      0,
+      30 - (count || 0)
+    );
+
+    const zone = document.getElementById(
+      `places-${date}`
+    );
+
+    if (zone) {
+
+      if (restant <= 5) {
+        zone.innerHTML =
+          `⚠️ ${restant} places`;
+      } else {
+        zone.innerHTML =
+          `${restant} places`;
+      }
+
+    }
+  }
+}
 
    
 
