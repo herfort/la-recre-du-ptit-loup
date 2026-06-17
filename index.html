@@ -6,100 +6,60 @@
 <title>La Récré Du P'tit Loup</title>
 
 <style>
-body{
-    font-family: Arial, sans-serif;
-    max-width:800px;
-    margin:auto;
-    padding:20px;
-    background:#f5f5f5;
-}
-.date-item{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:12px;
-    margin-bottom:8px;
-    border:1px solid #ddd;
-    border-radius:8px;
-    background:white;
+    body{
+  font-family: Arial, sans-serif;
+  max-width:800px;
+  margin:auto;
+  padding:20px;
+  background:#f5f5f5;
 }
 
-.date-item input{
-    width:22px;
-    height:22px;
-    margin:0;
-}
-
-.date-item span:nth-child(2){
-    flex:1;
-}
-
-.date-item span:last-child{
-    font-weight:bold;
-    color:#2e7d32;
-    white-space:nowrap;
-}
 .card{
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    margin-top:20px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-h1{
-    text-align:center;
-}
-
-input, textarea, select{
-    width:100%;
-    padding:10px;
-    margin-top:5px;
-    margin-bottom:15px;
-    border:1px solid #ccc;
-    border-radius:6px;
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  margin-top:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.1);
 }
 
 button{
-    width:100%;
-    padding:12px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:16px;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-button:hover{
-    opacity:0.9;
+input{
+  width:100%;
+  padding:10px;
+  margin-bottom:12px;
 }
 .date-item{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    padding:10px;
-    margin-bottom:8px;
-    border:1px solid #ddd;
-    border-radius:8px;
-    background:#fafafa;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  margin-bottom:8px;
+  border:1px solid #ddd;
+  border-radius:8px;
+  background:white;
 }
 
-.date-item input[type="checkbox"]{
-    width:auto;
-    margin:0;
+.date-item input{
+  width:22px;
+  height:22px;
+  margin:0;
 }
 
-.date-item span:first-of-type{
-    flex:1;
+.date-item span:nth-child(2){
+  flex:1;
 }
 
-.date-item span:last-of-type{
-    font-weight:bold;
-    color:#2e7d32;
-}
-#message{
-    margin-top:15px;
-    font-weight:bold;
+.date-item span:last-child{
+  font-weight:bold;
+  color:#2e7d32;
+  white-space:nowrap;
 }
 </style>
 </head>
@@ -176,22 +136,9 @@ Envoyer l'inscription
 document
   .getElementById("pdfBtn")
   .addEventListener("click", genererPDF);
-async function afficherPlacesParDate() {
-
-  const toutesLesDates = [
-    "2026-09-07",
-    "2026-09-10",
-    "2026-09-14",
-    "2026-09-15",
-    "2026-09-17",
-    "2026-09-21",
-    "2026-09-22",
-    "2026-09-24",
-    "2026-09-28",
-    "2026-09-29"
-  ];
-
-  for (const date of toutesLesDates) {
+document
+  .getElementById("submitBtn")
+  .addEventListener("click", envoyerInscription);
 
     const { count } = await client
       .from("inscriptions")
@@ -314,53 +261,99 @@ const client = createClient(
     SUPABASE_URL,
     SUPABASE_KEY
 );
-   const mardisAnnules = [
+ const datesAnnulees = [
   "2026-09-08",
   "2026-11-10"
 ];
 
 function genererDates() {
 
-  const toutesLesDates = [
-    
-    { date: "2026-09-07", texte: "Lundi 7 septembre" },
-    { date: "2026-09-08", texte: "Mardi 8 septembre" },
-    { date: "2026-09-10", texte: "Jeudi 10 septembre" },
-    { date: "2026-09-14", texte: "Lundi 14 septembre" },
-    { date: "2026-09-15", texte: "Mardi 15 septembre" },
-    { date: "2026-09-17", texte: "Jeudi 17 septembre" },
-    { date: "2026-09-21", texte: "lundi 21 septembre" },
-    { date: "2026-09-22", texte: "mardi 22 septembre" },
-    { date: "2026-09-24", texte: "jeudi 24 septembre" },
-    { date: "2026-09-28", texte: "lundi 28 septembre" },
-    { date: "2026-09-29", texte: "mardi 29 septembre" },
-  ];
-
   const bloc = document.getElementById("dates");
-
   bloc.innerHTML = "";
 
-  toutesLesDates.forEach(item => {
+  let debut = new Date("2026-09-01");
+  let fin = new Date("2027-07-31");
 
-    if (mardisAnnules.includes(item.date)) {
-      return;
+  while (debut <= fin) {
+
+    const jour = debut.getDay();
+
+    if (jour === 1 || jour === 2 || jour === 4) {
+
+      const dateISO =
+        debut.toISOString().split("T")[0];
+
+      if (!datesAnnulees.includes(dateISO)) {
+
+        const texte =
+          debut.toLocaleDateString(
+            "fr-FR",
+            {
+              weekday: "long",
+              day: "numeric",
+              month: "long"
+            }
+          );
+
+        bloc.innerHTML += `
+          <label class="date-item">
+            <input type="checkbox" value="${dateISO}">
+            <span>${texte}</span>
+            <span id="places-${dateISO}">
+              Chargement...
+            </span>
+          </label>
+        `;
+      }
     }
 
-bloc.innerHTML += `
-  <label class="date-item">
-    <input type="checkbox" value="${item.date}">
-    <span>${item.texte}</span>
-    <span id="places-${item.date}">...</span>
-  </label>
-`;
-  });
-} 
-console.log("URL =", SUPABASE_URL);
-console.log("KEY =", SUPABASE_KEY);
-document
-.getElementById("submitBtn")
-.addEventListener("click", envoyerInscription);
+    debut.setDate(
+      debut.getDate() + 1
+    );
+  }
+}
+async function afficherPlacesParDate() {
 
+  const cases =
+    document.querySelectorAll(
+      "#dates input[type='checkbox']"
+    );
+
+  for (const checkbox of cases) {
+
+    const date = checkbox.value;
+
+    const { count } = await client
+      .from("inscriptions")
+      .select("*", {
+        count: "exact",
+        head: true
+      })
+      .eq("seance", date);
+
+    const restant =
+      Math.max(0, 30 - (count || 0));
+
+    const zone =
+      document.getElementById(
+        `places-${date}`
+      );
+
+    if (zone) {
+
+      if (restant <= 5) {
+
+        zone.innerHTML =
+          `⚠️ ${restant} places`;
+
+      } else {
+
+        zone.innerHTML =
+          `${restant} places`;
+      }
+    }
+  }
+}
 
  
 
@@ -452,17 +445,13 @@ document.querySelectorAll(
     message.innerHTML =
     "ERREUR RESEAU : " + err.message;
 }
- } catch(err){
 
-    console.error(err);
-
-    message.innerHTML =
-    "ERREUR RESEAU : " + err.message;
-}
 
 }
-    genererDates();
-afficherPlacesParDate();
+window.onload = async () => {
+  genererDates();
+  await afficherPlacesParDate();
+};
 </script>
 </body>
 </html>
