@@ -3,66 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>La Récré Du P'tit Loup</title>
 
 <style>
 body{
-  font-family:Arial,sans-serif;
-  max-width:800px;
-  margin:auto;
-  padding:20px;
-  background:#f5f5f5;
+font-family:Arial,sans-serif;
+max-width:900px;
+margin:auto;
+padding:20px;
+background:#f5f5f5;
 }
 
 .card{
-  background:white;
-  padding:20px;
-  border-radius:12px;
-  margin-top:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,.1);
+background:white;
+padding:20px;
+border-radius:12px;
+margin-top:20px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
 }
 
-h1{
-  text-align:center;
-}
-
-input,select{
-  width:100%;
-  padding:10px;
-  margin-bottom:12px;
-}
-
-button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  cursor:pointer;
+input,select,button{
+width:100%;
+padding:10px;
+margin-bottom:10px;
 }
 
 .date-item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border:1px solid #ddd;
-  border-radius:8px;
-  padding:10px;
-  margin-bottom:8px;
-}
-
-.date-item input{
-  width:auto;
-  margin-right:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+border:1px solid #ddd;
+border-radius:8px;
+margin-bottom:5px;
 }
 
 .place{
-  color:green;
-  font-weight:bold;
-}
-
-#message{
-  margin-top:15px;
-  font-weight:bold;
+font-weight:bold;
+color:green;
 }
 </style>
 </head>
@@ -75,25 +53,15 @@ button{
 
 <h2>Inscription</h2>
 
-<label>Nom de l'accompagnateur</label>
-<input type="text" id="adult">
+<input id="adult" placeholder="Nom de l'accompagnateur">
 
-<label>Enfant 1</label>
-<input type="text" id="kid1">
-
-<label>Enfant 2</label>
-<input type="text" id="kid2">
-
-<label>Enfant 3</label>
-<input type="text" id="kid3">
-
-<label>Enfant 4</label>
-<input type="text" id="kid4">
-
-<label>Mois</label>
+<input id="kid1" placeholder="Enfant 1">
+<input id="kid2" placeholder="Enfant 2">
+<input id="kid3" placeholder="Enfant 3">
+<input id="kid4" placeholder="Enfant 4">
 
 <select id="mois">
-  <option value="2026-09">Septembre 2026</option>
+<option value="2026-09">Septembre 2026</option>
 </select>
 
 <div id="dates"></div>
@@ -103,7 +71,7 @@ Envoyer l'inscription
 </button>
 
 <button id="pdfBtn">
-📄 Télécharger la feuille de présence
+Télécharger PDF
 </button>
 
 <div id="message"></div>
@@ -111,8 +79,6 @@ Envoyer l'inscription
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
 
@@ -124,257 +90,214 @@ const SUPABASE_KEY =
 
 const { createClient } = supabase;
 
-const client = createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
+const client =
+createClient(
+SUPABASE_URL,
+SUPABASE_KEY
 );
 
-const datesAnnulees = [
-  "2026-09-08"
-];
+const datesAnnulees = [];
 
 function genererDates(){
 
-  const bloc =
-    document.getElementById("dates");
+const bloc =
+document.getElementById("dates");
 
-  bloc.innerHTML = "";
+bloc.innerHTML = "";
 
-  let date =
-    new Date("2026-09-01");
+let debut =
+new Date("2026-09-01");
 
-  const fin =
-    new Date("2026-09-30");
+let fin =
+new Date("2026-09-30");
 
-  while(date <= fin){
+while(debut <= fin){
 
-    const jour =
-      date.getDay();
+const jour =
+debut.getDay();
 
-    if(
-      jour === 1 ||
-      jour === 2 ||
-      jour === 4
-    ){
+if(
+jour===1 ||
+jour===2 ||
+jour===4
+){
 
-      const iso =
-        date.toISOString().split("T")[0];
+const iso =
+debut.toISOString().split("T")[0];
 
-      if(
-        !datesAnnulees.includes(iso)
-      ){
+if(!datesAnnulees.includes(iso)){
 
-        const texte =
-          date.toLocaleDateString(
-            "fr-FR",
-            {
-              weekday:"long",
-              day:"numeric",
-              month:"long"
-            }
-          );
+const texte =
+debut.toLocaleDateString(
+"fr-FR",
+{
+weekday:"long",
+day:"numeric",
+month:"long"
+}
+);
 
-        bloc.innerHTML += `
-        <label class="date-item">
-          <div>
-            <input
-              type="checkbox"
-              value="${iso}">
-            ${texte}
-          </div>
+bloc.innerHTML += `
+<label class="date-item">
+<div>
+<input
+type="checkbox"
+value="${iso}">
+${texte}
+</div>
 
-          <span
-            id="places-${iso}"
-            class="place">
-            ...
-          </span>
-        </label>
-        `;
-      }
-    }
+<span
+class="place"
+id="places-${iso}">
+...
+</span>
+</label>
+`;
+}
+}
 
-    date.setDate(
-      date.getDate()+1
-    );
-  }
+debut.setDate(
+debut.getDate()+1
+);
+}
 }
 
 async function afficherPlaces(){
 
-  const cases =
-    document.querySelectorAll(
-      "#dates input"
-    );
+const cases =
+document.querySelectorAll(
+"#dates input[type='checkbox']"
+);
 
-  for(const c of cases){
+for(const c of cases){
 
-    const date =
-      c.value;
+const date =
+c.value;
 
-    const { count } =
-      await client
-      .from("inscriptions")
-      .select("*",{
-        count:"exact",
-        head:true
-      })
-      .eq("seance",date);
+const { count } =
+await client
+.from("inscriptions")
+.select("*",{
+count:"exact",
+head:true
+})
+.eq("seance",date);
 
-    const restant =
-      Math.max(
-        0,
-        30-(count||0)
-      );
+const restant =
+Math.max(
+0,
+30-(count||0)
+);
 
-    const zone =
-      document.getElementById(
-        `places-${date}`
-      );
+const zone =
+document.getElementById(
+`places-${date}`
+);
 
-    zone.innerHTML =
-      restant + " places";
-  }
+if(zone){
+
+zone.innerHTML =
+restant + " places";
+}
+}
 }
 
 async function envoyerInscription(){
 
-  const accompagnateur =
-    document.getElementById("adult")
-    .value.trim();
+const accompagnateur =
+document
+.getElementById("adult")
+.value
+.trim();
 
-  const enfants = [
-    kid1.value.trim(),
-    kid2.value.trim(),
-    kid3.value.trim(),
-    kid4.value.trim()
-  ].filter(x => x !== "");
+const enfants = [
+kid1.value.trim(),
+kid2.value.trim(),
+kid3.value.trim(),
+kid4.value.trim()
+].filter(x=>x!=='');
 
-  const dates =
-    Array.from(
-      document.querySelectorAll(
-        "#dates input:checked"
-      )
-    ).map(x => x.value);
+const dates =
+Array.from(
+document.querySelectorAll(
+"#dates input:checked"
+)
+).map(x=>x.value);
 
-  const message =
-    document.getElementById(
-      "message"
-    );
+if(
+!accompagnateur ||
+enfants.length===0 ||
+dates.length===0
+){
+alert("Champs manquants");
+return;
+}
 
-  if(
-    !accompagnateur ||
-    enfants.length === 0 ||
-    dates.length === 0
-  ){
-    message.innerHTML =
-      "Veuillez remplir tous les champs.";
-    return;
-  }
+const inscriptions = [];
 
-  const inscriptions = [];
+dates.forEach(date=>{
 
-  dates.forEach(date => {
+enfants.forEach(enfant=>{
 
-    enfants.forEach(enfant => {
+inscriptions.push({
+accompagnateur,
+enfant,
+seance:date,
+statut:"Inscrit"
+});
 
-      inscriptions.push({
-        accompagnateur,
-        enfant,
-        seance:date,
-        statut:"Inscrit"
-      });
+});
 
-    });
+});
 
-  });
+const { error } =
+await client
+.from("inscriptions")
+.insert(inscriptions);
 
-  const { error } =
-    await client
-    .from("inscriptions")
-    .insert(inscriptions);
+if(error){
 
-  if(error){
+alert(error.message);
+return;
 
-    message.innerHTML =
-      error.message;
+}
 
-    return;
-  }
+document
+.getElementById("message")
+.innerHTML =
+"✅ Inscription enregistrée";
 
-  message.innerHTML =
-    "✅ Inscription enregistrée";
+await afficherPlaces();
 
-  afficherPlaces();
 }
 
 async function genererPDF(){
 
-  const date =
-    prompt(
-      "Date AAAA-MM-JJ"
-    );
+alert(
+"La génération PDF sera ajoutée ensuite."
+);
 
-  if(!date) return;
-
-  const { data } =
-    await client
-    .from("inscriptions")
-    .select("*")
-    .eq("seance",date);
-
-  const { jsPDF } =
-    window.jspdf;
-
-  const doc =
-    new jsPDF();
-
-  doc.text(
-    "Feuille présence " + date,
-    20,
-    20
-  );
-
-  let y = 40;
-
-  data.forEach(ligne => {
-
-    doc.text(
-      "[ ] " +
-      ligne.accompagnateur +
-      " - " +
-      ligne.enfant,
-      20,
-      y
-    );
-
-    y += 10;
-
-  });
-
-  doc.save(
-    "presence-"+date+".pdf"
-  );
 }
 
 document
 .getElementById("submitBtn")
 .addEventListener(
-  "click",
-  envoyerInscription
+"click",
+envoyerInscription
 );
 
 document
 .getElementById("pdfBtn")
 .addEventListener(
-  "click",
-  genererPDF
+"click",
+genererPDF
 );
 
-window.onload = async () => {
+window.onload = async ()=>{
 
-  genererDates();
+genererDates();
 
-  await afficherPlaces();
+await afficherPlaces();
 
 };
 
@@ -382,3 +305,5 @@ window.onload = async () => {
 
 </body>
 </html>
+
+
