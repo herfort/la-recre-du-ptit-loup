@@ -301,7 +301,17 @@ document
 .getElementById("message")
 .innerHTML =
 "✅ Inscription enregistrée";
+adult.value = "";
+kid1.value = "";
+kid2.value = "";
+kid3.value = "";
+kid4.value = "";
 
+document
+.querySelectorAll(
+"#dates input:checked"
+)
+.forEach(x => x.checked = false);
 await afficherPlaces();
 
 }
