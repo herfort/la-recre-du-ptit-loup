@@ -271,12 +271,90 @@ await afficherPlaces();
 
 }
 
-async function genererPDF(){
+async function genererPDF() {
 
-alert(
-"La génération PDF sera ajoutée ensuite."
-);
+  const dateChoisie = prompt(
+    "Entrez la date (AAAA-MM-JJ)"
+  );
 
+  if (!dateChoisie) return;
+
+  const { data, error } = await client
+    .from("inscriptions")
+    .select("*")
+    .eq("seance", dateChoisie)
+    .order("accompagnateur");
+
+  if (error) {
+    alert("Erreur : " + error.message);
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text(
+    "La Récré Du P'tit Loup",
+    20,
+    20
+  );
+
+  doc.setFontSize(12);
+  doc.text(
+    "Feuille de présence",
+    20,
+    30
+  );
+
+  doc.text(
+    "Date : " + dateChoisie,
+    20,
+    40
+  );
+
+  let y = 55;
+
+  doc.text(
+    "Présent   Accompagnateur - Enfant",
+    20,
+    y
+  );
+
+  y += 10;
+
+  data.forEach((ligne) => {
+
+    doc.text(
+      "[ ] " +
+      ligne.accompagnateur +
+      " - " +
+      ligne.enfant,
+      20,
+      y
+    );
+
+    y += 8;
+
+    if (y > 270) {
+      doc.addPage();
+      y = 20;
+    }
+
+  });
+
+  doc.text(
+    "Nombre total d'enfants : " +
+    data.length,
+    20,
+    y + 10
+  );
+
+  doc.save(
+    "presence-" +
+    dateChoisie +
+    ".pdf"
+  );
 }
 
 document
