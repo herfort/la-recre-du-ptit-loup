@@ -62,6 +62,16 @@ color:green;
 
 <select id="mois">
 <option value="2026-09">Septembre 2026</option>
+<option value="2026-10">Octobre 2026</option>
+<option value="2026-11">Novembre 2026</option>
+<option value="2026-12">Décembre 2026</option>
+<option value="2027-01">Janvier 2027</option>
+<option value="2027-02">Février 2027</option>
+<option value="2027-03">Mars 2027</option>
+<option value="2027-04">Avril 2027</option>
+<option value="2027-05">Mai 2027</option>
+<option value="2027-06">Juin 2027</option>
+<option value="2027-07">Juillet 2027</option>
 </select>
 
 <div id="dates"></div>
@@ -108,11 +118,18 @@ document.getElementById("dates");
 
 bloc.innerHTML = "";
 
+const moisSelectionne =
+document.getElementById("mois").value;
+
 let debut =
-new Date("2026-09-07");
+new Date(moisSelectionne + "-01");
 
 let fin =
-new Date("2026-09-30");
+new Date(
+debut.getFullYear(),
+debut.getMonth() + 1,
+0
+);
 
 while(debut <= fin){
 
@@ -418,7 +435,15 @@ document
 "click",
 genererPDF
 );
-
+document
+.getElementById("mois")
+.addEventListener(
+"change",
+async () => {
+  genererDates();
+  await afficherPlaces();
+}
+);
 window.onload = async ()=>{
 
 genererDates();
