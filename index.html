@@ -235,20 +235,37 @@ return;
 
 const inscriptions = [];
 
-dates.forEach(date=>{
+for (const date of dates) {
 
-enfants.forEach(enfant=>{
+  const { count } = await client
+    .from("inscriptions")
+    .select("*", {
+      count: "exact",
+      head: true
+    })
+    .eq("seance", date);
 
-inscriptions.push({
-accompagnateur,
-enfant,
-seance:date,
-statut:"Inscrit"
-});
+  const placesRestantes =
+    30 - (count || 0);
 
-});
+  if (placesRestantes < enfants.length) {
 
-});
+    message.innerHTML =
+      `❌ Plus assez de places pour la séance du ${date}.`;
+
+    return;
+  }
+
+  enfants.forEach(enfant => {
+    inscriptions.push({
+      accompagnateur,
+      enfant,
+      seance: date,
+      statut: "Inscrit"
+    });
+  });
+
+}
 
 const { error } =
 await client
