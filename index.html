@@ -196,8 +196,26 @@ document.getElementById(
 
 if(zone){
 
-zone.innerHTML =
-restant + " places";
+if(restant <= 0){
+
+  c.disabled = true;
+
+  zone.innerHTML =
+  "❌ Complet";
+
+}
+else if(restant <= 5){
+
+  zone.innerHTML =
+  "⚠️ " + restant + " places";
+
+}
+else{
+
+  zone.innerHTML =
+  restant + " places";
+
+}
 }
 }
 }
