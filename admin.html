@@ -56,7 +56,23 @@ font-weight:bold;
 
 </head>
 <body>
+<script>
 
+const motDePasse = "Loup2026";
+
+const saisie = prompt(
+"Mot de passe administrateur"
+);
+
+if(saisie !== motDePasse){
+
+alert("Accès refusé");
+
+window.location.href = "index.html";
+
+}
+
+</script>
 <div class="card">
 
 <h1>🔒 Administration</h1>
