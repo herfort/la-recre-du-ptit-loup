@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration - La Récré Du P'tit Loup</title>
+
+<style>
+
+body{
+font-family:Arial,sans-serif;
+background:#f5f5f5;
+padding:20px;
+max-width:1200px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+h1{
+text-align:center;
+}
+
+select,button{
+padding:10px;
+margin:10px 0;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th,td{
+border:1px solid #ddd;
+padding:10px;
+text-align:left;
+}
+
+th{
+background:#f0f0f0;
+}
+
+.complet{
+color:red;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+<h1>🔒 Administration</h1>
+
+<label>Choisir une date :</label>
+
+<select id="dateSelect"></select>
+
+<p id="stats"></p>
+
+<button onclick="genererPDF()">
+📄 Télécharger PDF
+</button>
+
+<table>
+
+<thead>
+<tr>
+<th>Accompagnateur</th>
+<th>Enfant</th>
+<th>Statut</th>
+<th>Supprimer</th>
+</tr>
+</thead>
+
+<tbody id="tableBody">
+</tbody>
+
+</table>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://jbialegbayusckjjajnq.supabase.co";
+
+const SUPABASE_KEY =
+"VOTRE_CLE_PUBLISHABLE";
+
+const { createClient } = supabase;
+
+const client =
+createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+async function chargerDates(){
+
+const { data } =
+await client
+.from("inscriptions")
+.select("seance");
+
+const dates =
+[...new Set(
+data.map(x => x.seance)
+)];
+
+const select =
+document.getElementById(
+"dateSelect"
+);
+
+select.innerHTML="";
+
+dates.sort();
+
+dates.forEach(date=>{
+
+select.innerHTML +=
+`<option value="${date}">
+${date}
+</option>`;
+
+});
+
+if(dates.length){
+chargerInscriptions();
+}
+
+}
+
+async function chargerInscriptions(){
+
+const date =
+document.getElementById(
+"dateSelect"
+).value;
+
+const { data } =
+await client
+.from("inscriptions")
+.select("*")
+.eq("seance",date)
+.order("accompagnateur");
+
+const body =
+document.getElementById(
+"tableBody"
+);
+
+body.innerHTML="";
+
+data.forEach(item=>{
+
+body.innerHTML += `
+<tr>
+
+<td>
+${item.accompagnateur}
+</td>
+
+<td>
+${item.enfant}
+</td>
+
+<td>
+${item.statut || "Inscrit"}
+</td>
+
+<td>
+<button
+onclick="supprimer(${item.id})">
+🗑️
+</button>
+</td>
+
+</tr>
+`;
+
+});
+
+document.getElementById(
+"stats"
+).innerHTML =
+`👶 ${data.length} enfants inscrits / 30`;
+
+}
+
+async function supprimer(id){
+
+if(
+!confirm(
+"Supprimer cette inscription ?"
+)
+){
+return;
+}
+
+await client
+.from("inscriptions")
+.delete()
+.eq("id",id);
+
+chargerInscriptions();
+
+}
+
+async function genererPDF(){
+
+const date =
+document.getElementById(
+"dateSelect"
+).value;
+
+const { data } =
+await client
+.from("inscriptions")
+.select("*")
+.eq("seance",date);
+
+const { jsPDF } =
+window.jspdf;
+
+const doc =
+new jsPDF();
+
+doc.setFontSize(18);
+
+doc.text(
+"La Récré Du P'tit Loup",
+20,
+20
+);
+
+doc.setFontSize(12);
+
+doc.text(
+"Feuille de présence",
+20,
+35
+);
+
+doc.text(
+"Date : " + date,
+20,
+45
+);
+
+let y = 60;
+
+data.forEach(item=>{
+
+doc.text(
+"[ ] " +
+item.accompagnateur +
+" - " +
+item.enfant,
+20,
+y
+);
+
+y += 8;
+
+if(y > 270){
+
+doc.addPage();
+
+y = 20;
+
+}
+
+});
+
+doc.save(
+"presence-" +
+date +
+".pdf"
+);
+
+}
+
+document
+.getElementById(
+"dateSelect"
+)
+.addEventListener(
+"change",
+chargerInscriptions
+);
+
+window.onload =
+chargerDates;
+
+</script>
+
+</body>
+</html>
