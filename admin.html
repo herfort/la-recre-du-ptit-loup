@@ -230,10 +230,20 @@ if(
 return;
 }
 
-await client
+const { error } = await client
 .from("inscriptions")
 .delete()
-.eq("id",id);
+.eq("id", id);
+
+console.log("ID :", id);
+console.log("ERREUR :", error);
+
+if(error){
+alert(error.message);
+return;
+}
+
+alert("Inscription supprimée");
 
 chargerInscriptions();
 
