@@ -109,11 +109,14 @@ SUPABASE_KEY
 );
 
 async function chargerDates(){
-
-const { data } =
+console.log("Chargement des dates...");
+const { data, error } =
 await client
 .from("inscriptions")
 .select("seance");
+
+console.log("DATA :", data);
+console.log("ERROR :", error);
 
 const dates =
 [...new Set(
