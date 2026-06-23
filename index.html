@@ -321,8 +321,10 @@ for (const date of dates) {
 
   if (placesRestantes < enfants.length) {
 
-    message.innerHTML =
-      `❌ Plus assez de places pour la séance du ${date}.`;
+   document.getElementById(
+"message"
+).innerHTML =
+`❌ Plus assez de places pour la séance du ${date}.`;
 
     return;
   }
