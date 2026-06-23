@@ -87,6 +87,21 @@ window.location.href = "index.html";
 📄 Télécharger PDF
 </button>
 
+<hr>
+
+<h3>❌ Annulation de séance</h3>
+
+<input
+type="date"
+id="dateAnnulation">
+
+<button
+onclick="annulerSeance()">
+Annuler cette séance
+</button>
+
+<div id="messageAnnulation"></div>
+
 <table>
 
 <thead>
@@ -277,6 +292,47 @@ async function annulerDate(date){
   }
 
   alert("Séance annulée");
+}
+  async function annulerSeance(){
+
+const date =
+document.getElementById(
+"dateAnnulation"
+).value;
+
+if(!date){
+
+alert(
+"Choisissez une date"
+);
+
+return;
+}
+
+const { error } =
+await client
+.from("dates_annulees")
+.insert([
+{
+date: date
+}
+]);
+
+if(error){
+
+alert(
+"Erreur : " +
+error.message
+);
+
+return;
+}
+
+document.getElementById(
+"messageAnnulation"
+).innerHTML =
+"✅ Séance annulée : " + date;
+
 }
 async function genererPDF(){
 
