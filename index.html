@@ -112,12 +112,24 @@ SUPABASE_URL,
 SUPABASE_KEY
 );
 
-const datesAnnulees = [
-  "2026-09-01",
-  "2026-09-03",
-  "2026-09-08",
-  "2026-11-10"
-];
+let datesAnnulees = [];
+
+async function chargerDatesAnnulees(){
+
+  const { data, error } =
+  await client
+  .from("dates_annulees")
+  .select("date");
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  datesAnnulees =
+  data.map(x => x.date);
+
+}
 
 function genererDates(){
 
@@ -454,9 +466,11 @@ async () => {
 );
 window.onload = async ()=>{
 
-genererDates();
+  await chargerDatesAnnulees();
 
-await afficherPlaces();
+  genererDates();
+
+  await afficherPlaces();
 
 };
 
