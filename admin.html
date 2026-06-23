@@ -227,10 +227,13 @@ onclick="annulerDate('${date}')">
 
 });
 
+const placesRestantes =
+30 - data.length;
+
 document.getElementById(
 "stats"
 ).innerHTML =
-`👶 ${data.length} enfants inscrits / 30`;
+`👶 ${data.length} inscrits - ${placesRestantes} places restantes`;
 
 }
 
