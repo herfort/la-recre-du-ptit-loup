@@ -206,8 +206,12 @@ ${item.statut || "Inscrit"}
 onclick="supprimer(${item.id})">
 🗑️
 </button>
-</td>
 
+<button
+onclick="annulerDate('${date}')">
+❌
+</button>
+</td>
 </tr>
 `;
 
@@ -248,7 +252,32 @@ alert("Inscription supprimée");
 chargerInscriptions();
 
 }
+async function annulerDate(date){
 
+  if(
+    !confirm(
+      "Annuler la séance du " + date + " ?"
+    )
+  ){
+    return;
+  }
+
+  const { error } =
+  await client
+  .from("dates_annulees")
+  .insert([
+    {
+      date: date
+    }
+  ]);
+
+  if(error){
+    alert("Erreur : " + error.message);
+    return;
+  }
+
+  alert("Séance annulée");
+}
 async function genererPDF(){
 
 const date =
