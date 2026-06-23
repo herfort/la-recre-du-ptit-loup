@@ -246,14 +246,27 @@ if(restant <= 0){
 }
 else if(restant <= 5){
 
+  const inscrits =
+  count || 0;
+
   zone.innerHTML =
-  "⚠️ " + restant + " places";
+  "⚠️ " +
+  inscrits +
+  "/30 inscrits (" +
+  restant +
+  " places)";
 
 }
 else{
 
+  const inscrits =
+  count || 0;
+
   zone.innerHTML =
-  restant + " places";
+  inscrits +
+  "/30 inscrits (" +
+  restant +
+  " places)";
 
 }
 }
