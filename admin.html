@@ -140,39 +140,34 @@ SUPABASE_KEY
 );
 
 async function chargerDates(){
-console.log("Chargement des dates...");
+
 const { data, error } =
 await client
-.from("inscriptions")
-.select("seance");
+.from("seances")
+.select("date")
+.order("date");
 
-console.log("DATA :", data);
-console.log("ERROR :", error);
-
-const dates =
-[...new Set(
-data.map(x => x.seance)
-)];
+if(error){
+console.error(error);
+return;
+}
 
 const select =
-document.getElementById(
-"dateSelect"
-);
+document.getElementById("dateSelect");
 
-select.innerHTML="";
+select.innerHTML = "";
 
-dates.sort();
+data.forEach(item => {
 
-dates.forEach(date=>{
-
-select.innerHTML +=
-`<option value="${date}">
-${date}
-</option>`;
+select.innerHTML += `
+<option value="${item.date}">
+${item.date}
+</option>
+`;
 
 });
 
-if(dates.length){
+if(data.length){
 chargerInscriptions();
 }
 
