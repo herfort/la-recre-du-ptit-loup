@@ -352,7 +352,28 @@ alert(error.message);
 return;
 
 }
+await fetch(
+  "/api/send-email",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type":
+      "application/json"
+    },
+    body: JSON.stringify({
+      email:
+      document.getElementById(
+        "email"
+      ).value,
 
+      accompagnateur,
+
+      enfants,
+
+      dates
+    })
+  }
+);
 document
 .getElementById("message")
 .innerHTML =
