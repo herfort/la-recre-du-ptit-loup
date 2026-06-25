@@ -60,6 +60,12 @@ color:green;
     Assistante maternelle
   </option>
 </select>
+  <p id="infoType" style="
+font-size:14px;
+color:#666;
+margin-top:-5px;
+margin-bottom:10px;">
+</p>
 <input
 id="email"
 type="email"
@@ -622,6 +628,43 @@ async () => {
   await afficherPlaces();
 }
 );
+  function mettreAJourInfoType(){
+
+  const type =
+  document.getElementById(
+    "typeParticipant"
+  ).value;
+
+  const zone =
+  document.getElementById(
+    "infoType"
+  );
+
+  if(
+    type ===
+    "assistante_maternelle"
+  ){
+
+    zone.innerHTML =
+    "ℹ️ Les assistantes maternelles sont limitées à une séance par semaine.";
+
+  }else{
+
+    zone.innerHTML =
+    "ℹ️ Les parents peuvent réserver plusieurs séances.";
+
+  }
+
+}
+
+document
+.getElementById(
+  "typeParticipant"
+)
+.addEventListener(
+  "change",
+  mettreAJourInfoType
+);
 window.onload = async ()=>{
 
   await chargerDatesAnnulees();
@@ -629,7 +672,7 @@ window.onload = async ()=>{
   genererDates();
 
   await afficherPlaces();
-
+mettreAJourInfoType();
 };
 
 </script>
