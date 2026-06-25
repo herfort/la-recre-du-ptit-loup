@@ -178,7 +178,21 @@ jour===4
 
 const iso =
 debut.toISOString().split("T")[0];
+const aujourdHui =
+new Date();
 
+aujourdHui.setHours(
+0,0,0,0
+);
+
+if(debut < aujourdHui){
+
+  debut.setDate(
+    debut.getDate()+1
+  );
+
+  continue;
+}
 if(!datesAnnulees.includes(iso)){
 
 const texte =
