@@ -91,13 +91,14 @@ window.location.href = "index.html";
 
 <h3>❌ Annulation de séance</h3>
 
-<input
-type="date"
-id="dateAnnulation">
+<button
+onclick="annulerSeanceSelectionnee()">
+❌ Annuler la séance sélectionnée
+</button>
 
 <button
-onclick="annulerSeance()">
-Annuler cette séance
+onclick="reactiverSeanceSelectionnee()">
+🔄 Réactiver la séance sélectionnée
 </button>
 
 <div id="messageAnnulation"></div>
@@ -232,10 +233,7 @@ onclick="supprimer(${item.id})">
 🗑️
 </button>
 
-<button
-onclick="annulerDate('${date}')">
-❌
-</button>
+
 
 </td>
 
@@ -282,15 +280,7 @@ alert("Inscription supprimée");
 chargerInscriptions();
 
 }
-async function annulerDate(date){
 
-  if(
-    !confirm(
-      "Annuler la séance du " + date + " ?"
-    )
-  ){
-    return;
-  }
 
   const { error } =
   await client
@@ -340,79 +330,66 @@ if(emails.length){
 }
   alert("Séance annulée");
 }
-  async function annulerSeance(){
+ async function annulerSeanceSelectionnee(){
 
-const date =
-document.getElementById(
-"dateAnnulation"
-).value;
+  const date =
+  document.getElementById(
+    "dateSelect"
+  ).value;
 
-if(!date){
+  if(!confirm(
+    "Annuler la séance du " + date + " ?"
+  )){
+    return;
+  }
 
-alert(
-"Choisissez une date"
-);
+  const { error } =
+  await client
+  .from("dates_annulees")
+  .insert([{ date }]);
 
-return;
-}
+  if(error){
+    alert(error.message);
+    return;
+  }
 
-const { error } =
-await client
-.from("dates_annulees")
-.insert([
-{
-date: date
-}
-]);
-
-if(error){
-
-alert(
-"Erreur : " +
-error.message
-);
-
-return;
-}
-const { data: inscrits } =
-await client
-.from("inscriptions")
-.select("email")
-.eq("seance", date);
-
-const emails =
-[
-...new Set(
-inscrits
-.map(x => x.email)
-.filter(Boolean)
-)
-];
-
-if(emails.length){
-
-  await fetch(
-    "/api/send-annulation",
-    {
-      method:"POST",
-      headers:{
-        "Content-Type":
-        "application/json"
-      },
-      body: JSON.stringify({
-        emails,
-        date
-      })
-    }
-  );
+  document.getElementById(
+    "messageAnnulation"
+  ).innerHTML =
+  "✅ Séance annulée : " + date;
 
 }
-document.getElementById(
-"messageAnnulation"
-).innerHTML =
-"✅ Séance annulée : " + date;
+ async function reactiverSeanceSelectionnee(){
 
-}
+  const date =
+  document.getElementById(
+    "dateSelect"
+  ).value;
+
+  if(!confirm(
+    "Réactiver la séance du " + date + " ?"
+  )){
+    return;
+  }
+
+  const { error } =
+  await client
+  .from("dates_annulees")
+  .delete()
+  .eq("date", date);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  document.getElementById(
+    "messageAnnulation"
+  ).innerHTML =
+  "🔄 Séance réactivée : " + date;
+
+} 
+
 async function genererPDF(){
 
 const date =
