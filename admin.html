@@ -305,7 +305,39 @@ async function annulerDate(date){
     alert("Erreur : " + error.message);
     return;
   }
+const { data: inscrits } =
+await client
+.from("inscriptions")
+.select("email")
+.eq("seance", date);
 
+const emails =
+[
+...new Set(
+inscrits
+.map(x => x.email)
+.filter(Boolean)
+)
+];
+
+if(emails.length){
+
+  await fetch(
+    "/api/send-annulation",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":
+        "application/json"
+      },
+      body: JSON.stringify({
+        emails,
+        date
+      })
+    }
+  );
+
+}
   alert("Séance annulée");
 }
   async function annulerSeance(){
@@ -342,7 +374,39 @@ error.message
 
 return;
 }
+const { data: inscrits } =
+await client
+.from("inscriptions")
+.select("email")
+.eq("seance", date);
 
+const emails =
+[
+...new Set(
+inscrits
+.map(x => x.email)
+.filter(Boolean)
+)
+];
+
+if(emails.length){
+
+  await fetch(
+    "/api/send-annulation",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":
+        "application/json"
+      },
+      body: JSON.stringify({
+        emails,
+        date
+      })
+    }
+  );
+
+}
 document.getElementById(
 "messageAnnulation"
 ).innerHTML =
