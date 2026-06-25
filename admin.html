@@ -82,7 +82,7 @@ window.location.href = "index.html";
 <select id="dateSelect"></select>
 
 <p id="stats"></p>
-
+<p id="statsDetail"></p>
 <button onclick="genererPDF()">
 📄 Télécharger PDF
 </button>
@@ -150,6 +150,14 @@ await client
 .select("date")
 .order("date");
 
+const { data: annulees } =
+await client
+.from("dates_annulees")
+.select("date");
+
+const datesAnnulees =
+annulees.map(x => x.date);
+
 if(error){
 console.error(error);
 return;
@@ -162,9 +170,19 @@ select.innerHTML = "";
 
 data.forEach(item => {
 
+const annulee =
+datesAnnulees.includes(item.date);
+
 select.innerHTML += `
-<option value="${item.date}">
+<option
+value="${item.date}"
+style="${
+annulee
+? 'color:red;font-weight:bold;'
+: ''
+}">
 ${item.date}
+${annulee ? ' ❌ ANNULÉE' : ''}
 </option>
 `;
 
@@ -245,10 +263,45 @@ onclick="supprimer(${item.id})">
 const placesRestantes =
 30 - data.length;
 
+const parents =
+data.filter(
+x => x.type_participant === "parent"
+);
+
+const assistantes =
+data.filter(
+x =>
+x.type_participant ===
+"assistante_maternelle"
+);
+
+const nbParents =
+new Set(
+parents.map(
+x => x.accompagnateur
+)
+).size;
+
+const nbAssistantes =
+new Set(
+assistantes.map(
+x => x.accompagnateur
+)
+).size;
+
 document.getElementById(
 "stats"
 ).innerHTML =
-`👶 ${data.length} inscrits - ${placesRestantes} places restantes`;
+`👶 ${data.length} enfants inscrits - ${placesRestantes} places restantes`;
+
+document.getElementById(
+"statsDetail"
+).innerHTML =
+`
+👨‍👩‍👧 Parents : ${nbParents}
+&nbsp;&nbsp;|&nbsp;&nbsp;
+🧸 Assistantes maternelles : ${nbAssistantes}
+`;
 
 }
 
