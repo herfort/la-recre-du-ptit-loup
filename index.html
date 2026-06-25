@@ -235,7 +235,27 @@ debut.getDate()+1
 );
 }
 }
+document.addEventListener(
+  "change",
+  function(e){
 
+    if(
+      e.target.matches(
+        "#dates input[type='checkbox']"
+      )
+    ){
+      gererBlocageAssistante();
+    }
+
+    if(
+      e.target.id ===
+      "typeParticipant"
+    ){
+      gererBlocageAssistante();
+    }
+
+  }
+);
 async function afficherPlaces(){
 
 const cases =
@@ -306,7 +326,85 @@ else{
 }
 }
 }
+function gererBlocageAssistante(){
 
+  const type =
+  document.getElementById(
+    "typeParticipant"
+  ).value;
+
+  const cases =
+  document.querySelectorAll(
+    "#dates input[type='checkbox']"
+  );
+
+  // Réactive tout
+  cases.forEach(c => {
+    c.disabled = false;
+  });
+
+  if(type !== "assistante_maternelle"){
+    return;
+  }
+
+  const cochees =
+  [...cases].filter(c => c.checked);
+
+  if(cochees.length === 0){
+    return;
+  }
+
+  const semainesOccupees = [];
+
+  cochees.forEach(c => {
+
+    const d = new Date(c.value);
+
+    const debutSemaine =
+    new Date(d);
+
+    debutSemaine.setDate(
+      d.getDate() - d.getDay() + 1
+    );
+
+    const cle =
+    debutSemaine
+    .toISOString()
+    .split("T")[0];
+
+    semainesOccupees.push(cle);
+
+  });
+
+  cases.forEach(c => {
+
+    if(c.checked){
+      return;
+    }
+
+    const d = new Date(c.value);
+
+    const debutSemaine =
+    new Date(d);
+
+    debutSemaine.setDate(
+      d.getDate() - d.getDay() + 1
+    );
+
+    const cle =
+    debutSemaine
+    .toISOString()
+    .split("T")[0];
+
+    if(
+      semainesOccupees.includes(cle)
+    ){
+      c.disabled = true;
+    }
+
+  });
+
+}
 async function envoyerInscription(){
 const nom =
 document
