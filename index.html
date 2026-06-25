@@ -294,8 +294,15 @@ if(restant <= 0){
 
   c.disabled = true;
 
+  c.dataset.complet = "oui";
+
   zone.innerHTML =
   "❌ Complet";
+
+}
+else{
+
+  c.dataset.complet = "non";
 
 }
 else if(restant <= 5){
@@ -324,7 +331,7 @@ else{
 
 }
 }
-}
+gererBlocageAssistante();
 }
 function gererBlocageAssistante(){
 
@@ -339,9 +346,15 @@ function gererBlocageAssistante(){
   );
 
   // Réactive tout
-  cases.forEach(c => {
+ cases.forEach(c => {
+
+  if(
+    c.dataset.complet !== "oui"
+  ){
     c.disabled = false;
-  });
+  }
+
+});
 
   if(type !== "assistante_maternelle"){
     return;
