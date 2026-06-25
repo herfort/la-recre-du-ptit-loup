@@ -53,7 +53,13 @@ color:green;
 
 <h2>Inscription</h2>
 
-<input id="adult" placeholder="Nom de l'accompagnateur">
+<input
+id="nom"
+placeholder="Nom de l'accompagnateur">
+
+<input
+id="prenom"
+placeholder="Prénom de l'accompagnateur">
   <select id="typeParticipant">
   <option value="parent">Parent</option>
   <option value="assistante_maternelle">
@@ -302,12 +308,20 @@ else{
 }
 
 async function envoyerInscription(){
-
-const accompagnateur =
+const nom =
 document
-.getElementById("adult")
+.getElementById("nom")
 .value
 .trim();
+
+const prenom =
+document
+.getElementById("prenom")
+.value
+.trim();
+
+const accompagnateur =
+nom + " " + prenom;
 const email =
 document
 .getElementById("email")
@@ -333,11 +347,14 @@ document.querySelectorAll(
 ).map(x=>x.value);
 
 if(
-!accompagnateur ||
+!nom ||
+!prenom ||
 enfants.length===0 ||
 dates.length===0
 ){
-alert("Champs manquants");
+alert(
+"Veuillez saisir le nom et le prénom de l'accompagnateur"
+);
 return;
 }
 if(typeParticipant === "assistante_maternelle"){
@@ -523,7 +540,8 @@ document
 .getElementById("message")
 .innerHTML =
 "✅ Inscription enregistrée";
-document.getElementById("adult").value = "";
+document.getElementById("nom").value = "";
+document.getElementById("prenom").value = "";
 document.getElementById("email").value = "";
 document.getElementById("kid1").value = "";
 document.getElementById("kid2").value = "";
