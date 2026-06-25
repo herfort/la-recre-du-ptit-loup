@@ -282,55 +282,8 @@ chargerInscriptions();
 }
 
 
-  const { error } =
-  await client
-  .from("dates_annulees")
-  .insert([
-    {
-      date: date
-    }
-  ]);
-
-  if(error){
-    alert("Erreur : " + error.message);
-    return;
-  }
-const { data: inscrits } =
-await client
-.from("inscriptions")
-.select("email")
-.eq("seance", date);
-
-const emails =
-[
-...new Set(
-inscrits
-.map(x => x.email)
-.filter(Boolean)
-)
-];
-
-if(emails.length){
-
-  await fetch(
-    "/api/send-annulation",
-    {
-      method:"POST",
-      headers:{
-        "Content-Type":
-        "application/json"
-      },
-      body: JSON.stringify({
-        emails,
-        date
-      })
-    }
-  );
-
-}
-  alert("Séance annulée");
-}
- async function annulerSeanceSelectionnee(){
+ 
+async function annulerSeanceSelectionnee(){
 
   const date =
   document.getElementById(
@@ -351,6 +304,38 @@ if(emails.length){
   if(error){
     alert(error.message);
     return;
+  }
+
+  const { data: inscrits } =
+  await client
+  .from("inscriptions")
+  .select("email")
+  .eq("seance", date);
+
+  const emails =
+  [...new Set(
+    inscrits
+    .map(x => x.email)
+    .filter(Boolean)
+  )];
+
+  if(emails.length){
+
+    await fetch(
+      "/api/send-annulation",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":
+          "application/json"
+        },
+        body: JSON.stringify({
+          emails,
+          date
+        })
+      }
+    );
+
   }
 
   document.getElementById(
