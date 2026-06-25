@@ -107,6 +107,7 @@ Annuler cette séance
 <thead>
 <tr>
 <th>Accompagnateur</th>
+<th>Type</th>
 <th>Enfant</th>
 <th>Statut</th>
 <th>Supprimer</th>
@@ -204,6 +205,14 @@ ${item.accompagnateur}
 </td>
 
 <td>
+${
+item.type_participant === "assistante_maternelle"
+? "Assistante maternelle"
+: "Parent"
+}
+</td>
+
+<td>
 ${item.enfant}
 </td>
 
@@ -222,6 +231,7 @@ onclick="annulerDate('${date}')">
 ❌
 </button>
 </td>
+
 </tr>
 `;
 
