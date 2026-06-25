@@ -795,6 +795,27 @@ document
   "change",
   mettreAJourInfoType
 );
+  document.addEventListener(
+  "change",
+  function(e){
+
+    if(
+      e.target.matches(
+        "#dates input[type='checkbox']"
+      )
+    ){
+      gererBlocageAssistante();
+    }
+
+    if(
+      e.target.id ===
+      "typeParticipant"
+    ){
+      gererBlocageAssistante();
+    }
+
+  }
+);
 window.onload = async ()=>{
 
   await chargerDatesAnnulees();
