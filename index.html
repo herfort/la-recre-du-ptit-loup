@@ -54,10 +54,17 @@ color:green;
 <h2>Inscription</h2>
 
 <input id="adult" placeholder="Nom de l'accompagnateur">
+  <select id="typeParticipant">
+  <option value="parent">Parent</option>
+  <option value="assistante_maternelle">
+    Assistante maternelle
+  </option>
+</select>
 <input
 id="email"
 type="email"
-placeholder="Adresse e-mail">
+placeholder="Adresse e-mail"
+required>
 <input id="kid1" placeholder="Enfant 1">
 <input id="kid2" placeholder="Enfant 2">
 <input id="kid3" placeholder="Enfant 3">
@@ -281,7 +288,16 @@ document
 .getElementById("adult")
 .value
 .trim();
+const email =
+document
+.getElementById("email")
+.value
+.trim();
 
+const typeParticipant =
+document
+.getElementById("typeParticipant")
+.value;
 const enfants = [
 kid1.value.trim(),
 kid2.value.trim(),
@@ -304,7 +320,114 @@ dates.length===0
 alert("Champs manquants");
 return;
 }
+if(typeParticipant === "assistante_maternelle"){
 
+  const getWeekNumber = (d) => {
+
+    d = new Date(
+      Date.UTC(
+        d.getFullYear(),
+        d.getMonth(),
+        d.getDate()
+      )
+    );
+
+    const dayNum =
+    d.getUTCDay() || 7;
+
+    d.setUTCDate(
+      d.getUTCDate() + 4 - dayNum
+    );
+
+    const yearStart =
+    new Date(
+      Date.UTC(
+        d.getUTCFullYear(),
+        0,
+        1
+      )
+    );
+
+    return Math.ceil(
+      (((d - yearStart) / 86400000) + 1) / 7
+    );
+  };
+
+  // Vérifie les dates cochées
+
+  const semaines = new Set();
+
+  for(const date of dates){
+
+    const d = new Date(date);
+
+    const cle =
+    d.getFullYear() +
+    "-" +
+    getWeekNumber(d);
+
+    if(semaines.has(cle)){
+
+      document.getElementById(
+        "message"
+      ).innerHTML =
+      "❌ Une assistante maternelle ne peut réserver qu'une seule séance par semaine.";
+
+      return;
+    }
+
+    semaines.add(cle);
+  }
+
+  // Vérifie les réservations déjà existantes
+
+  const { data } =
+  await client
+  .from("inscriptions")
+  .select("seance")
+  .eq("email", email);
+
+  for(const date of dates){
+
+    const dateChoisie =
+    new Date(date);
+
+    const semaineChoisie =
+    getWeekNumber(dateChoisie);
+
+    const anneeChoisie =
+    dateChoisie.getFullYear();
+
+    const dejaInscrit =
+    data?.some(inscription => {
+
+      const d =
+      new Date(
+        inscription.seance
+      );
+
+      return (
+        getWeekNumber(d)
+        === semaineChoisie
+        &&
+        d.getFullYear()
+        === anneeChoisie
+      );
+
+    });
+
+    if(dejaInscrit){
+
+      document.getElementById(
+        "message"
+      ).innerHTML =
+      "❌ Cette assistante maternelle est déjà inscrite cette semaine.";
+
+      return;
+    }
+  }
+
+}
 const inscriptions = [];
 
 for (const date of dates) {
@@ -331,12 +454,14 @@ for (const date of dates) {
   }
 
   enfants.forEach(enfant => {
-    inscriptions.push({
-      accompagnateur,
-      enfant,
-      seance: date,
-      statut: "Inscrit"
-    });
+  inscriptions.push({
+  accompagnateur,
+  email,
+  type_participant: typeParticipant,
+  enfant,
+  seance: date,
+  statut: "Inscrit"
+});
   });
 
 }
