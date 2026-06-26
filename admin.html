@@ -429,136 +429,246 @@ async function annulerSeanceSelectionnee(){
 async function genererPDF(){
 
 const date =
-document.getElementById(
-"dateSelect"
-).value;
+document.getElementById("dateSelect").value;
 
-const { data } =
+const { data, error } =
 await client
 .from("inscriptions")
 .select("*")
-.eq("seance",date);
+.eq("seance", date)
+.order("accompagnateur");
 
-const { jsPDF } =
-window.jspdf;
+if(error){
+alert(error.message);
+return;
+}
 
-const doc =
-new jsPDF();
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
 
-doc.setFontSize(18);
+const largeur = doc.internal.pageSize.getWidth();
+
+
+// =========================
+// Couleurs
+// =========================
+
+const vert = [84,153,102];
+const vertClair = [232,245,233];
+const gris = [240,240,240];
+
+
+// =========================
+// Regroupement
+// =========================
+
+const groupes = {};
+
+data.forEach(item=>{
+
+if(!groupes[item.accompagnateur]){
+
+groupes[item.accompagnateur]={
+
+type:item.type_participant,
+
+email:item.email,
+
+enfants:[]
+
+};
+
+}
+
+groupes[item.accompagnateur]
+.enfants
+.push(item.enfant);
+
+});
+
+const parents =
+Object.entries(groupes)
+.filter(([nom,g])=>
+g.type==="parent"
+);
+
+const assistantes =
+Object.entries(groupes)
+.filter(([nom,g])=>
+g.type==="assistante_maternelle"
+);
+
+
+// =========================
+// Bandeau
+// =========================
+
+doc.setFillColor(...vert);
+
+doc.rect(
+0,
+0,
+210,
+28,
+"F"
+);
+
+doc.setTextColor(255);
+
+doc.setFontSize(20);
 
 doc.text(
 "La Récré Du P'tit Loup",
-20,
-20
+105,
+16,
+{align:"center"}
 );
+
+doc.setFontSize(11);
+
+doc.text(
+"Feuille de présence",
+105,
+23,
+{align:"center"}
+);
+
+doc.setTextColor(0);
+
+
+// =========================
+// Informations séance
+// =========================
+
+let y = 40;
 
 doc.setFontSize(12);
 
 doc.text(
-"Feuille de présence",
-20,
-35
-);
-
-doc.text(
 "Date : " + date,
-20,
-45
+15,
+y
 );
-
-let y = 60;
-
-// Regroupement par accompagnateur
-
-const groupes = {};
-
-data.forEach(item => {
-
-  if(!groupes[item.accompagnateur]){
-
-    groupes[item.accompagnateur] = {
-      type: item.type_participant,
-      enfants: []
-    };
-
-  }
-
-  groupes[item.accompagnateur].enfants.push(item.enfant);
-
-});
-
-const accompagnateurs =
-Object.keys(groupes);
-
-// En-tête du tableau
-
-doc.setFont(undefined,"bold");
-
-doc.text("Présent",10,y);
-doc.text("Accompagnateur",35,y);
-doc.text("Type",105,y);
-doc.text("Enfant(s)",145,y);
 
 y += 8;
 
-doc.line(10,y-3,200,y-3);
+doc.text(
+"Nombre d'enfants : " + data.length,
+15,
+y
+);
+
+y += 8;
+
+doc.text(
+"Parents : " + parents.length,
+15,
+y
+);
+
+y += 8;
+
+doc.text(
+"Assistantes maternelles : " + assistantes.length,
+15,
+y
+);
+
+y += 15;
+// =========================
+// Fonction pour dessiner un tableau
+// =========================
+
+function dessinerSection(titre, liste){
+
+doc.setFillColor(...vertClair);
+doc.rect(10,y,190,8,"F");
+
+doc.setFont(undefined,"bold");
+doc.setFontSize(13);
+doc.text(titre,15,y+6);
+
+y += 12;
+
+// En-tête
+
+doc.setFillColor(...gris);
+doc.rect(10,y,190,8,"F");
+
+doc.setFontSize(11);
+
+doc.text("Présence",15,y+6);
+doc.text("Accompagnateur",45,y+6);
+doc.text("Enfant(s)",120,y+6);
+
+y += 8;
 
 doc.setFont(undefined,"normal");
 
-// Lignes
+liste.forEach(([nom,g])=>{
 
-accompagnateurs.forEach(nom=>{
+if(y>270){
 
-  const g = groupes[nom];
+doc.addPage();
 
-  const type =
-  g.type==="assistante_maternelle"
-  ? "Assist. Mat."
-  : "Parent";
+y=20;
 
-  doc.rect(15, y - 4, 4, 4);
+}
 
-  doc.text(
-    nom,
-    35,
-    y
-  );
+doc.rect(10,y-5,190,8);
 
-  doc.text(
-    type,
-    105,
-    y
-  );
+doc.rect(15,y-3,4,4);
 
-  doc.text(
-    g.enfants.join(", "),
-    145,
-    y
-  );
+doc.text(
+nom,
+45,
+y
+);
 
-  y += 10;
+doc.text(
+g.enfants.join(", "),
+120,
+y
+);
 
-  if(y>270){
-
-    doc.addPage();
-
-    y=20;
-
-  }
+y += 8;
 
 });
 
-doc.line(10,y,200,y);
+y += 8;
 
-y += 10;
+}
+
+// =========================
+// Tableau Parents
+// =========================
+
+dessinerSection(
+"👨‍👩‍👧 Parents",
+parents
+);
+
+// =========================
+// Tableau Assistantes
+// =========================
+
+dessinerSection(
+"👩‍🍼 Assistantes maternelles",
+assistantes
+);
+
+// =========================
+// Statistiques
+// =========================
 
 doc.setFont(undefined,"bold");
 
+doc.setFontSize(12);
+
 doc.text(
 "Nombre d'accompagnateurs : " +
-accompagnateurs.length,
-20,
+(parents.length + assistantes.length),
+15,
 y
 );
 
@@ -567,16 +677,39 @@ y += 8;
 doc.text(
 "Nombre d'enfants : " +
 data.length,
-20,
+15,
 y
 );
-doc.save(
-  "presence-" +
-  date +
-  ".pdf"
-);
-}
 
+// =========================
+// Pied de page
+// =========================
+
+const hauteur =
+doc.internal.pageSize.getHeight();
+
+doc.setFontSize(10);
+
+doc.setTextColor(120);
+
+doc.text(
+"Association La Récré Du P'tit Loup",
+105,
+hauteur-10,
+{
+align:"center"
+}
+);
+
+// =========================
+// Sauvegarde
+// =========================
+
+doc.save(
+"presence-" + date + ".pdf"
+);
+
+}
 document
 .getElementById(
 "dateSelect"
