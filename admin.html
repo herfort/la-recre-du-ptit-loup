@@ -82,7 +82,7 @@ window.location.href = "index.html";
 <select id="dateSelect"></select>
 
 <p id="stats"></p>
-<p id="statsDetail"></p>
+
 <button onclick="genererPDF()">
 📄 Télécharger PDF
 </button>
@@ -262,7 +262,17 @@ onclick="supprimer(${item.id})">
 
 const placesRestantes =
 30 - data.length;
+const enfantsParents =
+data.filter(
+x => x.type_participant === "parent"
+).length;
 
+const enfantsAssistantes =
+data.filter(
+x =>
+x.type_participant ===
+"assistante_maternelle"
+).length;
 const parents =
 data.filter(
 x => x.type_participant === "parent"
@@ -292,15 +302,14 @@ x => x.accompagnateur
 document.getElementById(
 "stats"
 ).innerHTML =
-`👶 ${data.length} enfants inscrits - ${placesRestantes} places restantes`;
-
-document.getElementById(
-"statsDetail"
-).innerHTML =
 `
-👨‍👩‍👧 Parents : ${nbParents}
-&nbsp;&nbsp;|&nbsp;&nbsp;
-🧸 Assistantes maternelles : ${nbAssistantes}
+👶 ${data.length} enfants inscrits
+<br>
+👨‍👩‍👧 Enfants accompagnés par des parents : ${enfantsParents}
+<br>
+🧸 Enfants accompagnés par des assistantes maternelles : ${enfantsAssistantes}
+<br>
+📍 ${placesRestantes} places restantes
 `;
 
 }
