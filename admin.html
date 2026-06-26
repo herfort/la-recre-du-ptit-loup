@@ -469,7 +469,7 @@ doc.text(
 
 let y = 60;
 
-// Regrouper les enfants par accompagnateur
+// Regroupement par accompagnateur
 
 const groupes = {};
 
@@ -488,50 +488,87 @@ data.forEach(item => {
 
 });
 
-// Impression
+const accompagnateurs =
+Object.keys(groupes);
 
-Object.keys(groupes).forEach(nom => {
+// En-tête du tableau
+
+doc.setFont(undefined,"bold");
+
+doc.text("Présent",10,y);
+doc.text("Accompagnateur",35,y);
+doc.text("Type",105,y);
+doc.text("Enfant(s)",145,y);
+
+y += 8;
+
+doc.line(10,y-3,200,y-3);
+
+doc.setFont(undefined,"normal");
+
+// Lignes
+
+accompagnateurs.forEach(nom=>{
 
   const g = groupes[nom];
 
   const type =
-  g.type === "assistante_maternelle"
-  ? "Assistante maternelle"
+  g.type==="assistante_maternelle"
+  ? "Assist. Mat."
   : "Parent";
 
-  doc.setFont(undefined, "bold");
+  doc.text("☐",15,y);
 
   doc.text(
-    "[ ] " + nom + " (" + type + ")",
-    20,
+    nom,
+    35,
     y
   );
 
-  y += 7;
-
-  doc.setFont(undefined, "normal");
-
   doc.text(
-    "Enfants : " + g.enfants.join(", "),
-    28,
+    type,
+    105,
     y
   );
 
-  y += 12;
+  doc.text(
+    g.enfants.join(", "),
+    145,
+    y
+  );
 
-  if(y > 270){
+  y += 10;
+
+  if(y>270){
 
     doc.addPage();
 
-    y = 20;
+    y=20;
 
   }
 
 });
-doc.save(
-"presence-" +
-date +
-".pdf"
+
+doc.line(10,y,200,y);
+
+y += 10;
+
+doc.setFont(undefined,"bold");
+
+doc.text(
+"Nombre d'accompagnateurs : " +
+accompagnateurs.length,
+20,
+y
+);
+
+y += 8;
+
+doc.text(
+"Nombre d'enfants : " +
+data.length,
+20,
+y
 );
 
 }
