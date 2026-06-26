@@ -469,29 +469,65 @@ doc.text(
 
 let y = 60;
 
-data.forEach(item=>{
+// Regrouper les enfants par accompagnateur
 
-doc.text(
-"[ ] " +
-item.accompagnateur +
-" - " +
-item.enfant,
-20,
-y
-);
+const groupes = {};
 
-y += 8;
+data.forEach(item => {
 
-if(y > 270){
+  if(!groupes[item.accompagnateur]){
 
-doc.addPage();
+    groupes[item.accompagnateur] = {
+      type: item.type_participant,
+      enfants: []
+    };
 
-y = 20;
+  }
 
-}
+  groupes[item.accompagnateur].enfants.push(item.enfant);
 
 });
 
+// Impression
+
+Object.keys(groupes).forEach(nom => {
+
+  const g = groupes[nom];
+
+  const type =
+  g.type === "assistante_maternelle"
+  ? "Assistante maternelle"
+  : "Parent";
+
+  doc.setFont(undefined, "bold");
+
+  doc.text(
+    "[ ] " + nom + " (" + type + ")",
+    20,
+    y
+  );
+
+  y += 7;
+
+  doc.setFont(undefined, "normal");
+
+  doc.text(
+    "Enfants : " + g.enfants.join(", "),
+    28,
+    y
+  );
+
+  y += 12;
+
+  if(y > 270){
+
+    doc.addPage();
+
+    y = 20;
+
+  }
+
+});
 doc.save(
 "presence-" +
 date +
