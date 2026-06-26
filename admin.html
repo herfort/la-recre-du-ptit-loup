@@ -262,17 +262,7 @@ onclick="supprimer(${item.id})">
 
 const placesRestantes =
 30 - data.length;
-const enfantsParents =
-data.filter(
-x => x.type_participant === "parent"
-).length;
 
-const enfantsAssistantes =
-data.filter(
-x =>
-x.type_participant ===
-"assistante_maternelle"
-).length;
 const parents =
 data.filter(
 x => x.type_participant === "parent"
@@ -305,13 +295,12 @@ document.getElementById(
 `
 👶 ${data.length} enfants inscrits
 <br>
-👨‍👩‍👧 Enfants accompagnés par des parents : ${enfantsParents}
+👨‍👩‍👧 Parents accompagnateurs : ${nbParents}
 <br>
-🧸 Enfants accompagnés par des assistantes maternelles : ${enfantsAssistantes}
+👩‍🍼 Assistantes maternelles : ${nbAssistantes}
 <br>
 📍 ${placesRestantes} places restantes
 `;
-
 }
 
 async function supprimer(id){
