@@ -517,7 +517,7 @@ accompagnateurs.forEach(nom=>{
   ? "Assist. Mat."
   : "Parent";
 
-  doc.text("☐",15,y);
+  doc.rect(15, y - 4, 4, 4);
 
   doc.text(
     nom,
@@ -570,7 +570,11 @@ data.length,
 20,
 y
 );
-
+doc.save(
+  "presence-" +
+  date +
+  ".pdf"
+);
 }
 
 document
