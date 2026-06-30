@@ -51,7 +51,29 @@ background:#f0f0f0;
 color:red;
 font-weight:bold;
 }
+.stats{
+display:flex;
+gap:15px;
+margin:20px 0;
+flex-wrap:wrap;
+}
 
+.stat{
+flex:1;
+min-width:170px;
+background:white;
+padding:15px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+
+.nombre{
+font-size:28px;
+font-weight:bold;
+color:#2e7d32;
+margin-bottom:5px;
+}
 </style>
 
 </head>
@@ -80,7 +102,29 @@ window.location.href = "index.html";
 <label>Choisir une date :</label>
 
 <select id="dateSelect"></select>
+<div class="stats">
 
+  <div class="stat">
+    <div class="nombre" id="statInscriptions">0</div>
+    <div>👶 Inscriptions</div>
+  </div>
+
+  <div class="stat">
+    <div class="nombre" id="statEnfants">0</div>
+    <div>🧒 Enfants différents</div>
+  </div>
+
+  <div class="stat">
+    <div class="nombre" id="statParents">0</div>
+    <div>👨‍👩‍👧 Parents</div>
+  </div>
+
+  <div class="stat">
+    <div class="nombre" id="statAssistantes">0</div>
+    <div>👩‍🍼 Assistantes</div>
+  </div>
+
+</div>
 <p id="stats"></p>
 
 <button onclick="genererPDF()">
@@ -281,7 +325,10 @@ x =>
 x.type_participant ===
 "assistante_maternelle"
 );
-
+const enfantsDifferents =
+new Set(
+data.map(x => x.enfant.trim().toLowerCase())
+).size;
 const nbParents =
 new Set(
 parents.map(
@@ -296,18 +343,22 @@ x => x.accompagnateur
 )
 ).size;
 
-document.getElementById(
-"stats"
-).innerHTML =
-`
-👶 ${data.length} enfants inscrits
-<br>
-👨‍👩‍👧 Parents accompagnateurs : ${nbParents}
-<br>
-👩‍🍼 Assistantes maternelles : ${nbAssistantes}
-<br>
-📍 ${placesRestantes} places restantes
-`;
+const placesRestantes = 30 - data.length;
+
+document.getElementById("statInscriptions").textContent =
+data.length;
+
+document.getElementById("statEnfants").textContent =
+enfantsDifferents;
+
+document.getElementById("statParents").textContent =
+nbParents;
+
+document.getElementById("statAssistantes").textContent =
+nbAssistantes;
+
+document.getElementById("stats").innerHTML =
+"📍 Places restantes : " + placesRestantes;
 }
 
 async function supprimer(id){
