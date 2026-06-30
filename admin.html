@@ -213,56 +213,63 @@ document.getElementById(
 "tableBody"
 );
 
-body.innerHTML="";
+body.innerHTML = "";
 
-data.forEach(item=>{
+// Regroupement des inscriptions par accompagnateur
+const groupes = {};
 
-body.innerHTML += `
-<tr>
+data.forEach(item => {
 
-<td>
-${item.accompagnateur}
-</td>
+    const cle = item.email || item.accompagnateur;
 
-<td>
-${item.email || "-"}
-</td>
+    if (!groupes[cle]) {
 
-<td>
-${
-item.type_participant === "assistante_maternelle"
-? "Assistante maternelle"
-: "Parent"
-}
-</td>
+        groupes[cle] = {
+            accompagnateur: item.accompagnateur,
+            email: item.email,
+            type: item.type_participant,
+            statut: item.statut || "Inscrit",
+            enfants: [],
+            ids: []
+        };
 
-<td>
-${item.enfant}
-</td>
+    }
 
-<td>
-${item.statut || "Inscrit"}
-</td>
-
-<td>
-
-<button
-onclick="supprimer(${item.id})">
-🗑️
-</button>
-
-
-
-</td>
-
-</tr>
-`;
+    groupes[cle].enfants.push(item.enfant);
+    groupes[cle].ids.push(item.id);
 
 });
 
-const placesRestantes =
-30 - data.length;
+// Affichage du tableau
+Object.values(groupes).forEach(groupe => {
 
+    body.innerHTML += `
+    <tr>
+
+        <td>${groupe.accompagnateur}</td>
+
+        <td>${groupe.email || "-"}</td>
+
+        <td>${
+            groupe.type === "assistante_maternelle"
+            ? "Assistante maternelle"
+            : "Parent"
+        }</td>
+
+        <td>${groupe.enfants.join("<br>")}</td>
+
+        <td>${groupe.statut}</td>
+
+        <td>
+            <button onclick="supprimer(${groupe.ids[0]})">
+                🗑️
+            </button>
+        </td>
+
+    </tr>
+    `;
+
+});
 const parents =
 data.filter(
 x => x.type_participant === "parent"
