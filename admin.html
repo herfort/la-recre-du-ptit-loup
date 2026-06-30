@@ -447,20 +447,16 @@ const { jsPDF } = window.jspdf;
 const doc = new jsPDF();
 
 const largeur = doc.internal.pageSize.getWidth();
+const hauteur = doc.internal.pageSize.getHeight();
 
-
-// =========================
 // Couleurs
-// =========================
 
-const vert = [84,153,102];
+const vert = [67,160,71];
+const vertFonce = [46,125,50];
 const vertClair = [232,245,233];
-const gris = [240,240,240];
+const gris = [245,245,245];
 
-
-// =========================
 // Regroupement
-// =========================
 
 const groupes = {};
 
@@ -471,8 +467,6 @@ if(!groupes[item.accompagnateur]){
 groupes[item.accompagnateur]={
 
 type:item.type_participant,
-
-email:item.email,
 
 enfants:[]
 
@@ -498,10 +492,7 @@ Object.entries(groupes)
 g.type==="assistante_maternelle"
 );
 
-
-// =========================
 // Bandeau
-// =========================
 
 doc.setFillColor(...vert);
 
@@ -515,99 +506,247 @@ doc.rect(
 
 doc.setTextColor(255);
 
-doc.setFontSize(20);
+doc.setFontSize(22);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
 
 doc.text(
 "La Récré Du P'tit Loup",
 105,
 16,
-{align:"center"}
+{
+align:"center"
+}
+);
+
+doc.setFontSize(12);
+
+doc.setFont(
+"helvetica",
+"normal"
 );
 
 doc.setFontSize(11);
 
 doc.text(
-"Feuille de présence",
+"Association La Récré Du P'tit Loup",
 105,
-23,
-{align:"center"}
+22,
+{
+align:"center"
+}
+);
+
+doc.setFontSize(13);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.text(
+"FEUILLE DE PRÉSENCE",
+105,
+30,
+{
+align:"center"
+}
 );
 
 doc.setTextColor(0);
 
+let y = 42;
 
-// =========================
-// Informations séance
-// =========================
-
-let y = 40;
+// Informations
 
 doc.setFontSize(12);
 
+doc.setFont(
+"helvetica",
+"bold"
+);
+
 doc.text(
-"Date : " + date,
+"Date :",
 15,
+y
+);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+const dateFr =
+new Date(date).toLocaleDateString(
+"fr-FR",
+{
+weekday:"long",
+day:"numeric",
+month:"long",
+year:"numeric"
+}
+);
+
+doc.text(
+dateFr.charAt(0).toUpperCase() +
+dateFr.slice(1),
+40,
 y
 );
 
 y += 8;
 
+doc.setFont(
+"helvetica",
+"bold"
+);
+
 doc.text(
-"Nombre d'enfants : " + data.length,
+"Enfants inscrits :",
 15,
+y
+);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.text(
+String(data.length),
+60,
 y
 );
 
 y += 8;
 
+doc.setFont(
+"helvetica",
+"bold"
+);
+
 doc.text(
-"Parents : " + parents.length,
+"Parents :",
 15,
+y
+);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.text(
+String(parents.length),
+45,
 y
 );
 
 y += 8;
 
+doc.setFont(
+"helvetica",
+"bold"
+);
+
 doc.text(
-"Assistantes maternelles : " + assistantes.length,
+"Assistantes maternelles :",
 15,
+y
+);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.text(
+String(assistantes.length),
+78,
 y
 );
 
 y += 15;
-// =========================
-// Fonction pour dessiner un tableau
-// =========================
+ function dessinerTableau(titre,liste){
 
-function dessinerSection(titre, liste){
+// Titre
 
 doc.setFillColor(...vertClair);
-doc.rect(10,y,190,8,"F");
 
-doc.setFont(undefined,"bold");
+doc.roundedRect(
+10,
+y,
+190,
+9,
+2,
+2,
+"F"
+);
+
 doc.setFontSize(13);
-doc.text(titre,15,y+6);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.text(
+titre,
+15,
+y+6
+);
 
 y += 12;
 
 // En-tête
 
-doc.setFillColor(...gris);
-doc.rect(10,y,190,8,"F");
+doc.setFillColor(...vertFonce);
+
+doc.roundedRect(
+10,
+y,
+190,
+8,
+1,
+1,
+"F"
+);
+
+doc.setTextColor(255);
 
 doc.setFontSize(11);
 
-doc.text("Présence",15,y+6);
-doc.text("Accompagnateur",45,y+6);
-doc.text("Enfant(s)",120,y+6);
+doc.text(
+"Présence",
+15,
+y+5
+);
+
+doc.text(
+"Accompagnateur",
+45,
+y+5
+);
+
+doc.text(
+"Enfant(s)",
+120,
+y+5
+);
+
+doc.setTextColor(0);
 
 y += 8;
 
-doc.setFont(undefined,"normal");
+// Lignes
 
-liste.forEach(([nom,g])=>{
+liste.forEach(([nom,g],index)=>{
 
-if(y>270){
+if(y>265){
 
 doc.addPage();
 
@@ -615,55 +754,97 @@ y=20;
 
 }
 
-doc.rect(10,y-5,190,8);
+if(index%2===0){
 
-doc.rect(15,y-3,4,4);
+doc.setFillColor(...gris);
+
+doc.rect(
+10,
+y-1,
+190,
+8,
+"F"
+);
+
+}
+
+doc.setDrawColor(...vertFonce);
+
+doc.roundedRect(
+15,
+y+1,
+5,
+5,
+1,
+1
+);
+
+doc.setDrawColor(0);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
 
 doc.text(
 nom,
-45,
-y
+25,
+y+5
+);
+
+doc.setFont(
+"helvetica",
+"normal"
 );
 
 doc.text(
 g.enfants.join(", "),
 120,
-y
+y+5
 );
 
 y += 8;
 
 });
 
-y += 8;
+y += 10;
 
 }
 
-// =========================
 // Tableau Parents
-// =========================
 
-dessinerSection(
-"👨‍👩‍👧 Parents",
+dessinerTableau(
+"Parents accompagnateurs",
 parents
 );
 
-// =========================
 // Tableau Assistantes
-// =========================
 
-dessinerSection(
-"👩‍🍼 Assistantes maternelles",
+dessinerTableau(
+"Assistantes maternelles",
 assistantes
 );
-
-// =========================
+ // =========================
 // Statistiques
 // =========================
 
-doc.setFont(undefined,"bold");
+doc.setDrawColor(...vert);
+doc.line(10,y,200,y);
+
+y += 10;
 
 doc.setFontSize(12);
+doc.setFont("helvetica","bold");
+
+doc.text(
+"Récapitulatif",
+15,
+y
+);
+
+y += 8;
+
+doc.setFont("helvetica","normal");
 
 doc.text(
 "Nombre d'accompagnateurs : " +
@@ -672,7 +853,7 @@ doc.text(
 y
 );
 
-y += 8;
+y += 7;
 
 doc.text(
 "Nombre d'enfants : " +
@@ -681,14 +862,22 @@ data.length,
 y
 );
 
+y += 12;
+
 // =========================
 // Pied de page
 // =========================
 
-const hauteur =
-doc.internal.pageSize.getHeight();
+doc.setDrawColor(220);
 
-doc.setFontSize(10);
+doc.line(
+10,
+hauteur-18,
+200,
+hauteur-18
+);
+
+doc.setFontSize(9);
 
 doc.setTextColor(120);
 
