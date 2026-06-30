@@ -373,8 +373,7 @@ nbParents;
 
 document.getElementById("statAssistantes").textContent =
 nbAssistantes;
-const placesRestantes =
-30 - data.length;
+
 document.getElementById("stats").innerHTML =
 "📍 Places restantes : " + placesRestantes;
 }
@@ -519,11 +518,13 @@ await client
 .select("date");
 
 const nbInscriptions =
-inscriptions.length;
+(inscriptions || []).length;
 
 const nbEnfants =
 new Set(
-inscriptions.map(i=>i.enfant.trim().toLowerCase())
+(inscriptions || []).map(i =>
+i.enfant.trim().toLowerCase()
+)
 ).size;
 
 const nbParents =
