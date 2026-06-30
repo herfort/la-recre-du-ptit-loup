@@ -51,6 +51,15 @@ background:#f0f0f0;
 color:red;
 font-weight:bold;
 }
+  .bilan{
+background:#f8fff8;
+border:2px solid #4CAF50;
+border-radius:12px;
+padding:20px;
+margin-top:30px;
+line-height:2;
+font-size:17px;
+}
 .stats{
 display:flex;
 gap:15px;
@@ -164,6 +173,14 @@ onclick="reactiverSeanceSelectionnee()">
 </tbody>
 
 </table>
+
+<hr>
+
+<h2>📊 Bilan annuel</h2>
+
+<div id="bilanAnnuel" class="bilan">
+Chargement...
+</div>
 
 </div>
 
@@ -356,7 +373,8 @@ nbParents;
 
 document.getElementById("statAssistantes").textContent =
 nbAssistantes;
-
+const placesRestantes =
+30 - data.length;
 document.getElementById("stats").innerHTML =
 "📍 Places restantes : " + placesRestantes;
 }
@@ -483,7 +501,105 @@ async function annulerSeanceSelectionnee(){
   "🔄 Séance réactivée : " + date;
 
 } 
+async function chargerBilanAnnuel(){
 
+const { data: inscriptions } =
+await client
+.from("inscriptions")
+.select("*");
+
+const { data: seances } =
+await client
+.from("seances")
+.select("date");
+
+const { data: annulees } =
+await client
+.from("dates_annulees")
+.select("date");
+
+const nbInscriptions =
+inscriptions.length;
+
+const nbEnfants =
+new Set(
+inscriptions.map(i=>i.enfant.trim().toLowerCase())
+).size;
+
+const nbParents =
+new Set(
+inscriptions
+.filter(i=>i.type_participant==="parent")
+.map(i=>i.email)
+).size;
+
+const nbAssistantes =
+new Set(
+inscriptions
+.filter(i=>i.type_participant==="assistante_maternelle")
+.map(i=>i.email)
+).size;
+
+const compteur = {};
+
+inscriptions.forEach(i=>{
+
+compteur[i.seance] =
+(compteur[i.seance]||0)+1;
+
+});
+
+const valeurs =
+Object.values(compteur);
+
+const moyenne =
+valeurs.length
+?
+(valeurs.reduce((a,b)=>a+b,0)/valeurs.length).toFixed(1)
+:0;
+
+const max =
+valeurs.length
+?
+Math.max(...valeurs)
+:0;
+
+const min =
+valeurs.length
+?
+Math.min(...valeurs)
+:0;
+
+const taux =
+((moyenne/30)*100).toFixed(1);
+
+document.getElementById(
+"bilanAnnuel"
+).innerHTML =
+
+`
+<b>👶 Inscriptions :</b> ${nbInscriptions}<br>
+
+<b>🧒 Enfants différents :</b> ${nbEnfants}<br>
+
+<b>👨‍👩‍👧 Familles :</b> ${nbParents}<br>
+
+<b>👩‍🍼 Assistantes maternelles :</b> ${nbAssistantes}<br>
+
+<b>📅 Séances programmées :</b> ${seances.length}<br>
+
+<b>❌ Séances annulées :</b> ${annulees.length}<br>
+
+<b>📈 Moyenne par séance :</b> ${moyenne}<br>
+
+<b>🏆 Séance la plus remplie :</b> ${max} enfants<br>
+
+<b>📉 Séance la moins remplie :</b> ${min} enfants<br>
+
+<b>💺 Taux de remplissage moyen :</b> ${taux} %
+`;
+
+}
 async function genererPDF(){
 
 const date =
@@ -941,8 +1057,13 @@ document
 chargerInscriptions
 );
 
-window.onload =
-chargerDates;
+window.onload = async ()=>{
+
+await chargerDates();
+
+await chargerBilanAnnuel();
+
+};
 
 </script>
 
