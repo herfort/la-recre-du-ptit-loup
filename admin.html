@@ -302,43 +302,78 @@ data.forEach(item => {
 });
 
 // Affichage du tableau
-Object.values(groupes).forEach(groupe => {
+Object.values(groupes).forEach(groupe=>{
 
-    body.innerHTML += `
-    <tr>
+let listeEnfants="";
 
-        <td>${groupe.accompagnateur}</td>
+groupe.enfants.forEach((prenom,index)=>{
 
-        <td>${groupe.email || "-"}</td>
+listeEnfants += `
+<div style="display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:5px;">
 
-        <td>${
-            groupe.type === "assistante_maternelle"
-            ? "Assistante maternelle"
-            : "Parent"
-        }</td>
+<span>👦 ${prenom}</span>
 
-        <td>${groupe.enfants.join("<br>")}</td>
-
-        <td>${groupe.statut}</td>
-
-        <td>
-
-<button onclick="supprimerFamille('${groupe.email}')">
-👨‍👩‍👧
+<button
+onclick="supprimer(${groupe.ids[index]})"
+style="
+background:#f44336;
+color:white;
+border:none;
+border-radius:5px;
+padding:4px 8px;
+cursor:pointer;">
+🗑️
 </button>
 
-<br><br>
+</div>
+`;
 
-${groupe.ids.map(id=>`
-<button onclick="supprimer(${id})">
-👶
+});
+
+body.innerHTML += `
+
+<tr>
+
+<td><b>${groupe.accompagnateur}</b></td>
+
+<td>${groupe.email || "-"}</td>
+
+<td>${
+groupe.type==="assistante_maternelle"
+?
+"Assistante maternelle"
+:
+"Parent"
+}</td>
+
+<td>
+${listeEnfants}
+</td>
+
+<td>${groupe.statut}</td>
+
+<td>
+
+<button
+onclick='supprimerFamille(${JSON.stringify(groupe.ids)})'
+style="
+background:#d32f2f;
+color:white;
+border:none;
+padding:8px;
+border-radius:6px;
+cursor:pointer;">
+🗑️ Famille
 </button>
-`).join(" ")}
 
 </td>
 
-    </tr>
-    `;
+</tr>
+
+`;
 
 });
 const parents =
@@ -414,6 +449,27 @@ return;
 alert("Inscription supprimée");
 
 chargerInscriptions();
+
+}
+  async function supprimerFamille(ids){
+
+if(!confirm(
+"Supprimer toute cette famille ?"
+)){
+return;
+}
+
+for(const id of ids){
+
+await client
+.from("inscriptions")
+.delete()
+.eq("id",id);
+
+}
+
+chargerInscriptions();
+chargerBilanAnnuel();
 
 }
 async function supprimerFamille(email){
