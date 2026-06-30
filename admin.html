@@ -500,7 +500,7 @@ doc.rect(
 0,
 0,
 210,
-28,
+40,
 "F"
 );
 
@@ -513,10 +513,49 @@ doc.setFont(
 "bold"
 );
 
+doc.setFontSize(22);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
 doc.text(
 "La Récré Du P'tit Loup",
 105,
-16,
+15,
+{
+align:"center"
+}
+);
+
+doc.setFontSize(11);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.text(
+"Association La Récré Du P'tit Loup",
+105,
+23,
+{
+align:"center"
+}
+);
+
+doc.setFontSize(15);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.text(
+"FEUILLE DE PRÉSENCE",
+105,
+33,
 {
 align:"center"
 }
@@ -558,7 +597,7 @@ align:"center"
 
 doc.setTextColor(0);
 
-let y = 42;
+let y = 55;
 
 // Informations
 
