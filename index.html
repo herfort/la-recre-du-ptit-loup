@@ -42,6 +42,21 @@ margin-bottom:5px;
 font-weight:bold;
 color:green;
 }
+  .date-item.bloquee{
+background:#ffeaea;
+border:2px solid #d32f2f;
+}
+
+.date-item.bloquee input[type="checkbox"]{
+display:none;
+}
+
+.date-item.bloquee .date-texte::before{
+content:"❌ ";
+color:red;
+font-size:20px;
+font-weight:bold;
+}
 </style>
 </head>
 
@@ -217,7 +232,7 @@ bloc.innerHTML += `
 <input
 type="checkbox"
 value="${iso}">
-${texte}
+<span class="date-texte">${texte}</span>
 </div>
 
 <span
@@ -348,15 +363,15 @@ function gererBlocageAssistante(){
   );
 
   // Réactive tout
- cases.forEach(c => {
+  cases.forEach(c => {
 
-  if(
-    c.dataset.complet !== "oui"
-  ){
-    c.disabled = false;
-  }
+    if(c.dataset.complet !== "oui"){
+      c.disabled = false;
+    }
 
-});
+    c.closest(".date-item").classList.remove("bloquee");
+
+  });
 
   if(type !== "assistante_maternelle"){
     return;
@@ -411,10 +426,12 @@ function gererBlocageAssistante(){
     .toISOString()
     .split("T")[0];
 
-    if(
-      semainesOccupees.includes(cle)
-    ){
+    if(semainesOccupees.includes(cle)){
+
       c.disabled = true;
+
+      c.closest(".date-item").classList.add("bloquee");
+
     }
 
   });
@@ -810,8 +827,7 @@ document
   "change",
   mettreAJourInfoType
 );
-  document.addEventListener(
-  "change",
+ 
   function(e){
 
     if(
