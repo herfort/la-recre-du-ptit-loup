@@ -828,24 +828,13 @@ document
   mettreAJourInfoType
 );
  
-  function(e){
-
-    if(
-      e.target.matches(
-        "#dates input[type='checkbox']"
-      )
-    ){
-      gererBlocageAssistante();
-    }
-
-    if(
-      e.target.id ===
-      "typeParticipant"
-    ){
-      gererBlocageAssistante();
-    }
-
-  }
+ document
+.getElementById(
+  "typeParticipant"
+)
+.addEventListener(
+  "change",
+  mettreAJourInfoType
 );
 window.onload = async ()=>{
 
