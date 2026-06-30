@@ -322,10 +322,20 @@ Object.values(groupes).forEach(groupe => {
         <td>${groupe.statut}</td>
 
         <td>
-            <button onclick="supprimer(${groupe.ids[0]})">
-                🗑️
-            </button>
-        </td>
+
+<button onclick="supprimerFamille('${groupe.email}')">
+👨‍👩‍👧
+</button>
+
+<br><br>
+
+${groupe.ids.map(id=>`
+<button onclick="supprimer(${id})">
+👶
+</button>
+`).join(" ")}
+
+</td>
 
     </tr>
     `;
@@ -406,7 +416,30 @@ alert("Inscription supprimée");
 chargerInscriptions();
 
 }
+async function supprimerFamille(email){
 
+if(!confirm(
+"Supprimer toute cette famille ?"
+)){
+return;
+}
+
+const { error } = await client
+.from("inscriptions")
+.delete()
+.eq("email", email);
+
+if(error){
+alert(error.message);
+return;
+}
+
+alert("Famille supprimée");
+
+chargerInscriptions();
+chargerBilanAnnuel();
+
+}
 
  
 async function annulerSeanceSelectionnee(){
