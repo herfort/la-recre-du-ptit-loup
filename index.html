@@ -372,6 +372,27 @@ function gererBlocageAssistante(){
     c.closest(".date-item").classList.remove("bloquee");
 
   });
+  // Blocage des mardis pour les parents
+if(type === "parent"){
+
+    cases.forEach(c=>{
+
+        const jour = new Date(c.value).getDay();
+
+        if(jour === 2){ // Mardi
+
+            c.disabled = true;
+
+            c.closest(".date-item")
+             .classList.add("bloquee");
+
+        }
+
+    });
+
+    return;
+
+}
 
   if(type !== "assistante_maternelle"){
     return;
@@ -790,30 +811,23 @@ async () => {
   await afficherPlaces();
 }
 );
-  function mettreAJourInfoType(){
+ function mettreAJourInfoType(){
 
   const type =
-  document.getElementById(
-    "typeParticipant"
-  ).value;
+  document.getElementById("typeParticipant").value;
 
   const zone =
-  document.getElementById(
-    "infoType"
-  );
+  document.getElementById("infoType");
 
-  if(
-    type ===
-    "assistante_maternelle"
-  ){
+  if(type === "assistante_maternelle"){
 
     zone.innerHTML =
-    "ℹ️ Les assistantes maternelles sont limitées à une séance par semaine.";
+    "ℹ️ Les assistantes maternelles peuvent réserver uniquement une séance par semaine.";
 
   }else{
 
     zone.innerHTML =
-    "ℹ️ Les parents peuvent réserver plusieurs séances.";
+    "ℹ️ Les séances du mardi sont réservées aux assistantes maternelles.";
 
   }
 
