@@ -492,107 +492,43 @@ Object.entries(groupes)
 g.type==="assistante_maternelle"
 );
 
+// =========================
 // Bandeau
+// =========================
 
 doc.setFillColor(...vert);
-
-doc.rect(
-0,
-0,
-210,
-40,
-"F"
-);
+doc.rect(0,0,210,40,"F");
 
 doc.setTextColor(255);
 
+doc.setFont("helvetica","bold");
 doc.setFontSize(22);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
-
-doc.setFontSize(22);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
 
 doc.text(
 "La Récré Du P'tit Loup",
 105,
-15,
-{
-align:"center"
-}
+14,
+{align:"center"}
 );
 
-doc.setFontSize(11);
-
-doc.setFont(
-"helvetica",
-"normal"
-);
-
-doc.text(
-"Association La Récré Du P'tit Loup",
-105,
-23,
-{
-align:"center"
-}
-);
-
-doc.setFontSize(15);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
-
-doc.text(
-"FEUILLE DE PRÉSENCE",
-105,
-33,
-{
-align:"center"
-}
-);
-
-doc.setFontSize(12);
-
-doc.setFont(
-"helvetica",
-"normal"
-);
-
+doc.setFont("helvetica","normal");
 doc.setFontSize(11);
 
 doc.text(
 "Association La Récré Du P'tit Loup",
 105,
 22,
-{
-align:"center"
-}
+{align:"center"}
 );
 
-doc.setFontSize(13);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
+doc.setFont("helvetica","bold");
+doc.setFontSize(15);
 
 doc.text(
 "FEUILLE DE PRÉSENCE",
 105,
-30,
-{
-align:"center"
-}
+32,
+{align:"center"}
 );
 
 doc.setTextColor(0);
