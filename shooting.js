@@ -119,167 +119,110 @@ async function genererCreneaux(parametres) {
   const zone = document.getElementById("creneaux");
 
   if (!zone) return;
-  // Calcul de la durée nécessaire
-const dureeNecessaire = calculerDureeSeance();
-
-
-// Récupération des créneaux déjà pris
-const { data: inscriptions, error } = await supabaseClient
-  .from("shooting_inscriptions")
-  .select("creneau,duree");
-
-
-if(error){
-  console.error("Erreur récupération réservations :", error);
-}
-
-
-const reservations = inscriptions || [];
-// Récupération des créneaux déjà réservés
-
-
-
-if (error) {
-  console.error("Erreur récupération réservations :", error);
-}
-
-
-const creneauxPris = inscriptions
-  ? inscriptions.map(i => i.creneau)
-  : [];
 
   zone.innerHTML = "";
 
+  // Durée de la séance
+  const duree = calculerDureeSeance() || 5;
 
-  let dateBase = parametres.date_shooting;
+  // Horaires
+  const dateBase = parametres.date_shooting;
 
+  const debutJournee = new Date(`${dateBase}T${parametres.heure_debut}`);
+  const finJournee = new Date(`${dateBase}T${parametres.heure_fin}`);
 
-  let debut = new Date(`${dateBase}T${parametres.heure_debut}`);
-  let fin = new Date(`${dateBase}T${parametres.heure_fin}`);
-
-
-  let pauseDebut = parametres.pause_debut
+  const pauseDebut = parametres.pause_debut
     ? new Date(`${dateBase}T${parametres.pause_debut}`)
     : null;
 
-
-  let pauseFin = parametres.pause_fin
+  const pauseFin = parametres.pause_fin
     ? new Date(`${dateBase}T${parametres.pause_fin}`)
     : null;
 
+  // Réservations existantes
+  const { data: inscriptions, error } = await supabaseClient
+    .from("shooting_inscriptions")
+    .select("creneau,duree");
 
-
- while (debut < fin) {
-let testFin = new Date(debut);
-
-testFin.setMinutes(
-  testFin.getMinutes() + dureeNecessaire
-);
-
-if(testFin > fin){
-  break;
-}
-
-  // Vérifie si la séance tient entièrement
-  let finSeance = new Date(debut);
-
-  finSeance.setMinutes(
-    finSeance.getMinutes() + dureeNecessaire
-  );
-
-
-  if(finSeance > fin){
-    break;
-  }
-
-
-    if (
-      !pauseDebut ||
-      !pauseFin ||
-      debut < pauseDebut ||
-      debut >= pauseFin
-    ) {
-
-
-      let heure = debut.toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-// Vérifie si le créneau est libre
-let occupe = false;
-
-
-reservations.forEach(r => {
-
-  if(r.creneau === heure){
-    occupe = true;
-  }
-
-});
-
-
-if(occupe){
-  debut.setMinutes(debut.getMinutes() + 5);
-  continue;
-}
-
-     if (!creneauxPris.includes(heure)) {
-
-  zone.innerHTML += `
-  <label>
-    <input type="radio" name="creneau" value="${heure}">
-    ${heure}
-  </label><br>
-  `;
-
-}
-    }
-
-
-    debut.setMinutes(debut.getMinutes() + 5);
-  }
-
-}
-
-
-// Lancement
-let parametresShooting = null;
-
-
-async function initialiserShooting(){
-
-  const { data, error } = await supabaseClient
-    .from("shooting_parametres")
-    .select("*")
-    .single();
-
-
-  if(error){
+  if (error) {
     console.error(error);
     return;
   }
 
+  let heureCourante = new Date(debutJournee);
 
-  parametresShooting = data;
+  while (heureCourante < finJournee) {
 
+    const finSeance = new Date(heureCourante);
+    finSeance.setMinutes(finSeance.getMinutes() + duree);
 
-  const date = document.getElementById("dateEvenement");
+    // Dépasse la fin de journée
+    if (finSeance > finJournee) {
+      break;
+    }
 
-  if(date && data.date_shooting){
-    date.textContent = data.date_shooting;
+    // Passe dans la pause
+    if (
+      pauseDebut &&
+      pauseFin &&
+      heureCourante < pauseFin &&
+      finSeance > pauseDebut
+    ) {
+      heureCourante.setMinutes(heureCourante.getMinutes() + 5);
+      continue;
+    }
+
+    let disponible = true;
+
+    // Vérifie toutes les réservations
+    for (const reservation of inscriptions) {
+
+      const debutReservation = new Date(
+        `${dateBase}T${reservation.creneau}`
+      );
+
+      const finReservation = new Date(debutReservation);
+      finReservation.setMinutes(
+        finReservation.getMinutes() + reservation.duree
+      );
+
+      // Chevauchement ?
+      if (
+        heureCourante < finReservation &&
+        finSeance > debutReservation
+      ) {
+        disponible = false;
+        break;
+      }
+
+    }
+
+    if (disponible) {
+
+      const heure = heureCourante.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+      zone.innerHTML += `
+        <label>
+          <input
+            type="radio"
+            name="creneau"
+            value="${heure}">
+          ${heure}
+        </label><br>
+      `;
+
+    }
+
+    heureCourante.setMinutes(
+      heureCourante.getMinutes() + 5
+    );
+
   }
 
-
-  genererCreneaux(data);
-
 }
-
-
-initialiserShooting();
-// ===============================
-// Calcul durée séance
-// ===============================
-
 function calculerDureeSeance() {
 
   const nombreEnfants = document.querySelectorAll(".enfant").length;
