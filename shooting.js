@@ -13,7 +13,57 @@ const supabaseClient = window.supabase.createClient(
 
 console.log("✅ Connexion à Supabase réussie");
 
+// ===============================
+// Gestion des enfants
+// ===============================
 
+let compteurEnfant = 0;
+
+const boutonAjouterEnfant = document.getElementById("ajouterEnfant");
+const listeEnfants = document.getElementById("listeEnfants");
+
+
+if (boutonAjouterEnfant && listeEnfants) {
+
+  boutonAjouterEnfant.addEventListener("click", function() {
+
+    compteurEnfant++;
+
+
+    const bloc = document.createElement("div");
+
+    bloc.className = "enfant";
+
+
+    bloc.innerHTML = `
+      <h3>👶 Enfant ${compteurEnfant}</h3>
+
+      <label>Nom</label>
+      <input type="text" name="nom_enfant_${compteurEnfant}">
+
+      <label>Prénom</label>
+      <input type="text" name="prenom_enfant_${compteurEnfant}">
+
+      <button type="button" class="supprimerEnfant">
+        ❌ Supprimer
+      </button>
+
+      <hr>
+    `;
+
+
+    listeEnfants.appendChild(bloc);
+
+
+    bloc.querySelector(".supprimerEnfant")
+      .addEventListener("click", function() {
+        bloc.remove();
+      });
+
+
+  });
+
+}
 // ===============================
 // Chargement paramètres shooting
 // ===============================
