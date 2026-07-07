@@ -20,6 +20,7 @@ console.log("✅ Connexion à Supabase réussie");
 let compteurEnfant = 0;
 
 const boutonAjouterEnfant = document.getElementById("ajouterEnfant");
+console.log("Bouton enfant :", boutonAjouterEnfant);
 const listeEnfants = document.getElementById("listeEnfants");
 
 
