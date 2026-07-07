@@ -108,12 +108,25 @@ async function chargerParametresShooting() {
 // Génération des créneaux
 // ===============================
 
-function genererCreneaux(parametres) {
+async function genererCreneaux(parametres) {
 
   const zone = document.getElementById("creneaux");
 
   if (!zone) return;
+// Récupération des créneaux déjà réservés
+const { data: inscriptions, error } = await supabaseClient
+  .from("shooting_inscriptions")
+  .select("creneau");
 
+
+if (error) {
+  console.error("Erreur récupération réservations :", error);
+}
+
+
+const creneauxPris = inscriptions
+  ? inscriptions.map(i => i.creneau)
+  : [];
 
   zone.innerHTML = "";
 
@@ -153,12 +166,16 @@ function genererCreneaux(parametres) {
       });
 
 
-      zone.innerHTML += `
-        <label>
-          <input type="radio" name="creneau" value="${heure}">
-          ${heure}
-        </label><br>
-      `;
+     if (!creneauxPris.includes(heure)) {
+
+  zone.innerHTML += `
+  <label>
+    <input type="radio" name="creneau" value="${heure}">
+    ${heure}
+  </label><br>
+  `;
+
+}
     }
 
 
