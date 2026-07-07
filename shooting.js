@@ -220,13 +220,20 @@ document.addEventListener("click", function(e){
 });
 
 
+
 const typePhoto = document.getElementById("typePhoto");
 
 if(typePhoto){
 
   typePhoto.addEventListener(
     "change",
-    // ===============================
+    calculerDureeSeance
+  );
+
+}
+
+
+// ===============================
 // Enregistrement de l'inscription
 // ===============================
 
@@ -238,19 +245,23 @@ if (formulaire) {
 
     e.preventDefault();
 
-    // Parent
+
     const nom = document.getElementById("nom").value.trim();
     const prenom = document.getElementById("prenom").value.trim();
     const telephone = document.getElementById("telephone").value.trim();
     const email = document.getElementById("email").value.trim();
 
-    // Enfants
+
     const enfants = [];
 
     document.querySelectorAll(".enfant").forEach(bloc => {
 
-      const nomEnfant = bloc.querySelector('input[name^="nom_enfant_"]').value.trim();
-      const prenomEnfant = bloc.querySelector('input[name^="prenom_enfant_"]').value.trim();
+      const nomEnfant =
+      bloc.querySelector('input[name^="nom_enfant_"]').value.trim();
+
+      const prenomEnfant =
+      bloc.querySelector('input[name^="prenom_enfant_"]').value.trim();
+
 
       enfants.push({
         nom: nomEnfant,
@@ -259,21 +270,24 @@ if (formulaire) {
 
     });
 
-    // Type de photo
-    const typePhoto = document.getElementById("typePhoto").value;
 
-    // Créneau sélectionné
-    const creneau = document.querySelector('input[name="creneau"]:checked');
+    const choixPhoto =
+    document.getElementById("typePhoto").value;
+
+
+    const creneau =
+    document.querySelector('input[name="creneau"]:checked');
+
 
     if (!creneau) {
       alert("Veuillez sélectionner un créneau.");
       return;
     }
 
-    // Durée
+
     const duree = calculerDureeSeance();
 
-    // Enregistrement
+
     const { error } = await supabaseClient
       .from("shooting_inscriptions")
       .insert([
@@ -283,7 +297,7 @@ if (formulaire) {
           telephone: telephone,
           email: email,
           enfants: enfants,
-          type_photo: typePhoto,
+          type_photo: choixPhoto,
           creneau: creneau.value,
           duree: duree,
           autorisation: false,
@@ -291,21 +305,23 @@ if (formulaire) {
         }
       ]);
 
+
     if (error) {
-      console.error(error);
+
+      console.error("❌ Erreur inscription :", error);
       alert("Erreur lors de l'enregistrement.");
+
       return;
     }
 
+
     alert("✅ Inscription enregistrée avec succès !");
 
+
     formulaire.reset();
+
     document.getElementById("listeEnfants").innerHTML = "";
 
   });
-
-}
-    calculerDureeSeance
-  );
 
 }
