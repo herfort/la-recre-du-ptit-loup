@@ -191,3 +191,64 @@ function genererCreneaux(parametres) {
 
 // Lancement
 chargerParametresShooting();
+// ===============================
+// Calcul durée séance
+// ===============================
+
+function calculerDureeSeance() {
+
+  const nombreEnfants = document.querySelectorAll(".enfant").length;
+
+  const type = document.getElementById("typePhoto").value;
+
+
+  let duree = 0;
+
+
+  if (type === "individuel" || type === "les2") {
+    duree += nombreEnfants * 5;
+  }
+
+
+  if (type === "fratrie" || type === "les2") {
+    duree += 5;
+  }
+
+
+  const affichage = document.getElementById("dureeSeance");
+
+
+  if (affichage) {
+
+    affichage.textContent =
+      "Durée estimée : " + duree + " minutes";
+
+  }
+
+
+  return duree;
+}
+// Mise à jour durée quand on ajoute/supprime ou change le type
+
+document.addEventListener("click", function(e){
+
+  if(
+    e.target.id === "ajouterEnfant" ||
+    e.target.classList.contains("supprimerEnfant")
+  ){
+    setTimeout(calculerDureeSeance,100);
+  }
+
+});
+
+
+const typePhoto = document.getElementById("typePhoto");
+
+if(typePhoto){
+
+  typePhoto.addEventListener(
+    "change",
+    calculerDureeSeance
+  );
+
+}
