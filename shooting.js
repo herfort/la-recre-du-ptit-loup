@@ -136,9 +136,7 @@ if(error){
 
 const reservations = inscriptions || [];
 // Récupération des créneaux déjà réservés
-const { data: inscriptions, error } = await supabaseClient
-  .from("shooting_inscriptions")
-  .select("creneau");
+
 
 
 if (error) {
