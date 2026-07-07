@@ -170,7 +170,15 @@ const creneauxPris = inscriptions
 
 
  while (debut < fin) {
+let testFin = new Date(debut);
 
+testFin.setMinutes(
+  testFin.getMinutes() + dureeNecessaire
+);
+
+if(testFin > fin){
+  break;
+}
 
   // Vérifie si la séance tient entièrement
   let finSeance = new Date(debut);
@@ -383,8 +391,7 @@ if (formulaire) {
       return;
     }
 
-
-    const duree = calculerDureeSeance();
+const dureeNecessaire = calculerDureeSeance() || 5;
 
 
     const { error } = await supabaseClient
