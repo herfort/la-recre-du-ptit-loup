@@ -3,7 +3,9 @@
 // ===============================
 
 const SUPABASE_URL = "https://jbialegbayusckjjajnq.supabase.co";
-const SUPABASE_KEY = "TA_CLE_PUBLISHABLE"; // Remplace par ta clé publique
+const SUPABASE_KEY =
+"sb_publishable__buDYmorRpoNxxjFGq56Iw_28SaX6IG";
+
 
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
