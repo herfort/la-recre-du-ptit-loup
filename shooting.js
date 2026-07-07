@@ -304,7 +304,7 @@ function calculerDureeSeance() {
 
   }
 
-
+console.log("Durée calculée :", duree);
   return duree;
 }
 // Mise à jour durée quand on ajoute/supprime ou change le type
