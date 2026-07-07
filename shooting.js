@@ -119,6 +119,22 @@ async function genererCreneaux(parametres) {
   const zone = document.getElementById("creneaux");
 
   if (!zone) return;
+  // Calcul de la durée nécessaire
+const dureeNecessaire = calculerDureeSeance();
+
+
+// Récupération des créneaux déjà pris
+const { data: inscriptions, error } = await supabaseClient
+  .from("shooting_inscriptions")
+  .select("creneau,duree");
+
+
+if(error){
+  console.error("Erreur récupération réservations :", error);
+}
+
+
+const reservations = inscriptions || [];
 // Récupération des créneaux déjà réservés
 const { data: inscriptions, error } = await supabaseClient
   .from("shooting_inscriptions")
@@ -155,7 +171,20 @@ const creneauxPris = inscriptions
 
 
 
-  while (debut < fin) {
+ while (debut < fin) {
+
+
+  // Vérifie si la séance tient entièrement
+  let finSeance = new Date(debut);
+
+  finSeance.setMinutes(
+    finSeance.getMinutes() + dureeNecessaire
+  );
+
+
+  if(finSeance > fin){
+    break;
+  }
 
 
     if (
@@ -170,7 +199,23 @@ const creneauxPris = inscriptions
         hour: "2-digit",
         minute: "2-digit"
       });
+// Vérifie si le créneau est libre
+let occupe = false;
 
+
+reservations.forEach(r => {
+
+  if(r.creneau === heure){
+    occupe = true;
+  }
+
+});
+
+
+if(occupe){
+  debut.setMinutes(debut.getMinutes() + 5);
+  continue;
+}
 
      if (!creneauxPris.includes(heure)) {
 
