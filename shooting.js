@@ -54,11 +54,17 @@ if (boutonAjouterEnfant && listeEnfants) {
 
 
     listeEnfants.appendChild(bloc);
+    if(parametresShooting){
+  genererCreneaux(parametresShooting);
+}
 calculerDureeSeance();
 
     bloc.querySelector(".supprimerEnfant")
       .addEventListener("click", function() {
         bloc.remove();
+        if(parametresShooting){
+  genererCreneaux(parametresShooting);
+}
 calculerDureeSeance();
       });
 
@@ -186,7 +192,39 @@ const creneauxPris = inscriptions
 
 
 // Lancement
-chargerParametresShooting();
+let parametresShooting = null;
+
+
+async function initialiserShooting(){
+
+  const { data, error } = await supabaseClient
+    .from("shooting_parametres")
+    .select("*")
+    .single();
+
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+
+  parametresShooting = data;
+
+
+  const date = document.getElementById("dateEvenement");
+
+  if(date && data.date_shooting){
+    date.textContent = data.date_shooting;
+  }
+
+
+  genererCreneaux(data);
+
+}
+
+
+initialiserShooting();
 // ===============================
 // Calcul durée séance
 // ===============================
