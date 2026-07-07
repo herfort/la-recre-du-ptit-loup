@@ -53,11 +53,12 @@ if (boutonAjouterEnfant && listeEnfants) {
 
 
     listeEnfants.appendChild(bloc);
-
+calculerDureeSeance();
 
     bloc.querySelector(".supprimerEnfant")
       .addEventListener("click", function() {
         bloc.remove();
+calculerDureeSeance();
       });
 
 
@@ -71,30 +72,7 @@ if (boutonAjouterEnfant && listeEnfants) {
 // Calcul durée séance
 // ===============================
 
-function calculerDureeSeance() {
 
-  const enfants = document.querySelectorAll(".enfant").length;
-
-  const type = document.getElementById("typePhoto").value;
-
-
-  let duree = 0;
-
-
-  // Photos individuelles
-  if (type === "individuel" || type === "les2") {
-    duree += enfants * 5;
-  }
-
-
-  // Photo fratrie
-  if (type === "fratrie" || type === "les2") {
-    duree += 5;
-  }
-
-
-  return duree;
-}
 async function chargerParametresShooting() {
 
   const { data, error } = await supabaseClient
