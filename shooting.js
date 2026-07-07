@@ -12,8 +12,10 @@ const supabaseClient = window.supabase.createClient(
 );
 
 console.log("✅ Connexion à Supabase réussie");
+
+
 // ===============================
-// Chargement des paramètres shooting
+// Chargement paramètres shooting
 // ===============================
 
 async function chargerParametresShooting() {
@@ -33,17 +35,19 @@ async function chargerParametresShooting() {
   console.log("✅ Paramètres shooting :", data);
 
 
-  // Affichage de la date
+  // Affichage date
   const date = document.getElementById("dateEvenement");
 
-  if (date && data.date) {
-    date.textContent = data.date;
+  if (date && data.date_shooting) {
+    date.textContent = data.date_shooting;
   }
 
+
+  // Création des créneaux
+  genererCreneaux(data);
 }
 
 
-chargerParametresShooting();
 // ===============================
 // Génération des créneaux
 // ===============================
@@ -54,29 +58,38 @@ function genererCreneaux(parametres) {
 
   if (!zone) return;
 
+
   zone.innerHTML = "";
 
-  let debut = new Date(`2026-10-21T${parametres.heure_debut}`);
-  let fin = new Date(`2026-10-21T${parametres.heure_fin}`);
+
+  let dateBase = parametres.date_shooting;
+
+
+  let debut = new Date(`${dateBase}T${parametres.heure_debut}`);
+  let fin = new Date(`${dateBase}T${parametres.heure_fin}`);
+
 
   let pauseDebut = parametres.pause_debut
-    ? new Date(`2026-10-21T${parametres.pause_debut}`)
+    ? new Date(`${dateBase}T${parametres.pause_debut}`)
     : null;
 
+
   let pauseFin = parametres.pause_fin
-    ? new Date(`2026-10-21T${parametres.pause_fin}`)
+    ? new Date(`${dateBase}T${parametres.pause_fin}`)
     : null;
+
 
 
   while (debut < fin) {
 
-    // Ignore la pause photographe
+
     if (
       !pauseDebut ||
       !pauseFin ||
       debut < pauseDebut ||
       debut >= pauseFin
     ) {
+
 
       let heure = debut.toLocaleTimeString("fr-FR", {
         hour: "2-digit",
@@ -93,27 +106,11 @@ function genererCreneaux(parametres) {
     }
 
 
-    // Créneau de 5 minutes
     debut.setMinutes(debut.getMinutes() + 5);
   }
-}
-// ===============================
-// Test lecture table shooting_parametres
-// ===============================
 
-async function chargerParametresShooting() {
-
-  const { data, error } = await supabaseClient
-    .from("shooting_parametres")
-    .select("*");
-
-  if (error) {
-    console.error("❌ Erreur lecture shooting_parametres :", error);
-    return;
-  }
-
-  console.log("✅ Données shooting_parametres récupérées :", data);
-  genererCreneaux(data);
 }
 
+
+// Lancement
 chargerParametresShooting();
