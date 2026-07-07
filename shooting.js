@@ -44,7 +44,59 @@ async function chargerParametresShooting() {
 
 
 chargerParametresShooting();
+// ===============================
+// Génération des créneaux
+// ===============================
 
+function genererCreneaux(parametres) {
+
+  const zone = document.getElementById("creneaux");
+
+  if (!zone) return;
+
+  zone.innerHTML = "";
+
+  let debut = new Date(`2026-10-21T${parametres.heure_debut}`);
+  let fin = new Date(`2026-10-21T${parametres.heure_fin}`);
+
+  let pauseDebut = parametres.pause_debut
+    ? new Date(`2026-10-21T${parametres.pause_debut}`)
+    : null;
+
+  let pauseFin = parametres.pause_fin
+    ? new Date(`2026-10-21T${parametres.pause_fin}`)
+    : null;
+
+
+  while (debut < fin) {
+
+    // Ignore la pause photographe
+    if (
+      !pauseDebut ||
+      !pauseFin ||
+      debut < pauseDebut ||
+      debut >= pauseFin
+    ) {
+
+      let heure = debut.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+
+
+      zone.innerHTML += `
+        <label>
+          <input type="radio" name="creneau" value="${heure}">
+          ${heure}
+        </label><br>
+      `;
+    }
+
+
+    // Créneau de 5 minutes
+    debut.setMinutes(debut.getMinutes() + 5);
+  }
+}
 // ===============================
 // Test lecture table shooting_parametres
 // ===============================
@@ -61,6 +113,7 @@ async function chargerParametresShooting() {
   }
 
   console.log("✅ Données shooting_parametres récupérées :", data);
+  genererCreneaux(data);
 }
 
 chargerParametresShooting();
