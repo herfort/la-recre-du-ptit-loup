@@ -12,7 +12,38 @@ const supabaseClient = window.supabase.createClient(
 );
 
 console.log("✅ Connexion à Supabase réussie");
+// ===============================
+// Chargement des paramètres shooting
+// ===============================
 
+async function chargerParametresShooting() {
+
+  const { data, error } = await supabaseClient
+    .from("shooting_parametres")
+    .select("*")
+    .single();
+
+
+  if (error) {
+    console.error("❌ Erreur récupération paramètres :", error);
+    return;
+  }
+
+
+  console.log("✅ Paramètres shooting :", data);
+
+
+  // Affichage de la date
+  const date = document.getElementById("dateEvenement");
+
+  if (date && data.date) {
+    date.textContent = data.date;
+  }
+
+}
+
+
+chargerParametresShooting();
 
 // ===============================
 // Test lecture table shooting_parametres
