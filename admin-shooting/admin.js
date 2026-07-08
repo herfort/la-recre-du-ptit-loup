@@ -296,3 +296,50 @@ libres;
 
 chargerInscriptions();
 calculerCreneauxLibres();
+// ===============================
+// Suppression inscription
+// ===============================
+
+async function supprimerInscription(id){
+
+const confirmation = confirm(
+"Êtes-vous sûr de vouloir supprimer cette réservation ?"
+);
+
+
+if(!confirmation){
+return;
+}
+
+
+const { error } =
+await supabaseClient
+.from("shooting_inscriptions")
+.delete()
+.eq("id", id);
+
+
+
+if(error){
+
+console.error(error);
+
+alert(
+"Erreur lors de la suppression"
+);
+
+return;
+
+}
+
+
+alert(
+"✅ Inscription supprimée"
+);
+
+
+// Actualisation
+
+location.reload();
+
+}
