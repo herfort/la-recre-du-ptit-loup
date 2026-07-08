@@ -343,3 +343,177 @@ alert(
 location.reload();
 
 }
+// ===============================
+// Génération PDF autorisation
+// ===============================
+
+async function voirAutorisation(id){
+
+
+const { data, error } =
+await supabaseClient
+.from("shooting_inscriptions")
+.select("*")
+.eq("id", id)
+.single();
+
+
+if(error){
+
+console.error(error);
+
+alert(
+"Erreur récupération inscription"
+);
+
+return;
+
+}
+
+
+
+const { jsPDF } =
+window.jspdf;
+
+
+const doc =
+new jsPDF();
+
+
+
+doc.setFontSize(18);
+
+doc.text(
+"La Récré Du P'tit Loup",
+20,
+20
+);
+
+
+
+doc.setFontSize(14);
+
+doc.text(
+"Autorisation parentale - Shooting Photo",
+20,
+35
+);
+
+
+
+doc.setFontSize(12);
+
+
+let y = 55;
+
+
+doc.text(
+"Responsable : " +
+data.prenom_parent +
+" " +
+data.nom_parent,
+20,
+y
+);
+
+
+y += 10;
+
+
+doc.text(
+"Téléphone : " +
+data.telephone,
+20,
+y
+);
+
+
+y += 10;
+
+
+doc.text(
+"Email : " +
+data.email,
+20,
+y
+);
+
+
+y += 15;
+
+
+doc.text(
+"Enfant(s) :",
+20,
+y
+);
+
+
+y += 10;
+
+
+data.enfants.forEach(enfant=>{
+
+doc.text(
+"- " +
+enfant.prenom +
+" " +
+enfant.nom,
+25,
+y
+);
+
+y += 8;
+
+});
+
+
+y += 10;
+
+
+doc.text(
+"Type de séance : " +
+data.type_photo,
+20,
+y
+);
+
+
+y += 10;
+
+
+doc.text(
+"Créneau : " +
+data.creneau,
+20,
+y
+);
+
+
+y += 20;
+
+
+doc.text(
+"Signature du responsable :",
+20,
+y
+);
+
+
+doc.rect(
+20,
+y + 5,
+80,
+35
+);
+
+
+
+doc.save(
+"autorisation-" +
+data.nom_parent +
+".pdf"
+);
+
+
+}
