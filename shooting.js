@@ -540,11 +540,34 @@ async function genererPDF() {
 
   y += 20;
 
-  doc.text("Signature :", 20, y);
 
-  y += 25;
+  doc.text("Signature du responsable :", 20, y);
 
-  doc.line(20, y, 90, y);
+y += 10;
+
+
+// Ajout de la signature
+
+if (signaturePad && !signaturePad.isEmpty()) {
+
+  const signatureImage = signaturePad.toDataURL("image/png");
+
+  doc.addImage(
+    signatureImage,
+    "PNG",
+    20,
+    y,
+    80,
+    40
+  );
+
+  y += 50;
+
+} else {
+
+  doc.line(20, y + 20, 90, y + 20);
+
+}
 
   doc.save("Autorisation_Shooting.pdf");
 
