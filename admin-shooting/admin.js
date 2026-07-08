@@ -457,13 +457,11 @@ y += 8;
 
 // Cadre
 
-doc.roundRect(
+doc.rect(
 20,
 y - 5,
 170,
-30,
-3,
-3
+30
 );
 
 
@@ -509,13 +507,11 @@ y
 y += 8;
 
 
-doc.roundRect(
+doc.rect(
 20,
 y - 5,
 170,
-35,
-3,
-3
+35
 );
 
 
