@@ -424,7 +424,7 @@ if (creneauOccupe) {
       return;
     }
 
-
+await genererPDF();
     alert("✅ Inscription enregistrée avec succès !");
 
 
@@ -433,5 +433,110 @@ if (creneauOccupe) {
     document.getElementById("listeEnfants").innerHTML = "";
 
   });
+
+}
+// ===============================
+// Génération du PDF
+// ===============================
+
+async function genererPDF() {
+
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF();
+
+  let y = 20;
+
+  doc.setFontSize(18);
+  doc.text("La Récré Du P'tit Loup", 20, y);
+
+  y += 10;
+
+  doc.setFontSize(14);
+  doc.text("Autorisation Shooting Photo", 20, y);
+
+  y += 15;
+
+  doc.setFontSize(11);
+
+  doc.text("Responsable", 20, y);
+
+  y += 8;
+  doc.text("Nom : " + document.getElementById("nom").value, 20, y);
+
+  y += 7;
+  doc.text("Prénom : " + document.getElementById("prenom").value, 20, y);
+
+  y += 7;
+  doc.text("Téléphone : " + document.getElementById("telephone").value, 20, y);
+
+  y += 7;
+  doc.text("Email : " + document.getElementById("email").value, 20, y);
+
+  y += 15;
+
+  doc.text("Enfants :", 20, y);
+
+  document.querySelectorAll(".enfant").forEach(bloc => {
+
+    const nom =
+      bloc.querySelector('input[name^="nom_enfant_"]').value;
+
+    const prenom =
+      bloc.querySelector('input[name^="prenom_enfant_"]').value;
+
+    y += 7;
+
+    doc.text("- " + prenom + " " + nom, 25, y);
+
+  });
+
+  y += 12;
+
+  doc.text(
+    "Type de photo : " +
+    document.getElementById("typePhoto").value,
+    20,
+    y
+  );
+
+  y += 7;
+
+  const creneau =
+    document.querySelector('input[name="creneau"]:checked');
+
+  doc.text(
+    "Créneau : " + creneau.value,
+    20,
+    y
+  );
+
+  y += 15;
+
+  doc.setFontSize(10);
+
+  doc.text(
+    "Je soussigné(e), responsable légal, autorise la réalisation",
+    20,
+    y
+  );
+
+  y += 6;
+
+  doc.text(
+    "des photographies de mon (mes) enfant(s).",
+    20,
+    y
+  );
+
+  y += 20;
+
+  doc.text("Signature :", 20, y);
+
+  y += 25;
+
+  doc.line(20, y, 90, y);
+
+  doc.save("Autorisation_Shooting.pdf");
 
 }
