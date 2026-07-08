@@ -611,7 +611,7 @@ const texte =
 const lignes =
 doc.splitTextToSize(
 texte,
-170
+165
 );
 
 
@@ -622,7 +622,8 @@ y
 );
 
 
-y += 35;
+// On descend automatiquement selon la hauteur du texte
+y += (lignes.length * 6) + 15;
 
 
 
