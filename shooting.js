@@ -343,7 +343,61 @@ if (formulaire) {
 
 const dureeNecessaire = calculerDureeSeance() || 5;
 
+// ===============================
+// Vérification du créneau
+// ===============================
 
+const { data: reservationsExistantes, error: erreurControle } =
+  await supabaseClient
+    .from("shooting_inscriptions")
+    .select("creneau,duree");
+
+if (erreurControle) {
+  console.error(erreurControle);
+  alert("Impossible de vérifier les disponibilités.");
+  return;
+}
+
+let creneauOccupe = false;
+
+const debutChoisi = new Date(`2000-01-01T${creneau.value}`);
+
+const finChoisie = new Date(debutChoisi);
+finChoisie.setMinutes(
+  finChoisie.getMinutes() + dureeNecessaire
+);
+
+for (const reservation of reservationsExistantes) {
+
+  const debutReservation =
+    new Date(`2000-01-01T${reservation.creneau}`);
+
+  const finReservation =
+    new Date(debutReservation);
+
+  finReservation.setMinutes(
+    finReservation.getMinutes() + reservation.duree
+  );
+
+  if (
+    debutChoisi < finReservation &&
+    finChoisie > debutReservation
+  ) {
+    creneauOccupe = true;
+    break;
+  }
+
+}
+
+if (creneauOccupe) {
+  alert("❌ Ce créneau vient d'être réservé. Merci d'en choisir un autre.");
+
+  if (parametresShooting) {
+    genererCreneaux(parametresShooting);
+  }
+
+  return;
+}
     const { error } = await supabaseClient
       .from("shooting_inscriptions")
       .insert([
