@@ -603,7 +603,9 @@ doc.setFontSize(11);
 
 
 const texte =
-"J'autorise La Récré Du P'tit Loup et la photographe à réaliser des photographies de mon enfant dans le cadre du shooting photo organisé par l'association.";
+"J’autorise La Récré Du P’tit Loup et la photographe à réaliser des photographies de mon enfant dans le cadre du shooting photo organisé par l’association.\n\n" +
+"J’autorise également la diffusion des photographies réalisées dans une galerie photo privée, accessible uniquement aux familles participantes au shooting, afin de permettre le partage et la consultation des images par les participants.\n\n" +
+"Ces photographies ne seront pas utilisées à d’autres fins sans l’accord préalable des responsables légaux.";
 
 
 const lignes =
