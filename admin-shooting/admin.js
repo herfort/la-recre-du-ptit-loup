@@ -116,10 +116,24 @@ ${inscription.nom_parent}
 <td>${enfants}</td>
 
 <td>${inscription.type_photo}</td>
-
 <td>${inscription.duree} min</td>
 
+<td>
+
+<button 
+onclick="voirAutorisation(${inscription.id})">
+📄 PDF
+</button>
+
+<button
+onclick="supprimerInscription(${inscription.id})">
+❌
+</button>
+
+</td>
+
 </tr>
+
 
 `;
 
