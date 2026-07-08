@@ -471,7 +471,7 @@ doc.setFontSize(11);
 
 doc.text(
 "Nom : " +
-(parametres?.nom_photographe || ""),
+(parametres && parametres.nom_photographe ? parametres.nom_photographe : ""),
 30,
 y + 5
 );
@@ -479,7 +479,7 @@ y + 5
 
 doc.text(
 "Email : " +
-(parametres?.email_photographe || ""),
+(parametres && parametres.email_photographe ? parametres.email_photographe : ""),
 30,
 y + 13
 );
@@ -487,11 +487,10 @@ y + 13
 
 doc.text(
 "Facebook : " +
-(parametres?.facebook_photographe || ""),
+(parametres && parametres.facebook_photographe ? parametres.facebook_photographe : ""),
 30,
 y + 21
 );
-
 
 y += 45;
 
