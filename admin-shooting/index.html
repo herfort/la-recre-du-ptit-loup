@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Administration Shooting</title>
+
+<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="admin.css">
+
+</head>
+
+<body>
+
+<div class="conteneur">
+
+<header>
+
+<h1>📸 Administration Shooting Photo</h1>
+
+<p>
+La Récré Du P'tit Loup
+</p>
+
+</header>
+
+<div class="cartes">
+
+<div class="carte">
+<h2>👨 Familles</h2>
+<p id="nbFamilles">0</p>
+</div>
+
+<div class="carte">
+<h2>👶 Enfants</h2>
+<p id="nbEnfants">0</p>
+</div>
+
+<div class="carte">
+<h2>🕒 Temps réservé</h2>
+<p id="tempsReserve">0 min</p>
+</div>
+
+<div class="carte">
+<h2>📅 Créneaux libres</h2>
+<p id="nbCreneaux">0</p>
+</div>
+
+</div>
+
+<div class="tableau">
+
+<h2>📋 Inscriptions</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Heure</th>
+<th>Responsable</th>
+<th>Enfants</th>
+<th>Type</th>
+<th>Durée</th>
+
+</tr>
+
+</thead>
+
+<tbody id="listeInscriptions">
+
+<tr>
+
+<td colspan="5">
+
+Aucune inscription.
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="admin.js"></script>
+
+</body>
+
+</html>
