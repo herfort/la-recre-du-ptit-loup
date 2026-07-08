@@ -102,7 +102,34 @@ Les créneaux apparaîtront ici.
 </div>
 
 <br>
+<div class="section">
 
+    <h2>✍️ Signature du responsable légal</h2>
+
+    <p>
+        Merci de signer dans le cadre ci-dessous.
+    </p>
+
+    <canvas
+        id="signaturePad"
+        width="500"
+        height="180"
+        style="
+            border:2px solid #999;
+            border-radius:8px;
+            background:white;
+            max-width:100%;
+            touch-action:none;
+        ">
+    </canvas>
+
+    <br><br>
+
+    <button type="button" id="effacerSignature">
+        🗑️ Effacer la signature
+    </button>
+
+</div>
 <button type="submit">
 
 Valider mon inscription
@@ -120,6 +147,7 @@ Valider mon inscription
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script src="shooting.js"></script>
 
 </body>
