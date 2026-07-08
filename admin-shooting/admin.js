@@ -440,97 +440,115 @@ let y = 60;
 
 
 
+// ===============================
 // Informations photographe
+// ===============================
 
-doc.setFontSize(12);
+doc.setFontSize(13);
 
 doc.text(
-"Photographe : " +
-(parametres?.nom_photographe || ""),
-20,
+"Informations photographe",
+25,
 y
 );
 
-
 y += 8;
+
+
+// Cadre
+
+doc.roundRect(
+20,
+y - 5,
+170,
+30,
+3,
+3
+);
+
+
+doc.setFontSize(11);
+
+doc.text(
+"Nom : " +
+(parametres?.nom_photographe || ""),
+30,
+y + 5
+);
 
 
 doc.text(
 "Email : " +
 (parametres?.email_photographe || ""),
-20,
-y
+30,
+y + 13
 );
-
-
-y += 8;
 
 
 doc.text(
 "Facebook : " +
 (parametres?.facebook_photographe || ""),
-20,
-y
+30,
+y + 21
 );
 
 
+y += 45;
 
-y += 15;
-
-
-
+// ===============================
 // Informations famille
+// ===============================
 
 doc.setFontSize(13);
 
 doc.text(
-"Responsable",
-20,
+"Responsable légal",
+25,
 y
 );
-
 
 y += 8;
 
 
-doc.setFontSize(12);
+doc.roundRect(
+20,
+y - 5,
+170,
+35,
+3,
+3
+);
+
+
+doc.setFontSize(11);
+
 
 doc.text(
 data.prenom_parent +
 " " +
 data.nom_parent,
-20,
-y
+30,
+y + 7
 );
-
-
-y += 8;
 
 
 doc.text(
 "Téléphone : " +
 data.telephone,
-20,
-y
+30,
+y + 15
 );
-
-
-y += 8;
 
 
 doc.text(
 "Email : " +
 data.email,
-20,
-y
+30,
+y + 23
 );
 
 
-
-y += 15;
-
-
-
+y += 50;
 // Enfants
 
 doc.setFontSize(13);
