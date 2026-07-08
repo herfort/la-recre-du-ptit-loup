@@ -344,7 +344,7 @@ location.reload();
 
 }
 // ===============================
-// Génération PDF autorisation
+// Génération PDF autorisation complète
 // ===============================
 
 async function voirAutorisation(id){
@@ -361,14 +361,19 @@ await supabaseClient
 if(error){
 
 console.error(error);
-
-alert(
-"Erreur récupération inscription"
-);
-
+alert("Erreur récupération inscription");
 return;
 
 }
+
+
+// Récupération des infos shooting
+
+const { data: parametres } =
+await supabaseClient
+.from("shooting_parametres")
+.select("*")
+.single();
 
 
 
@@ -381,14 +386,21 @@ new jsPDF();
 
 
 
+let y = 20;
+
+
+// Titre
+
 doc.setFontSize(18);
 
 doc.text(
 "La Récré Du P'tit Loup",
 20,
-20
+y
 );
 
+
+y += 12;
 
 
 doc.setFontSize(14);
@@ -396,19 +408,71 @@ doc.setFontSize(14);
 doc.text(
 "Autorisation parentale - Shooting Photo",
 20,
-35
+y
 );
 
 
 
+y += 15;
+
+
+
+// Informations photographe
+
 doc.setFontSize(12);
 
+doc.text(
+"Photographe : " +
+(parametres?.nom_photographe || ""),
+20,
+y
+);
 
-let y = 55;
+
+y += 8;
 
 
 doc.text(
-"Responsable : " +
+"Email : " +
+(parametres?.email_photographe || ""),
+20,
+y
+);
+
+
+y += 8;
+
+
+doc.text(
+"Facebook : " +
+(parametres?.facebook_photographe || ""),
+20,
+y
+);
+
+
+
+y += 15;
+
+
+
+// Informations famille
+
+doc.setFontSize(13);
+
+doc.text(
+"Responsable",
+20,
+y
+);
+
+
+y += 8;
+
+
+doc.setFontSize(12);
+
+doc.text(
 data.prenom_parent +
 " " +
 data.nom_parent,
@@ -417,7 +481,7 @@ y
 );
 
 
-y += 10;
+y += 8;
 
 
 doc.text(
@@ -428,7 +492,7 @@ y
 );
 
 
-y += 10;
+y += 8;
 
 
 doc.text(
@@ -439,17 +503,26 @@ y
 );
 
 
+
 y += 15;
 
 
+
+// Enfants
+
+doc.setFontSize(13);
+
 doc.text(
-"Enfant(s) :",
+"Enfant(s)",
 20,
 y
 );
 
 
-y += 10;
+y += 8;
+
+
+doc.setFontSize(12);
 
 
 data.enfants.forEach(enfant=>{
@@ -468,18 +541,37 @@ y += 8;
 });
 
 
+
 y += 10;
 
 
+
+// Séance
+
+doc.setFontSize(13);
+
 doc.text(
-"Type de séance : " +
-data.type_photo,
+"Shooting",
 20,
 y
 );
 
 
-y += 10;
+y += 8;
+
+
+doc.setFontSize(12);
+
+
+doc.text(
+"Date : " +
+(parametres?.date_shooting || ""),
+20,
+y
+);
+
+
+y += 8;
 
 
 doc.text(
@@ -490,8 +582,51 @@ y
 );
 
 
+y += 8;
+
+
+doc.text(
+"Type de photo : " +
+data.type_photo,
+20,
+y
+);
+
+
+
 y += 20;
 
+
+// Texte autorisation
+
+doc.setFontSize(11);
+
+
+const texte =
+"J'autorise La Récré Du P'tit Loup et la photographe à réaliser des photographies de mon enfant dans le cadre du shooting photo organisé par l'association.";
+
+
+const lignes =
+doc.splitTextToSize(
+texte,
+170
+);
+
+
+doc.text(
+lignes,
+20,
+y
+);
+
+
+y += 35;
+
+
+
+// Signature
+
+doc.setFontSize(12);
 
 doc.text(
 "Signature du responsable :",
@@ -505,6 +640,16 @@ doc.rect(
 y + 5,
 80,
 35
+);
+
+
+y += 55;
+
+
+doc.text(
+"Date : ____________________",
+20,
+y
 );
 
 
