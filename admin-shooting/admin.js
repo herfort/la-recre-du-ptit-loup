@@ -386,34 +386,57 @@ new jsPDF();
 
 
 
-let y = 20;
 
 
-// Titre
 
-doc.setFontSize(18);
+// ===============================
+// En-tête
+// ===============================
 
+doc.setFontSize(20);
 doc.text(
 "La Récré Du P'tit Loup",
+105,
 20,
-y
+{
+align:"center"
+}
 );
-
-
-y += 12;
 
 
 doc.setFontSize(14);
 
 doc.text(
-"Autorisation parentale - Shooting Photo",
-20,
-y
+"Autorisation parentale",
+105,
+32,
+{
+align:"center"
+}
 );
 
 
+doc.text(
+"Shooting Photo",
+105,
+40,
+{
+align:"center"
+}
+);
 
-y += 15;
+
+// Ligne de séparation
+
+doc.line(
+20,
+47,
+190,
+47
+);
+
+
+let y = 60;
 
 
 
