@@ -18,7 +18,7 @@ console.log("✅ Connexion à Supabase réussie");
 // ===============================
 
 let compteurEnfant = 0;
-
+let parametresShooting = null;
 const boutonAjouterEnfant = document.getElementById("ajouterEnfant");
 console.log("Bouton enfant :", boutonAjouterEnfant);
 const listeEnfants = document.getElementById("listeEnfants");
@@ -106,7 +106,8 @@ async function chargerParametresShooting() {
 
 
   // Création des créneaux
-  genererCreneaux(data);
+ parametresShooting = data;
+genererCreneaux(parametresShooting);
 }
 
 
@@ -223,6 +224,7 @@ async function genererCreneaux(parametres) {
   }
 
 }
+chargerParametresShooting();
 function calculerDureeSeance() {
 
   const nombreEnfants = document.querySelectorAll(".enfant").length;
@@ -275,10 +277,15 @@ const typePhoto = document.getElementById("typePhoto");
 
 if(typePhoto){
 
-  typePhoto.addEventListener(
-    "change",
-    calculerDureeSeance
-  );
+ typePhoto.addEventListener("change", function () {
+
+  calculerDureeSeance();
+
+  if (parametresShooting) {
+    genererCreneaux(parametresShooting);
+  }
+
+});
 
 }
 
@@ -348,7 +355,7 @@ const dureeNecessaire = calculerDureeSeance() || 5;
           enfants: enfants,
           type_photo: choixPhoto,
           creneau: creneau.value,
-          duree: duree,
+          duree: dureeNecessaire,
           autorisation: false,
           commentaire: ""
         }
