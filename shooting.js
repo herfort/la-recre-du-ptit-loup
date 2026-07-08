@@ -476,9 +476,7 @@ await fetch(
 // Envoi email Brevo shooting
 // ===============================
 
-const enfantsMail = enfants.map(e =>
-  e.prenom + " " + e.nom
-);
+
 
 
 await fetch(
