@@ -127,45 +127,156 @@ ${inscription.nom_parent}
 
 }
 // ===============================
-// Calcul des créneaux libres
+// Calcul des vrais créneaux libres
 // ===============================
 
 async function calculerCreneauxLibres(){
 
-const { data: parametres } =
+const { data: parametres, error } =
 await supabaseClient
 .from("shooting_parametres")
 .select("*")
 .single();
 
-if(!parametres){
+
+if(error || !parametres){
+console.error(error);
 return;
 }
 
-let debut =
+
+const { data: inscriptions } =
+await supabaseClient
+.from("shooting_inscriptions")
+.select("creneau,duree");
+
+
+
+const dateBase =
+parametres.date_shooting;
+
+
+let heure =
 new Date(
-`${parametres.date_shooting}T${parametres.heure_debut}`
+`${dateBase}T${parametres.heure_debut}`
 );
 
-let fin =
+
+const finJournee =
 new Date(
-`${parametres.date_shooting}T${parametres.heure_fin}`
+`${dateBase}T${parametres.heure_fin}`
 );
 
-let total = 0;
 
-while(debut < fin){
+const pauseDebut =
+parametres.pause_debut
+?
+new Date(
+`${dateBase}T${parametres.pause_debut}`
+)
+:null;
 
-total++;
 
-debut.setMinutes(
-debut.getMinutes()+5
+const pauseFin =
+parametres.pause_fin
+?
+new Date(
+`${dateBase}T${parametres.pause_fin}`
+)
+:null;
+
+
+
+let libres = 0;
+
+
+
+while(heure < finJournee){
+
+
+let disponible = true;
+
+
+
+const finCreneau =
+new Date(heure);
+
+finCreneau.setMinutes(
+finCreneau.getMinutes()+5
 );
+
+
+
+// Pause photographe
+
+if(
+pauseDebut &&
+pauseFin &&
+heure < pauseFin &&
+finCreneau > pauseDebut
+){
+
+disponible = false;
 
 }
 
+
+
+// Réservations
+
+inscriptions.forEach(reservation=>{
+
+
+const debutReservation =
+new Date(
+`${dateBase}T${reservation.creneau}`
+);
+
+
+const finReservation =
+new Date(debutReservation);
+
+
+finReservation.setMinutes(
+finReservation.getMinutes()+reservation.duree
+);
+
+
+
+if(
+heure < finReservation &&
+finCreneau > debutReservation
+){
+
+disponible = false;
+
+}
+
+
+});
+
+
+
+if(disponible){
+
+libres++;
+
+}
+
+
+
+heure.setMinutes(
+heure.getMinutes()+5
+);
+
+
+}
+
+
+
 document.getElementById("nbCreneaux").textContent =
-total;
+libres;
+
 
 }
 
