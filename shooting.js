@@ -398,6 +398,15 @@ if (creneauOccupe) {
 
   return;
 }
+    // Vérification de la signature
+
+if (signaturePad.isEmpty()) {
+
+  alert("Merci de signer l'autorisation.");
+
+  return;
+
+}
     const { error } = await supabaseClient
       .from("shooting_inscriptions")
       .insert([
@@ -538,5 +547,32 @@ async function genererPDF() {
   doc.line(20, y, 90, y);
 
   doc.save("Autorisation_Shooting.pdf");
+
+}
+// ===============================
+// Signature électronique
+// ===============================
+
+const canvas = document.getElementById("signaturePad");
+
+let signaturePad = null;
+
+if (canvas) {
+
+  signaturePad = new SignaturePad(canvas, {
+    backgroundColor: "rgb(255,255,255)"
+  });
+
+}
+
+const boutonEffacer = document.getElementById("effacerSignature");
+
+if (boutonEffacer && signaturePad) {
+
+  boutonEffacer.addEventListener("click", function () {
+
+    signaturePad.clear();
+
+  });
 
 }
