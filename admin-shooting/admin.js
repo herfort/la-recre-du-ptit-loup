@@ -700,3 +700,12 @@ doc.text(
 20,
 y
 );
+// Enregistrement du PDF
+
+doc.save(
+"autorisation-" +
+data.nom_parent +
+".pdf"
+);
+
+}
