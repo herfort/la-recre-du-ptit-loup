@@ -347,365 +347,289 @@ location.reload();
 // Génération PDF autorisation complète
 // ===============================
 
-async function voirAutorisation(id){
+async function voirAutorisation(id) {
 
+  const { data, error } = await supabase
+    .from("shooting_inscription")
+    .select("*")
+    .eq("Id", id)
+    .single();
 
-const { data, error } =
-await supabaseClient
-.from("shooting_inscriptions")
-.select("*")
-.eq("id", id)
-.single();
+  if (error) {
+    console.error(error);
+    alert("Impossible de récupérer l'inscription");
+    return;
+  }
 
 
-if(error){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-console.error(error);
-alert("Erreur récupération inscription");
-return;
 
-}
+  // ===============================
+  // DONNEES
+  // ===============================
 
+  const enfants = Array.isArray(data.Enfants)
+    ? data.Enfants
+    : JSON.parse(data.Enfants || "[]");
 
-// Récupération des infos shooting
 
-const { data: parametres } =
-await supabaseClient
-.from("shooting_parametres")
-.select("*")
-.single();
+  const nomEnfants = enfants
+    .map(e => `${e.prenom || ""} ${e.nom || ""}`)
+    .join(", ");
 
 
+  const nomFichier =
+    `Autorisation_Shooting_${data.Prenom_parent}_${data.Nom_parent}_21-10-2026.pdf`
+      .replace(/\s+/g, "_");
 
-const { jsPDF } =
-window.jspdf;
 
+  // ===============================
+  // STYLE GENERAL
+  // ===============================
 
-const doc =
-new jsPDF();
+  const marge = 20;
+  let y = 20;
 
 
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(
+    "LA RÉCRÉ DU P'TIT LOUP",
+    105,
+    y,
+    { align:"center" }
+  );
 
 
+  y += 10;
 
+  doc.setFontSize(14);
+  doc.text(
+    "Autorisation parentale - Shooting photo",
+    105,
+    y,
+    { align:"center" }
+  );
 
-// ===============================
-// En-tête
-// ===============================
 
-doc.setFontSize(20);
-doc.text(
-"La Récré Du P'tit Loup",
-105,
-20,
-{
-align:"center"
-}
-);
+  y += 8;
 
+  doc.setLineWidth(0.5);
+  doc.line(marge, y, 190, y);
 
-doc.setFontSize(14);
 
-doc.text(
-"Autorisation parentale",
-105,
-32,
-{
-align:"center"
-}
-);
+  y += 12;
 
 
-doc.text(
-"Shooting Photo",
-105,
-40,
-{
-align:"center"
-}
-);
 
+  // ===============================
+  // FONCTION ENCADRE
+  // ===============================
 
-// Ligne de séparation
+  function encadre(titre, lignes) {
 
-doc.line(
-20,
-47,
-190,
-47
-);
+    const hauteur = lignes.length * 7 + 12;
 
+    doc.roundedRect(
+      marge,
+      y,
+      170,
+      hauteur,
+      3,
+      3
+    );
 
-let y = 60;
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(11);
+    doc.text(titre, marge + 5, y + 8);
 
 
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(10);
 
-// ===============================
-// Informations photographe
-// ===============================
+    let ligneY = y + 16;
 
-doc.setFontSize(13);
+    lignes.forEach(l => {
+      doc.text(l, marge + 5, ligneY);
+      ligneY += 7;
+    });
 
-doc.text(
-"Informations photographe",
-25,
-y
-);
 
-y += 8;
+    y += hauteur + 8;
+  }
 
 
-// Cadre
 
-doc.rect(
-20,
-y - 5,
-170,
-30
-);
+  // ===============================
+  // INFORMATIONS
+  // ===============================
 
 
-doc.setFontSize(11);
+  encadre(
+    "Photographe",
+    [
+      "Nom : Adonis Studio Photo",
+      "Email : " + (data.email_photographe || "")
+    ]
+  );
 
-doc.text(
-"Nom : " +
-(parametres && parametres.nom_photographe ? parametres.nom_photographe : ""),
-30,
-y + 5
-);
 
+  encadre(
+    "Responsable légal",
+    [
+      "Nom : " + data.Prenom_parent + " " + data.Nom_parent,
+      "Téléphone : " + data.Telephone,
+      "Email : " + data.Email
+    ]
+  );
 
-doc.text(
-"Email : " +
-(parametres && parametres.email_photographe ? parametres.email_photographe : ""),
-30,
-y + 13
-);
 
+  encadre(
+    "Enfant(s)",
+    [
+      nomEnfants
+    ]
+  );
 
-doc.text(
-"Facebook : " +
-(parametres && parametres.facebook_photographe ? parametres.facebook_photographe : ""),
-30,
-y + 21
-);
 
-y += 45;
 
-// ===============================
-// Informations famille
-// ===============================
+  // ===============================
+  // SEANCE
+  // ===============================
 
-doc.setFontSize(13);
+  doc.setFont("helvetica","bold");
+  doc.text("Séance :", marge, y);
 
-doc.text(
-"Responsable légal",
-25,
-y
-);
+  y += 7;
 
-y += 8;
+  doc.setFont("helvetica","normal");
 
+  doc.text(
+    `Date : 21/10/2026     Créneau : ${data.Creneau}`,
+    marge,
+    y
+  );
 
-doc.rect(
-20,
-y - 5,
-170,
-35
-);
+  y += 7;
 
+  doc.text(
+    `Type : ${data.Type_photo}`,
+    marge,
+    y
+  );
 
-doc.setFontSize(11);
 
+  y += 15;
 
-doc.text(
-data.prenom_parent +
-" " +
-data.nom_parent,
-30,
-y + 7
-);
 
 
-doc.text(
-"Téléphone : " +
-data.telephone,
-30,
-y + 15
-);
+  // ===============================
+  // TEXTE AUTORISATION
+  // ===============================
 
 
-doc.text(
-"Email : " +
-data.email,
-30,
-y + 23
-);
+  const texte = `
+Je soussigné(e), ${data.Prenom_parent} ${data.Nom_parent},
+responsable légal de l'enfant indiqué ci-dessus, autorise
+La Récré Du P'tit Loup ainsi que le photographe Adonis Studio Photo
+à réaliser des photographies lors du shooting photo du 21 octobre 2026.
 
+J'autorise l'utilisation des photographies réalisées dans le cadre
+des activités de l'association La Récré Du P'tit Loup, conformément
+aux besoins de communication de l'association.
 
-y += 50;
-// Enfants
+Cette autorisation est accordée gratuitement et sans contrepartie.
+`;
 
-doc.setFontSize(13);
 
-doc.text(
-"Enfant(s)",
-20,
-y
-);
 
+  doc.setFontSize(10);
 
-y += 8;
+  const lignes = doc.splitTextToSize(
+    texte,
+    170
+  );
 
 
-doc.setFontSize(12);
+  doc.text(
+    lignes,
+    marge,
+    y
+  );
 
 
-data.enfants.forEach(enfant=>{
+  y += lignes.length * 5 + 15;
 
-doc.text(
-"- " +
-enfant.prenom +
-" " +
-enfant.nom,
-25,
-y
-);
 
-y += 8;
 
-});
+  // ===============================
+  // SIGNATURE
+  // ===============================
 
 
+  doc.roundedRect(
+    marge,
+    y,
+    170,
+    45,
+    3,
+    3
+  );
 
-y += 10;
 
+  doc.setFont("helvetica","bold");
+  doc.text(
+    "Signature du responsable légal",
+    marge + 5,
+    y + 10
+  );
 
 
-// Séance
+  doc.setFont("helvetica","normal");
 
-doc.setFontSize(13);
+  doc.text(
+    "Date : __________________",
+    marge + 5,
+    y + 22
+  );
 
-doc.text(
-"Shooting",
-20,
-y
-);
 
+  doc.text(
+    "Signature :",
+    marge + 5,
+    y + 34
+  );
 
-y += 8;
 
 
-doc.setFontSize(12);
+  // ===============================
+  // PIED DE PAGE
+  // ===============================
 
+  doc.setFontSize(8);
 
-doc.text(
-"Date : " +
-(parametres?.date_shooting || ""),
-20,
-y
-);
+  doc.text(
+    "La Récré Du P'tit Loup - 72 rue de la Planquette - 60290 Laigneville",
+    105,
+    285,
+    {align:"center"}
+  );
 
+  doc.text(
+    "06 62 37 46 38 • larecreduptitloup@gmail.com",
+    105,
+    290,
+    {align:"center"}
+  );
 
-y += 8;
 
 
-doc.text(
-"Créneau : " +
-data.creneau,
-20,
-y
-);
+  // ===============================
+  // SAUVEGARDE
+  // ===============================
 
-
-y += 8;
-
-
-doc.text(
-"Type de photo : " +
-data.type_photo,
-20,
-y
-);
-
-
-
-y += 20;
-
-
-// Texte autorisation
-
-doc.setFontSize(11);
-
-
-const texte =
-"J’autorise La Récré Du P’tit Loup et la photographe à réaliser des photographies de mon enfant dans le cadre du shooting photo organisé par l’association.\n\n" +
-"J’autorise également la diffusion des photographies réalisées dans une galerie photo privée, accessible uniquement aux familles participantes au shooting, afin de permettre le partage et la consultation des images par les participants.\n\n" +
-"Ces photographies ne seront pas utilisées à d’autres fins sans l’accord préalable des responsables légaux.";
-
-
-const lignes =
-doc.splitTextToSize(
-texte,
-165
-);
-
-
-doc.text(
-lignes,
-20,
-y
-);
-
-
-// On descend automatiquement selon la hauteur du texte
-y += (lignes.length * 6) + 15;
-
-
-// ===============================
-// Signature
-// ===============================
-
-if(y > 220){
-
-  doc.addPage();
-
-  y = 30;
-
-}
-
-
-doc.setFontSize(12);
-
-doc.text(
-"Signature du responsable :",
-20,
-y
-);
-
-
-doc.rect(
-20,
-y + 5,
-80,
-35
-);
-
-
-y += 55;
-
-
-doc.text(
-"Date : ____________________",
-20,
-y
-);
-// Enregistrement du PDF
-
-doc.save(
-"autorisation-" +
-data.nom_parent +
-".pdf"
-);
+  doc.save(nomFichier);
 
 }
