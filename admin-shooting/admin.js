@@ -349,16 +349,22 @@ location.reload();
 
 async function voirAutorisation(id) {
 
-  const { data, error } = await supabase
-    .from("shooting_inscription")
+  const { data, error } = await supabaseClient
+    .from("shooting_inscriptions")
     .select("*")
-    .eq("Id", id)
+    .eq("id", id)
     .single();
+
 
   if (error) {
     console.error(error);
     alert("Impossible de récupérer l'inscription");
     return;
+  }
+
+
+  if(typeof data.enfants === "string"){
+    data.enfants = JSON.parse(data.enfants);
   }
 
 
@@ -370,9 +376,9 @@ async function voirAutorisation(id) {
   // DONNEES
   // ===============================
 
-  const enfants = Array.isArray(data.Enfants)
-    ? data.Enfants
-    : JSON.parse(data.Enfants || "[]");
+  const enfants = Array.isArray(data.enfants)
+    ? data.enfants
+    : JSON.parse(data.enfants || "[]");
 
 
   const nomEnfants = enfants
@@ -381,7 +387,7 @@ async function voirAutorisation(id) {
 
 
   const nomFichier =
-    `Autorisation_Shooting_${data.Prenom_parent}_${data.Nom_parent}_21-10-2026.pdf`
+    `Autorisation_Shooting_${data.prenom_parent}_${data.nom_parent}_21-10-2026.pdf`
       .replace(/\s+/g, "_");
 
 
@@ -479,9 +485,9 @@ async function voirAutorisation(id) {
   encadre(
     "Responsable légal",
     [
-      "Nom : " + data.Prenom_parent + " " + data.Nom_parent,
-      "Téléphone : " + data.Telephone,
-      "Email : " + data.Email
+      "Nom : " + data.prenom_parent + " " + data.nom_parent,
+      "Téléphone : " + data.telephone,
+      "Email : " + data.email
     ]
   );
 
@@ -489,7 +495,7 @@ async function voirAutorisation(id) {
   encadre(
     "Enfant(s)",
     [
-      nomEnfants
+      nomenfants
     ]
   );
 
@@ -507,7 +513,7 @@ async function voirAutorisation(id) {
   doc.setFont("helvetica","normal");
 
   doc.text(
-    `Date : 21/10/2026     Créneau : ${data.Creneau}`,
+    `Date : 21/10/2026     Créneau : ${data.creneau}`,
     marge,
     y
   );
@@ -515,7 +521,7 @@ async function voirAutorisation(id) {
   y += 7;
 
   doc.text(
-    `Type : ${data.Type_photo}`,
+    `Type : ${data.type_photo}`,
     marge,
     y
   );
@@ -531,7 +537,7 @@ async function voirAutorisation(id) {
 
 
   const texte = `
-Je soussigné(e), ${data.Prenom_parent} ${data.Nom_parent},
+Je soussigné(e), ${data.prenom_parent} ${data.nom_parent},
 responsable légal de l'enfant indiqué ci-dessus, autorise
 La Récré Du P'tit Loup ainsi que le photographe Adonis Studio Photo
 à réaliser des photographies lors du shooting photo du 21 octobre 2026.
