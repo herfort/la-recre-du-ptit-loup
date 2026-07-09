@@ -662,8 +662,18 @@ y
 y += (lignes.length * 6) + 15;
 
 
-
+// ===============================
 // Signature
+// ===============================
+
+if(y > 220){
+
+  doc.addPage();
+
+  y = 30;
+
+}
+
 
 doc.setFontSize(12);
 
@@ -690,14 +700,3 @@ doc.text(
 20,
 y
 );
-
-
-
-doc.save(
-"autorisation-" +
-data.nom_parent +
-".pdf"
-);
-
-
-}
