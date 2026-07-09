@@ -495,7 +495,7 @@ async function voirAutorisation(id) {
   encadre(
     "Enfant(s)",
     [
-      nomenfants
+      nomEnfants
     ]
   );
 
