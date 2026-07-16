@@ -344,13 +344,13 @@ location.reload();
 
 }
 // ===============================
-// Génération PDF autorisation
+// Génération du PDF Autorisation
 // ===============================
 
 async function voirAutorisation(id) {
 
   // ===============================
-  // Récupération inscription
+  // Récupération de l'inscription
   // ===============================
 
   const { data, error } = await supabaseClient
@@ -361,41 +361,88 @@ async function voirAutorisation(id) {
 
   if (error) {
     console.error(error);
-    alert("Impossible de récupérer l'inscription");
+    alert("Impossible de récupérer l'inscription.");
     return;
   }
 
   // ===============================
-  // Récupération paramètres
+  // Récupération des paramètres
   // ===============================
 
-  const { data: parametres, error: erreurParametres } =
-    await supabaseClient
-      .from("shooting_parametres")
-      .select("*")
-      .single();
+  const {
+    data: parametres,
+    error: erreurParametres
+  } = await supabaseClient
+    .from("shooting_parametres")
+    .select("*")
+    .single();
 
   if (erreurParametres) {
     console.error(erreurParametres);
   }
+
+  // Conversion JSON enfants
 
   if (typeof data.enfants === "string") {
     data.enfants = JSON.parse(data.enfants);
   }
 
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const doc = new jsPDF("portrait", "mm", "a4");
 
   const marge = 18;
   let y = 18;
 
   // ===============================
-  // Couleur principale
+  // Couleurs
   // ===============================
 
-  doc.setDrawColor(32, 97, 64);
-  doc.setTextColor(32, 97, 64);
+  const vert = [36, 94, 58];
 
+  // ===============================
+  // Date française
+  // ===============================
+
+  const dateAffichee =
+    new Date(parametres.date_shooting)
+      .toLocaleDateString("fr-FR");
+
+  // ===============================
+  // Type photo
+  // ===============================
+
+  let typePhoto = data.type_photo;
+
+  switch (typePhoto) {
+
+    case "individuel":
+      typePhoto = "Photo individuelle";
+      break;
+
+    case "fratrie":
+      typePhoto = "Photo de fratrie";
+      break;
+
+    case "les2":
+      typePhoto = "Photo individuelle + Fratrie";
+      break;
+
+  }
+
+  // ===============================
+  // Nom du fichier
+  // ===============================
+
+  const nomFichier =
+    `Autorisation_Shooting_${data.prenom_parent}_${data.nom_parent}_${dateAffichee}`
+      .replace(/\//g, "-")
+      .replace(/\s+/g, "_");
+
+  // ===============================
+  // En-tête
+  // ===============================
+
+  doc.setTextColor(...vert);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
 
@@ -419,6 +466,8 @@ async function voirAutorisation(id) {
 
   y += 7;
 
+  doc.setDrawColor(...vert);
+
   doc.line(
     marge,
     y,
@@ -426,55 +475,61 @@ async function voirAutorisation(id) {
     y
   );
 
-  y += 12;
+  y += 10;
 
-  doc.setTextColor(0,0,0);
+  doc.setTextColor(0);
 
   // ===============================
-  // Fonction encadré
+  // Fonction Encadré
   // ===============================
 
-  function encadre(titre, lignes){
+  function encadre(titre, lignes) {
 
-    let hauteur =
-      16 + (lignes.length * 7);
+    const hauteur =
+      13 + (lignes.length * 6);
+
+    doc.setDrawColor(...vert);
 
     doc.roundedRect(
       marge,
       y,
       174,
       hauteur,
-      4,
-      4
+      3,
+      3
     );
 
-    doc.setFont("helvetica","bold");
+    doc.setTextColor(...vert);
+
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
 
     doc.text(
       titre,
       marge + 5,
-      y + 8
+      y + 7
     );
 
-    doc.setFont("helvetica","normal");
+    doc.setTextColor(0);
+
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
 
-    let yy = y + 16;
+    let yy = y + 14;
 
-    lignes.forEach(ligne=>{
+    lignes.forEach(ligne => {
 
       doc.text(
         ligne,
-        marge + 6,
+        marge + 5,
         yy
       );
 
-      yy += 7;
+      yy += 6;
 
     });
 
-    y += hauteur + 8;
+    y += hauteur + 6;
 
   }
 
@@ -483,7 +538,7 @@ async function voirAutorisation(id) {
   // ===============================
 
   encadre(
-    "📸 Photographe",
+    "Photographe",
     [
       "Nom : " + (parametres?.nom_photographe || ""),
       "Téléphone : " + (parametres?.telephone_photographe || ""),
@@ -496,7 +551,7 @@ async function voirAutorisation(id) {
   // ===============================
 
   encadre(
-    "👨 Responsable légal",
+    "Responsable légal",
     [
       "Nom : " + data.prenom_parent + " " + data.nom_parent,
       "Téléphone : " + data.telephone,
@@ -505,125 +560,115 @@ async function voirAutorisation(id) {
   );
 
   // ===============================
-  // Enfants
+  // Enfant(s)
   // ===============================
 
   const listeEnfants = [];
 
-  data.enfants.forEach(enfant=>{
+  data.enfants.forEach(enfant => {
 
     listeEnfants.push(
-      "• " + enfant.prenom + " " + enfant.nom
+      "• " +
+      enfant.prenom +
+      " " +
+      enfant.nom
     );
 
   });
 
   encadre(
-    "👶 Enfant(s)",
+    "Enfant(s)",
     listeEnfants
   );
     // ===============================
-  // Séance
+  // Séance photo
   // ===============================
 
-  let typePhoto = data.type_photo;
-
-  switch(typePhoto){
-
-    case "individuel":
-      typePhoto = "Photo individuelle";
-      break;
-
-    case "fratrie":
-      typePhoto = "Photo fratrie";
-      break;
-
-    case "les2":
-      typePhoto = "Photo individuelle + Fratrie";
-      break;
-
-    default:
-      typePhoto = data.type_photo;
-
-  }
-
+  doc.setTextColor(...vert);
   doc.setFont("helvetica","bold");
   doc.setFontSize(12);
 
   doc.text(
-    "📅 Séance photo",
+    "Séance photo",
     marge,
     y
   );
 
   y += 8;
 
+  doc.setDrawColor(180);
+
+  doc.roundedRect(
+    marge,
+    y,
+    174,
+    18,
+    2,
+    2
+  );
+
+  doc.setTextColor(0);
   doc.setFont("helvetica","normal");
   doc.setFontSize(10);
 
   doc.text(
-    "Date : " +
-    (parametres?.date_shooting || "21/10/2026"),
-    marge,
-    y
+    "Date : " + dateAffichee,
+    marge + 5,
+    y + 7
   );
 
   doc.text(
     "Créneau : " + data.creneau,
-    90,
-    y
+    92,
+    y + 7
   );
-
-  y += 7;
 
   doc.text(
-    "Type de séance : " + typePhoto,
-    marge,
-    y
+    "Type : " + typePhoto,
+    marge + 5,
+    y + 14
   );
 
-  y += 14;
+  y += 28;
 
   // ===============================
   // Autorisation
   // ===============================
 
+  doc.setTextColor(...vert);
   doc.setFont("helvetica","bold");
   doc.setFontSize(12);
 
   doc.text(
-    "Autorisation",
+    "Autorisation parentale",
     marge,
     y
   );
 
   y += 8;
 
+  doc.setTextColor(0);
   doc.setFont("helvetica","normal");
   doc.setFontSize(10);
 
   const texte = `
 Je soussigné(e), ${data.prenom_parent} ${data.nom_parent},
-responsable légal de l'enfant (ou des enfants) mentionné(s)
-dans le présent document, autorise la réalisation de
-photographies dans le cadre du shooting photo organisé
-par l'association La Récré Du P'tit Loup le 21 octobre 2026.
+responsable légal de l'enfant (ou des enfants) désigné(s) ci-dessus,
+autorise l'association La Récré Du P'tit Loup à organiser une séance
+photographique réalisée par ${parametres?.nom_photographe || "la photographe"}.
 
-Les photographies seront réalisées par
-${parametres?.nom_photographe || "Adonis Studio Photo"}.
+J'autorise la réalisation des photographies ainsi que leur mise à disposition
+dans une galerie privée et sécurisée réservée exclusivement aux familles
+ayant participé au shooting photo.
 
-Les clichés seront ensuite mis à disposition des familles
-participantes via une galerie privée et sécurisée afin de
-permettre leur consultation et, le cas échéant, la commande
-de photographies.
+Je reconnais avoir été informé(e) que cette galerie permettra uniquement
+la consultation et, si je le souhaite, la commande des photographies.
 
-La présente autorisation est valable uniquement pour la
-séance photo du 21 octobre 2026 et ne vaut pas autorisation
-de diffusion publique des images par l'association.
+La présente autorisation est valable uniquement dans le cadre du shooting
+photo organisé le ${dateAffichee}.
 
-Toute utilisation des photographies à des fins de
-communication fera l'objet d'une autorisation spécifique
-du responsable légal.
+Toute autre utilisation ou diffusion des photographies par l'association
+fera l'objet d'une autorisation écrite spécifique du responsable légal.
 `;
 
   const lignes = doc.splitTextToSize(
@@ -637,99 +682,115 @@ du responsable légal.
     y
   );
 
-  y += lignes.length * 5 + 12;
+  y += (lignes.length * 5) + 10;
     // ===============================
   // Signature
   // ===============================
 
-  if (y > 215) {
+  if (y > 235) {
     doc.addPage();
-    y = 25;
+    y = 20;
   }
 
-  doc.setDrawColor(180);
-
-  doc.roundedRect(
-    marge,
-    y,
-    174,
-    55,
-    4,
-    4
-  );
-
-  doc.setFont("helvetica","bold");
+  doc.setTextColor(...vert);
+  doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
 
   doc.text(
     "Signature du responsable légal",
-    marge + 5,
-    y + 10
+    marge,
+    y
   );
 
+  y += 6;
+
+  doc.setDrawColor(180);
+
+  doc.line(
+    marge,
+    y,
+    192,
+    y
+  );
+
+  y += 12;
+
+  doc.setTextColor(0);
   doc.setFont("helvetica","normal");
   doc.setFontSize(10);
 
   doc.text(
-    "Fait à : ..............................................................",
-    marge + 5,
-    y + 22
+    "Fait à : __________________________________________",
+    marge,
+    y
   );
 
+  y += 10;
+
   doc.text(
-    "Le : ......... / ......... / .................",
-    marge + 5,
-    y + 32
+    "Le : ______ / ______ / __________",
+    marge,
+    y
   );
+
+  y += 12;
 
   doc.text(
     "Signature :",
-    marge + 5,
-    y + 44
+    marge,
+    y
+  );
+
+  y += 22;
+
+  doc.line(
+    marge + 30,
+    y,
+    185,
+    y
   );
 
   // ===============================
   // Pied de page
   // ===============================
 
-  doc.setFontSize(8);
-  doc.setTextColor(110);
+  doc.setDrawColor(...vert);
 
   doc.line(
     marge,
-    274,
+    277,
     192,
-    274
+    277
   );
+
+  doc.setTextColor(90);
+  doc.setFontSize(8);
+  doc.setFont("helvetica","normal");
 
   doc.text(
     "La Récré Du P'tit Loup",
     105,
-    279,
+    282,
     { align: "center" }
   );
 
   doc.text(
     "72 rue de la Planquette - 60290 Laigneville",
     105,
-    284,
+    286,
     { align: "center" }
   );
 
   doc.text(
     "06 62 37 46 38 - larecreduptitloup@gmail.com",
     105,
-    289,
+    290,
     { align: "center" }
   );
 
   // ===============================
-  // Nom du fichier
+  // Enregistrement
   // ===============================
-
-  const nomFichier =
-    `Autorisation_Shooting_${data.prenom_parent}_${data.nom_parent}_21-10-2026.pdf`
-      .replace(/\s+/g, "_");
 
   doc.save(nomFichier);
 
