@@ -486,7 +486,7 @@ async function voirAutorisation(id) {
   function encadre(titre, lignes) {
 
     const hauteur =
-      13 + (lignes.length * 6);
+      13 + (lignes.length * 5);
 
     doc.setDrawColor(...vert);
 
@@ -515,7 +515,7 @@ async function voirAutorisation(id) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
 
-    let yy = y + 14;
+    let yy = y + 12;
 
     lignes.forEach(ligne => {
 
@@ -525,11 +525,11 @@ async function voirAutorisation(id) {
         yy
       );
 
-      yy += 6;
+      yy += 5;
 
     });
 
-    y += hauteur + 6;
+    y += hauteur + 3;
 
   }
 
@@ -651,26 +651,23 @@ async function voirAutorisation(id) {
   doc.setFont("helvetica","normal");
   doc.setFontSize(10);
 
-  const texte = `
+const texte = `
 Je soussigné(e), ${data.prenom_parent} ${data.nom_parent},
-responsable légal de l'enfant (ou des enfants) désigné(s) ci-dessus,
-autorise l'association La Récré Du P'tit Loup à organiser une séance
-photographique réalisée par ${parametres?.nom_photographe || "la photographe"}.
+responsable légal de l'enfant (ou des enfants) désigné(s)
+ci-dessus, autorise la réalisation de photographies lors
+du shooting photo organisé par La Récré Du P'tit Loup
+le ${dateAffichee}.
 
-J'autorise la réalisation des photographies ainsi que leur mise à disposition
-dans une galerie privée et sécurisée réservée exclusivement aux familles
-ayant participé au shooting photo.
+Les photographies seront réalisées par
+${parametres?.nom_photographe || "la photographe"}.
 
-Je reconnais avoir été informé(e) que cette galerie permettra uniquement
-la consultation et, si je le souhaite, la commande des photographies.
+Les clichés seront mis à disposition des familles via
+une galerie privée et sécurisée afin de permettre leur
+consultation et, si elles le souhaitent, leur commande.
 
-La présente autorisation est valable uniquement dans le cadre du shooting
-photo organisé le ${dateAffichee}.
-
-Toute autre utilisation ou diffusion des photographies par l'association
-fera l'objet d'une autorisation écrite spécifique du responsable légal.
+Cette autorisation est valable uniquement pour cette
+séance photo.
 `;
-
   const lignes = doc.splitTextToSize(
     texte,
     172
@@ -687,7 +684,7 @@ fera l'objet d'une autorisation écrite spécifique du responsable légal.
   // Signature
   // ===============================
 
-  if (y > 235) {
+  if (y > 270) {
     doc.addPage();
     y = 20;
   }
@@ -741,14 +738,14 @@ fera l'objet d'une autorisation écrite spécifique du responsable légal.
     y
   );
 
-  y += 22;
+  y += 14;
 
-  doc.line(
-    marge + 30,
+ doc.line(
+    marge + 28,
     y,
-    185,
+    175,
     y
-  );
+);
 
   // ===============================
   // Pied de page
