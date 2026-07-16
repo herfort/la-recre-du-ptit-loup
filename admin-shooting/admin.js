@@ -344,10 +344,14 @@ location.reload();
 
 }
 // ===============================
-// Génération PDF autorisation complète
+// Génération PDF autorisation
 // ===============================
 
 async function voirAutorisation(id) {
+
+  // ===============================
+  // Récupération inscription
+  // ===============================
 
   const { data, error } = await supabaseClient
     .from("shooting_inscriptions")
@@ -355,144 +359,144 @@ async function voirAutorisation(id) {
     .eq("id", id)
     .single();
 
-
   if (error) {
     console.error(error);
     alert("Impossible de récupérer l'inscription");
     return;
   }
 
+  // ===============================
+  // Récupération paramètres
+  // ===============================
 
-  if(typeof data.enfants === "string"){
+  const { data: parametres, error: erreurParametres } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("*")
+      .single();
+
+  if (erreurParametres) {
+    console.error(erreurParametres);
+  }
+
+  if (typeof data.enfants === "string") {
     data.enfants = JSON.parse(data.enfants);
   }
-const { data: parametres, error: erreurParametres } =
-await supabaseClient
-  .from("shooting_parametres")
-  .select("*")
-  .single();
-
-if (erreurParametres) {
-  console.error(erreurParametres);
-}
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
+  const marge = 18;
+  let y = 18;
 
   // ===============================
-  // DONNEES
+  // Couleur principale
   // ===============================
 
-  const enfants = Array.isArray(data.enfants)
-    ? data.enfants
-    : JSON.parse(data.enfants || "[]");
-
-
-  const nomEnfants = enfants
-    .map(e => `${e.prenom || ""} ${e.nom || ""}`)
-    .join(", ");
-
-
-  const nomFichier =
-    `Autorisation_Shooting_${data.prenom_parent}_${data.nom_parent}_21-10-2026.pdf`
-      .replace(/\s+/g, "_");
-
-
-  // ===============================
-  // STYLE GENERAL
-  // ===============================
-
-  const marge = 20;
-  let y = 20;
-
+  doc.setDrawColor(32, 97, 64);
+  doc.setTextColor(32, 97, 64);
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
+  doc.setFontSize(20);
+
   doc.text(
     "LA RÉCRÉ DU P'TIT LOUP",
     105,
     y,
-    { align:"center" }
+    { align: "center" }
   );
-
 
   y += 10;
 
   doc.setFontSize(14);
+
   doc.text(
     "Autorisation parentale - Shooting photo",
     105,
     y,
-    { align:"center" }
+    { align: "center" }
   );
 
+  y += 7;
 
-  y += 8;
-
-  doc.setLineWidth(0.5);
-  doc.line(marge, y, 190, y);
-
+  doc.line(
+    marge,
+    y,
+    192,
+    y
+  );
 
   y += 12;
 
-
+  doc.setTextColor(0,0,0);
 
   // ===============================
-  // FONCTION ENCADRE
+  // Fonction encadré
   // ===============================
 
-  function encadre(titre, lignes) {
+  function encadre(titre, lignes){
 
-    const hauteur = lignes.length * 7 + 12;
+    let hauteur =
+      16 + (lignes.length * 7);
 
     doc.roundedRect(
       marge,
       y,
-      170,
+      174,
       hauteur,
-      3,
-      3
+      4,
+      4
     );
 
     doc.setFont("helvetica","bold");
     doc.setFontSize(11);
-    doc.text(titre, marge + 5, y + 8);
 
+    doc.text(
+      titre,
+      marge + 5,
+      y + 8
+    );
 
     doc.setFont("helvetica","normal");
     doc.setFontSize(10);
 
-    let ligneY = y + 16;
+    let yy = y + 16;
 
-    lignes.forEach(l => {
-      doc.text(l, marge + 5, ligneY);
-      ligneY += 7;
+    lignes.forEach(ligne=>{
+
+      doc.text(
+        ligne,
+        marge + 6,
+        yy
+      );
+
+      yy += 7;
+
     });
 
-
     y += hauteur + 8;
+
   }
 
-
-
   // ===============================
-  // INFORMATIONS
+  // Photographe
   // ===============================
-
-
-encadre(
-  "Photographe",
-  [
-    "Nom : " + (parametres.nom_photographe || ""),
-    "Email : " + (parametres.email_photographe || ""),
-    "Téléphone : " + (parametres.telephone_photographe || "")
-  ]
-);
-
 
   encadre(
-    "Responsable légal",
+    "📸 Photographe",
+    [
+      "Nom : " + (parametres?.nom_photographe || ""),
+      "Téléphone : " + (parametres?.telephone_photographe || ""),
+      "Email : " + (parametres?.email_photographe || "")
+    ]
+  );
+
+  // ===============================
+  // Responsable légal
+  // ===============================
+
+  encadre(
+    "👨 Responsable légal",
     [
       "Nom : " + data.prenom_parent + " " + data.nom_parent,
       "Téléphone : " + data.telephone,
@@ -500,73 +504,132 @@ encadre(
     ]
   );
 
+  // ===============================
+  // Enfants
+  // ===============================
+
+  const listeEnfants = [];
+
+  data.enfants.forEach(enfant=>{
+
+    listeEnfants.push(
+      "• " + enfant.prenom + " " + enfant.nom
+    );
+
+  });
 
   encadre(
-    "Enfant(s)",
-    [
-      nomEnfants
-    ]
+    "👶 Enfant(s)",
+    listeEnfants
+  );
+    // ===============================
+  // Séance
+  // ===============================
+
+  let typePhoto = data.type_photo;
+
+  switch(typePhoto){
+
+    case "individuel":
+      typePhoto = "Photo individuelle";
+      break;
+
+    case "fratrie":
+      typePhoto = "Photo fratrie";
+      break;
+
+    case "les2":
+      typePhoto = "Photo individuelle + Fratrie";
+      break;
+
+    default:
+      typePhoto = data.type_photo;
+
+  }
+
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+
+  doc.text(
+    "📅 Séance photo",
+    marge,
+    y
   );
 
+  y += 8;
 
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(10);
+
+  doc.text(
+    "Date : " +
+    (parametres?.date_shooting || "21/10/2026"),
+    marge,
+    y
+  );
+
+  doc.text(
+    "Créneau : " + data.creneau,
+    90,
+    y
+  );
+
+  y += 7;
+
+  doc.text(
+    "Type de séance : " + typePhoto,
+    marge,
+    y
+  );
+
+  y += 14;
 
   // ===============================
-  // SEANCE
+  // Autorisation
   // ===============================
 
   doc.setFont("helvetica","bold");
-  doc.text("Séance :", marge, y);
+  doc.setFontSize(12);
 
-  y += 7;
+  doc.text(
+    "Autorisation",
+    marge,
+    y
+  );
+
+  y += 8;
 
   doc.setFont("helvetica","normal");
-
-  doc.text(
-    `Date : 21/10/2026     Créneau : ${data.creneau}`,
-    marge,
-    y
-  );
-
-  y += 7;
-
-  doc.text(
-    `Type : ${data.type_photo}`,
-    marge,
-    y
-  );
-
-
-  y += 15;
-
-
-
-  // ===============================
-  // TEXTE AUTORISATION
-  // ===============================
-
+  doc.setFontSize(10);
 
   const texte = `
 Je soussigné(e), ${data.prenom_parent} ${data.nom_parent},
-responsable légal de l'enfant indiqué ci-dessus, autorise
-La Récré Du P'tit Loup ainsi que le photographe Adonis Studio Photo
-à réaliser des photographies lors du shooting photo du 21 octobre 2026.
+responsable légal de l'enfant (ou des enfants) mentionné(s)
+dans le présent document, autorise la réalisation de
+photographies dans le cadre du shooting photo organisé
+par l'association La Récré Du P'tit Loup le 21 octobre 2026.
 
-J'autorise l'utilisation des photographies réalisées dans le cadre
-des activités de l'association La Récré Du P'tit Loup, conformément
-aux besoins de communication de l'association.
+Les photographies seront réalisées par
+${parametres?.nom_photographe || "Adonis Studio Photo"}.
 
-Cette autorisation est accordée gratuitement et sans contrepartie.
+Les clichés seront ensuite mis à disposition des familles
+participantes via une galerie privée et sécurisée afin de
+permettre leur consultation et, le cas échéant, la commande
+de photographies.
+
+La présente autorisation est valable uniquement pour la
+séance photo du 21 octobre 2026 et ne vaut pas autorisation
+de diffusion publique des images par l'association.
+
+Toute utilisation des photographies à des fins de
+communication fera l'objet d'une autorisation spécifique
+du responsable légal.
 `;
-
-
-
-  doc.setFontSize(10);
 
   const lignes = doc.splitTextToSize(
     texte,
-    170
+    172
   );
-
 
   doc.text(
     lignes,
@@ -574,76 +637,99 @@ Cette autorisation est accordée gratuitement et sans contrepartie.
     y
   );
 
-
-  y += lignes.length * 5 + 15;
-
-
-
-  // ===============================
-  // SIGNATURE
+  y += lignes.length * 5 + 12;
+    // ===============================
+  // Signature
   // ===============================
 
+  if (y > 215) {
+    doc.addPage();
+    y = 25;
+  }
+
+  doc.setDrawColor(180);
 
   doc.roundedRect(
     marge,
     y,
-    170,
-    45,
-    3,
-    3
+    174,
+    55,
+    4,
+    4
   );
 
-
   doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+
   doc.text(
     "Signature du responsable légal",
     marge + 5,
     y + 10
   );
 
-
   doc.setFont("helvetica","normal");
+  doc.setFontSize(10);
 
   doc.text(
-    "Date : __________________",
+    "Fait à : ..............................................................",
     marge + 5,
     y + 22
   );
 
+  doc.text(
+    "Le : ......... / ......... / .................",
+    marge + 5,
+    y + 32
+  );
 
   doc.text(
     "Signature :",
     marge + 5,
-    y + 34
+    y + 44
   );
 
-
-
   // ===============================
-  // PIED DE PAGE
+  // Pied de page
   // ===============================
 
   doc.setFontSize(8);
+  doc.setTextColor(110);
 
-  doc.text(
-    "La Récré Du P'tit Loup - 72 rue de la Planquette - 60290 Laigneville",
-    105,
-    285,
-    {align:"center"}
+  doc.line(
+    marge,
+    274,
+    192,
+    274
   );
 
   doc.text(
-    "06 62 37 46 38 • larecreduptitloup@gmail.com",
+    "La Récré Du P'tit Loup",
     105,
-    290,
-    {align:"center"}
+    279,
+    { align: "center" }
   );
 
+  doc.text(
+    "72 rue de la Planquette - 60290 Laigneville",
+    105,
+    284,
+    { align: "center" }
+  );
 
+  doc.text(
+    "06 62 37 46 38 - larecreduptitloup@gmail.com",
+    105,
+    289,
+    { align: "center" }
+  );
 
   // ===============================
-  // SAUVEGARDE
+  // Nom du fichier
   // ===============================
+
+  const nomFichier =
+    `Autorisation_Shooting_${data.prenom_parent}_${data.nom_parent}_21-10-2026.pdf`
+      .replace(/\s+/g, "_");
 
   doc.save(nomFichier);
 
