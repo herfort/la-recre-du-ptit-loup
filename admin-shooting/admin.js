@@ -473,13 +473,14 @@ async function voirAutorisation(id) {
   // ===============================
 
 
-  encadre(
-    "Photographe",
-    [
-      "Nom : Adonis Studio Photo",
-      "Email : " + (data.email_photographe || "")
-    ]
-  );
+encadre(
+  "Photographe",
+  [
+    "Nom : " + (parametres.nom_photographe || ""),
+    "Email : " + (parametres.email_photographe || ""),
+    "Téléphone : " + (parametres.telephone_photographe || "")
+  ]
+);
 
 
   encadre(
