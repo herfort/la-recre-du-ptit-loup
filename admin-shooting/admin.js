@@ -366,6 +366,12 @@ async function voirAutorisation(id) {
   if(typeof data.enfants === "string"){
     data.enfants = JSON.parse(data.enfants);
   }
+const { data: parametres, error: erreurParametres } =
+await supabaseClient
+  .from("shooting_parametres")
+  .select("*")
+  .single();
+
 if (erreurParametres) {
   console.error(erreurParametres);
 }
