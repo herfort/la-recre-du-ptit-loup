@@ -366,7 +366,9 @@ async function voirAutorisation(id) {
   if(typeof data.enfants === "string"){
     data.enfants = JSON.parse(data.enfants);
   }
-
+if (erreurParametres) {
+  console.error(erreurParametres);
+}
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
