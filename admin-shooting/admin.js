@@ -745,7 +745,7 @@ marge + 4,
 y + 12
 );
 
-.let typePhoto = data.type_photo;
+let typePhoto = data.type_photo;
 
 if(typePhoto === "individuelle"){
   typePhoto = "Photo individuelle";
