@@ -344,235 +344,578 @@ location.reload();
 
 }
 // ======================================================
-// AFFICHER L'AUTORISATION PARENTALE (Partie 1/3)
+// AFFICHER L'AUTORISATION PARENTALE
+// Partie 1 / 4
 // ======================================================
 
-async function voirAutorisation(id) {
-
-  const { data, error } = await supabase
-    .from("shooting_inscription")
-    .select("*")
-    .eq("id", id)
-    .single();
+async function voirAutorisation(id){
 
-  if (error || !data) {
-    alert("Impossible de récupérer l'inscription.");
-    return;
-  }
+// ===============================
+// Récupération de l'inscription
+// ===============================
 
-  const doc = new jspdf.jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4"
-  });
+const { data, error } =
+await supabaseClient
+.from("shooting_inscriptions")
+.select("*")
+.eq("id", id)
+.single();
 
-  const pageWidth = 210;
-  const marge = 12;
-  let y = 12;
+if(error || !data){
 
-  // -----------------------------
-  // Titre
-  // -----------------------------
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("AUTORISATION PARENTALE", pageWidth / 2, y, {
-    align: "center"
-  });
+console.error(error);
 
-  y += 7;
+alert(
+"Impossible de récupérer l'inscription."
+);
 
-  doc.setFontSize(11);
-  doc.text("Droit à l'image - Shooting Photo", pageWidth / 2, y, {
-    align: "center"
-  });
+return;
 
-  y += 8;
+}
 
-  // -----------------------------
-  // Coordonnées photographe
-  // -----------------------------
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
-  doc.text("Photographe :", marge, y);
+// ===============================
+// Récupération des paramètres
+// ===============================
 
-  doc.setFont("helvetica", "normal");
-  doc.text(parametresShooting.nom_photographe || "", 48, y);
+const {
+data: parametres,
+error: erreurParametres
+}
+=
+await supabaseClient
+.from("shooting_parametres")
+.select("*")
+.single();
 
-  y += 5;
+if(erreurParametres){
 
-  doc.setFont("helvetica", "bold");
-  doc.text("Email :", marge, y);
+console.error(erreurParametres);
 
-  doc.setFont("helvetica", "normal");
-  doc.text(parametresShooting.email_photographe || "", 48, y);
+alert(
+"Impossible de récupérer les paramètres du shooting."
+);
 
-  y += 5;
+return;
 
-  doc.setFont("helvetica", "bold");
-  doc.text("Date du shooting :", marge, y);
+}
 
-  doc.setFont("helvetica", "normal");
-  doc.text(
-    new Date(parametresShooting.date_shooting).toLocaleDateString("fr-FR"),
-    48,
-    y
-  );
+// ===============================
+// Création du PDF
+// ===============================
 
-  y += 8;
+const { jsPDF } =
+window.jspdf;
 
-  // -----------------------------
-  // Parent
-  // -----------------------------
-  doc.setFont("helvetica", "bold");
-  doc.text("Responsable légal", marge, y);
+const doc =
+new jsPDF({
 
-  y += 6;
+orientation:"portrait",
+unit:"mm",
+format:"a4"
 
-  doc.setFont("helvetica", "normal");
-  doc.text(
-    `Nom : ${data.nom_parent} ${data.prenom_parent}`,
-    marge,
-    y
-  );
+});
 
-  y += 5;
+const largeur = 210;
 
-  doc.text(`Téléphone : ${data.telephone}`, marge, y);
+const marge = 15;
 
-  y += 5;
+let y = 18;
 
-  doc.text(`Email : ${data.email}`, marge, y);
+// ===============================
+// Couleurs
+// ===============================
 
-  y += 8;
-    // -----------------------------
-  // Enfants
-  // -----------------------------
-  doc.setFont("helvetica", "bold");
-  doc.text("Enfant(s) concerné(s)", marge, y);
+const vert =
+[43,125,64];
 
-  y += 6;
+const gris =
+[110,110,110];
 
-  doc.setFont("helvetica", "normal");
+// ===============================
+// Titre
+// ===============================
 
-  if (data.enfants && data.enfants.length > 0) {
+doc.setTextColor(...vert);
 
-    data.enfants.forEach((enfant, index) => {
+doc.setFont(
+"helvetica",
+"bold"
+);
 
-      const ligne =
-        `${index + 1}. ${enfant.prenom} ${enfant.nom}  -  ` +
-        `${enfant.age || ""}`;
+doc.setFontSize(18);
 
-      doc.text(ligne, marge + 2, y);
-      y += 5;
+doc.text(
+"LA RÉCRÉ DU P'TIT LOUP",
+largeur/2,
+18,
+{
+align:"center"
+}
+);
+
+doc.setTextColor(0);
+
+doc.setFontSize(13);
 
-    });
+doc.text(
+"Autorisation parentale",
+largeur/2,
+27,
+{
+align:"center"
+}
+);
+
+doc.setFontSize(11);
 
-  } else {
+doc.setTextColor(...gris);
 
-    doc.text("Aucun enfant renseigné.", marge + 2, y);
-    y += 5;
+doc.text(
+"Shooting Photo",
+largeur/2,
+34,
+{
+align:"center"
+}
+);
 
-  }
+// Ligne
 
-  y += 3;
+doc.setDrawColor(...vert);
 
-  // -----------------------------
-  // Type de photo
-  // -----------------------------
-  doc.setFont("helvetica", "bold");
-  doc.text("Type de séance :", marge, y);
+doc.setLineWidth(0.6);
 
-  doc.setFont("helvetica", "normal");
-  doc.text(data.type_photo || "-", 50, y);
+doc.line(
+15,
+39,
+195,
+39
+);
 
-  y += 5;
+y = 48;
+  // ===============================
+// Informations photographe
+// ===============================
 
-  doc.setFont("helvetica", "bold");
-  doc.text("Créneau :", marge, y);
+doc.setTextColor(...vert);
 
-  doc.setFont("helvetica", "normal");
-  doc.text(data.creneau || "-", 50, y);
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+"📸 PHOTOGRAPHE",
+marge,
+y
+);
+
+y += 5;
+
+doc.setDrawColor(170);
+
+doc.rect(
+marge,
+y,
+180,
+22
+);
+
+doc.setTextColor(0);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.setFontSize(10);
+
+doc.text(
+"Nom : " +
+(parametres.nom_photographe || ""),
+marge + 4,
+y + 6
+);
+
+doc.text(
+"Email : " +
+(parametres.email_photographe || ""),
+marge + 4,
+y + 12
+);
 
-  y += 5;
+doc.text(
+"Facebook : " +
+(parametres.facebook_photographe || ""),
+marge + 4,
+y + 18
+);
 
-  doc.setFont("helvetica", "bold");
-  doc.text("Durée prévue :", marge, y);
+y += 30;
+
+
+// ===============================
+// Responsable légal
+// ===============================
 
-  doc.setFont("helvetica", "normal");
-  doc.text(`${data.duree || 0} minutes`, 50, y);
+doc.setTextColor(...vert);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
 
-  y += 8;
+doc.setFontSize(12);
 
-  // -----------------------------
-  // Texte d'autorisation
-  // -----------------------------
-  doc.setFont("helvetica", "bold");
-  doc.text("Autorisation", marge, y);
+doc.text(
+"👨 RESPONSABLE LÉGAL",
+marge,
+y
+);
 
-  y += 5;
+y += 5;
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
+doc.setDrawColor(170);
+
+doc.rect(
+marge,
+y,
+180,
+25
+);
 
-  const texte = `Je soussigné(e), responsable légal du ou des enfants mentionnés ci-dessus, autorise la réalisation de photographies lors du shooting organisé par l'association La Récré Du P'tit Loup.
+doc.setTextColor(0);
 
-Ces photographies sont exclusivement destinées à un usage privé et à la remise aux familles. Aucune diffusion publique ne sera effectuée sans une autorisation complémentaire écrite.`;
+doc.setFont(
+"helvetica",
+"normal"
+);
 
-  const lignes = doc.splitTextToSize(texte, 185);
+doc.setFontSize(10);
 
-  doc.text(lignes, marge, y);
+doc.text(
+"Nom : " +
+data.prenom_parent +
+" " +
+data.nom_parent,
+marge + 4,
+y + 6
+);
 
-  y += lignes.length * 4 + 8;
-    // -----------------------------
-  // Signatures
-  // -----------------------------
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "bold");
+doc.text(
+"Téléphone : " +
+data.telephone,
+marge + 4,
+y + 12
+);
 
-  doc.text("Signature du responsable légal :", marge, y);
-  doc.text("Signature de la photographe :", 120, y);
+doc.text(
+"Email : " +
+data.email,
+marge + 4,
+y + 18
+);
 
-  y += 20;
+y += 33;
 
-  doc.setFont("helvetica", "normal");
 
-  doc.line(marge, y, 90, y);
-  doc.line(120, y, 198, y);
+// ===============================
+// Enfant(s)
+// ===============================
 
-  y += 8;
+doc.setTextColor(...vert);
 
-  // -----------------------------
-  // Pied de page
-  // -----------------------------
-  doc.setDrawColor(180);
-  doc.line(marge, 285, 198, 285);
+doc.setFont(
+"helvetica",
+"bold"
+);
 
-  doc.setFontSize(8);
+doc.setFontSize(12);
 
-  doc.text(
-    "Association La Récré Du P'tit Loup",
-    pageWidth / 2,
-    289,
-    { align: "center" }
-  );
+doc.text(
+"👶 ENFANT(S)",
+marge,
+y
+);
 
-  doc.text(
-    "72 rue de la Planquette - 60290 Laigneville",
-    pageWidth / 2,
-    293,
-    { align: "center" }
-  );
+y += 5;
+
+doc.setDrawColor(170);
+
+const hauteurEnfants =
+Math.max(
+18,
+data.enfants.length * 6 + 6
+);
+
+doc.rect(
+marge,
+y,
+180,
+hauteurEnfants
+);
 
-  doc.text(
-    "06 62 37 46 38 - larecreduptitloup@gmail.com",
-    pageWidth / 2,
-    297,
-    { align: "center" }
-  );
+doc.setTextColor(0);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
 
-  // -----------------------------
-  // Affichage du PDF
-  // -----------------------------
-  window.open(doc.output("bloburl"), "_blank");
+doc.setFontSize(10);
+
+let yy =
+y + 6;
+
+data.enfants.forEach(enfant=>{
+
+doc.text(
+"• " +
+enfant.prenom +
+" " +
+enfant.nom,
+marge + 4,
+yy
+);
+
+yy += 6;
+
+});
+
+y += hauteurEnfants + 8;
+  // ===============================
+// Séance photo
+// ===============================
+
+doc.setTextColor(...vert);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+"📷 SÉANCE PHOTO",
+marge,
+y
+);
+
+y += 5;
+
+doc.setDrawColor(170);
+
+doc.rect(
+marge,
+y,
+180,
+24
+);
+
+doc.setTextColor(0);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.setFontSize(10);
+
+doc.text(
+"Date : " +
+(parametres.date_shooting || ""),
+marge + 4,
+y + 6
+);
+
+doc.text(
+"Créneau : " +
+data.creneau,
+marge + 4,
+y + 12
+);
+
+doc.text(
+"Type de photo : " +
+data.type_photo,
+95,
+y + 12
+);
+
+doc.text(
+"Durée : " +
+data.duree +
+" minutes",
+marge + 4,
+y + 18
+);
+
+y += 32;
+
+
+// ===============================
+// Autorisation
+// ===============================
+
+doc.setTextColor(...vert);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+"📝 AUTORISATION",
+marge,
+y
+);
+
+y += 5;
+
+doc.setTextColor(0);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.setFontSize(10);
+
+const texte =
+
+"Je soussigné(e), responsable légal du ou des enfants désignés ci-dessus, autorise la réalisation de photographies dans le cadre du shooting photo organisé par l'association La Récré Du P'tit Loup.\n\n"
+
++
+
+"J'autorise également la diffusion des photographies réalisées dans une galerie privée accessible uniquement aux familles participantes afin de permettre la consultation et le téléchargement des images.\n\n"
+
++
+
+"Ces photographies ne seront utilisées à aucune autre fin sans l'accord préalable des représentants légaux.";
+
+const lignes =
+doc.splitTextToSize(
+texte,
+176
+);
+
+doc.text(
+lignes,
+marge,
+y
+);
+
+y +=
+(lignes.length * 4.5)
++
+10;
+
+
+// ===============================
+// Signature
+// ===============================
+
+doc.setTextColor(...vert);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+"✍ Signature du responsable légal",
+marge,
+y
+);
+
+y += 5;
+
+doc.setDrawColor(120);
+
+doc.rect(
+marge,
+y,
+180,
+32
+);
+
+y += 40;
+  // ===============================
+// Pied de page
+// ===============================
+
+doc.setDrawColor(180);
+
+doc.line(
+15,
+282,
+195,
+282
+);
+
+doc.setFont(
+"helvetica",
+"bold"
+);
+
+doc.setFontSize(9);
+
+doc.setTextColor(...vert);
+
+doc.text(
+"Association La Récré Du P'tit Loup",
+105,
+287,
+{
+align:"center"
+}
+);
+
+doc.setFont(
+"helvetica",
+"normal"
+);
+
+doc.setTextColor(80);
+
+doc.setFontSize(8);
+
+doc.text(
+"72 rue de la Planquette - 60290 Laigneville",
+105,
+291,
+{
+align:"center"
+}
+);
+
+doc.text(
+"06 62 37 46 38 - larecreduptitloup@gmail.com",
+105,
+295,
+{
+align:"center"
+}
+);
+
+// ===============================
+// Téléchargement
+// ===============================
+
+const nomFichier =
+"Autorisation_" +
+data.nom_parent.replace(/\s+/g,"_") +
+".pdf";
+
+doc.save(
+nomFichier
+);
 
 }
