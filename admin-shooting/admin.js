@@ -520,7 +520,7 @@ doc.rect(
 marge,
 y,
 180,
-22
+28
 );
 
 doc.setTextColor(0);
@@ -540,20 +540,27 @@ y + 6
 );
 
 doc.text(
+"Téléphone : " +
+(parametres.telephone_photographe || ""),
+marge + 4,
+y + 12
+);
+
+doc.text(
 "Email : " +
 (parametres.email_photographe || ""),
 marge + 4,
-y + 12
+y + 18
 );
 
 doc.text(
 "Facebook : " +
 (parametres.facebook_photographe || ""),
 marge + 4,
-y + 18
+y + 24
 );
 
-y += 30;
+y += 36;
 
 
 // ===============================
