@@ -792,7 +792,7 @@ const texte =
 
 +
 
-"J'autorise également la diffusion des photographies réalisées dans une galerie privée accessible uniquement aux familles participantes afin de permettre la consultation et le téléchargement des images.\n\n"
+"J'autorise également la diffusion des photographies réalisées par ADONIS STUDIO PHOTO dans une galerie privée accessible uniquement aux familles participantes afin de permettre la consultation et le téléchargement des images.\n\n"
 
 +
 
