@@ -738,9 +738,20 @@ marge + 4,
 y + 12
 );
 
+.let typePhoto = data.type_photo;
+
+if(typePhoto === "individuelle"){
+  typePhoto = "Photo individuelle";
+}
+else if(typePhoto === "fratrie"){
+  typePhoto = "Photo fratrie";
+}
+else if(typePhoto === "les2"){
+  typePhoto = "Photo individuelle + fratrie";
+}
+
 doc.text(
-"Type de photo : " +
-data.type_photo,
+"Type de photo : " + typePhoto,
 95,
 y + 12
 );
