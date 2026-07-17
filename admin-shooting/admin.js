@@ -507,7 +507,7 @@ doc.setFont(
 doc.setFontSize(12);
 
 doc.text(
-"📸 PHOTOGRAPHE",
+" PHOTOGRAPHE",
 marge,
 y
 );
@@ -570,7 +570,7 @@ doc.setFont(
 doc.setFontSize(12);
 
 doc.text(
-"👨 RESPONSABLE LÉGAL",
+" RESPONSABLE LÉGAL",
 marge,
 y
 );
@@ -635,7 +635,7 @@ doc.setFont(
 doc.setFontSize(12);
 
 doc.text(
-"👶 ENFANT(S)",
+"ENFANT(S)",
 marge,
 y
 );
@@ -699,7 +699,7 @@ doc.setFont(
 doc.setFontSize(12);
 
 doc.text(
-"📷 SÉANCE PHOTO",
+" SÉANCE PHOTO",
 marge,
 y
 );
@@ -770,7 +770,7 @@ doc.setFont(
 doc.setFontSize(12);
 
 doc.text(
-"📝 AUTORISATION",
+" AUTORISATION",
 marge,
 y
 );
