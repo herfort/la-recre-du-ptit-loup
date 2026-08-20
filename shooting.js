@@ -419,8 +419,9 @@ if (signaturePad.isEmpty()) {
           type_photo: choixPhoto,
           creneau: creneau.value,
           duree: dureeNecessaire,
-          autorisation: false,
-          commentaire: ""
+          autorisation: true,
+signature: signaturePad.toDataURL("image/png"),
+commentaire: ""
         }
       ]);
 
