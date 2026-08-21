@@ -555,96 +555,144 @@ const marge = 12;
 
 let y = 15;
 
-  doc.setFontSize(18);
-  doc.text("La Récré Du P'tit Loup", 20, y);
+ // ===============================
+// RESPONSABLE LÉGAL
+// ===============================
 
-  y += 10;
+doc.setTextColor(70, 130, 90);
 
-  doc.setFontSize(14);
-  doc.text("Autorisation Shooting Photo", 20, y);
+doc.setFont(
+  "helvetica",
+  "bold"
+);
 
-  y += 15;
+doc.setFontSize(12);
 
-  doc.setFontSize(11);
+doc.text(
+  "RESPONSABLE LÉGAL",
+  marge,
+  y
+);
 
-  doc.text("Responsable", 20, y);
+y += 5;
 
-  y += 8;
-  doc.text("Nom : " + document.getElementById("nom").value, 20, y);
+doc.setDrawColor(170);
 
-  y += 7;
-  doc.text("Prénom : " + document.getElementById("prenom").value, 20, y);
+doc.rect(
+  marge,
+  y,
+  180,
+  25
+);
 
-  y += 7;
-  doc.text("Téléphone : " + document.getElementById("telephone").value, 20, y);
+doc.setTextColor(0);
 
-  y += 7;
-  doc.text("Email : " + document.getElementById("email").value, 20, y);
+doc.setFont(
+  "helvetica",
+  "normal"
+);
 
-  y += 15;
+doc.setFontSize(10);
 
-  doc.text("Enfants :", 20, y);
+doc.text(
+  "Nom : " +
+  document.getElementById("prenom").value +
+  " " +
+  document.getElementById("nom").value,
+  marge + 4,
+  y + 6
+);
 
-  document.querySelectorAll(".enfant").forEach(bloc => {
+doc.text(
+  "Téléphone : " +
+  document.getElementById("telephone").value,
+  marge + 4,
+  y + 12
+);
 
-    const nom =
-      bloc.querySelector('input[name^="nom_enfant_"]').value;
+doc.text(
+  "Email : " +
+  document.getElementById("email").value,
+  marge + 4,
+  y + 18
+);
 
-    const prenom =
-      bloc.querySelector('input[name^="prenom_enfant_"]').value;
+y += 33;
 
-    y += 7;
 
-    doc.text("- " + prenom + " " + nom, 25, y);
+// ===============================
+// ENFANT(S)
+// ===============================
 
-  });
+doc.setTextColor(70, 130, 90);
 
-  y += 12;
+doc.setFont(
+  "helvetica",
+  "bold"
+);
 
-  doc.text(
-    "Type de photo : " +
-    document.getElementById("typePhoto").value,
-    20,
-    y
+doc.setFontSize(12);
+
+doc.text(
+  "ENFANT(S)",
+  marge,
+  y
+);
+
+y += 5;
+
+doc.setDrawColor(170);
+
+const blocsEnfants =
+  document.querySelectorAll(".enfant");
+
+const hauteurEnfants =
+  Math.max(
+    18,
+    blocsEnfants.length * 6 + 6
   );
 
-  y += 7;
+doc.rect(
+  marge,
+  y,
+  180,
+  hauteurEnfants
+);
 
-  const creneau =
-    document.querySelector('input[name="creneau"]:checked');
+doc.setTextColor(0);
+
+doc.setFont(
+  "helvetica",
+  "normal"
+);
+
+doc.setFontSize(10);
+
+let yy = y + 6;
+
+blocsEnfants.forEach(bloc => {
+
+  const nom =
+    bloc.querySelector(
+      'input[name^="nom_enfant_"]'
+    ).value;
+
+  const prenom =
+    bloc.querySelector(
+      'input[name^="prenom_enfant_"]'
+    ).value;
 
   doc.text(
-    "Créneau : " + creneau.value,
-    20,
-    y
+    "• " + prenom + " " + nom,
+    marge + 4,
+    yy
   );
 
-  y += 15;
+  yy += 6;
 
-  doc.setFontSize(10);
+});
 
-  doc.text(
-    "Je soussigné(e), responsable légal, autorise la réalisation",
-    20,
-    y
-  );
-
-  y += 6;
-
-  doc.text(
-    "des photographies de mon (mes) enfant(s).",
-    20,
-    y
-  );
-
-  y += 20;
-
-
-  doc.text("Signature du responsable :", 20, y);
-
-y += 10;
-
-
+y += hauteurEnfants + 8;
 // Ajout de la signature
 
 if (signaturePad && !signaturePad.isEmpty()) {
