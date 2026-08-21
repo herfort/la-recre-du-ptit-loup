@@ -693,6 +693,111 @@ blocsEnfants.forEach(bloc => {
 });
 
 y += hauteurEnfants + 8;
+  // ===============================
+// SÉANCE PHOTO
+// ===============================
+
+doc.setTextColor(70, 130, 90);
+
+doc.setFont(
+  "helvetica",
+  "bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+  "SÉANCE PHOTO",
+  marge,
+  y
+);
+
+y += 5;
+
+doc.setDrawColor(170);
+
+doc.rect(
+  marge,
+  y,
+  180,
+  24
+);
+
+doc.setTextColor(0);
+
+doc.setFont(
+  "helvetica",
+  "normal"
+);
+
+doc.setFontSize(10);
+
+// Date
+doc.text(
+  "Date : " +
+  (
+    parametres.date_shooting
+      ? new Date(
+          parametres.date_shooting
+        ).toLocaleDateString("fr-FR")
+      : ""
+  ),
+  marge + 4,
+  y + 6
+);
+
+// Créneau
+doc.text(
+  "Créneau : " +
+  (
+    document.querySelector(
+      'input[name="creneau"]:checked'
+    )?.value || ""
+  ),
+  marge + 4,
+  y + 12
+);
+
+// Type de photo
+let typePhotoPDF =
+  document.getElementById("typePhoto").value;
+
+if (typePhotoPDF === "individuel") {
+
+  typePhotoPDF =
+    "Photo individuelle";
+
+}
+else if (typePhotoPDF === "fratrie") {
+
+  typePhotoPDF =
+    "Photo fratrie";
+
+}
+else if (typePhotoPDF === "les2") {
+
+  typePhotoPDF =
+    "Photo individuelle + fratrie";
+
+}
+
+doc.text(
+  "Type de photo : " +
+  typePhotoPDF,
+  95,
+  y + 12
+);
+
+// Durée
+doc.text(
+  "Durée : " +
+  calculerDureeSeance() +
+  " minutes",
+  marge + 4,
+  y + 18
+);
+
+y += 32;
 // Ajout de la signature
 
 if (signaturePad && !signaturePad.isEmpty()) {
