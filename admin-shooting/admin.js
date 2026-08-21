@@ -835,36 +835,77 @@ y +=
 
 
 // ===============================
-// Signature
+// Signature du responsable légal
 // ===============================
 
 doc.setTextColor(...vert);
 
 doc.setFont(
-"helvetica",
-"bold"
+  "helvetica",
+  "bold"
 );
 
 doc.setFontSize(12);
 
 doc.text(
-"✍ Signature du responsable légal",
-marge,
-y
+  "✍ Signature du responsable légal",
+  marge,
+  y
 );
 
 y += 5;
 
+// Cadre de signature
 doc.setDrawColor(120);
 
 doc.rect(
-marge,
-y,
-180,
-32
+  marge,
+  y,
+  180,
+  22
 );
 
-y += 40;
+// Affichage de la signature enregistrée
+if (data.signature) {
+
+  try {
+
+    doc.addImage(
+      data.signature,
+      "PNG",
+      marge + 5,
+      y + 2,
+      70,
+      17
+    );
+
+  } catch (erreur) {
+
+    console.error(
+      "Erreur affichage signature :",
+      erreur
+    );
+
+  }
+
+} else {
+
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
+
+  doc.setFontSize(9);
+
+  doc.text(
+    "Signature non disponible",
+    marge + 5,
+    y + 12
+  );
+
+}
+
+y += 28;
   // ===============================
 // Pied de page
 // ===============================
