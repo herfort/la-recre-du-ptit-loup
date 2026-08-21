@@ -523,11 +523,37 @@ await fetch(
 
 async function genererPDF() {
 
-  const { jsPDF } = window.jspdf;
+const { jsPDF } = window.jspdf;
 
-  const doc = new jsPDF();
+const doc = new jsPDF({
+  orientation: "portrait",
+  unit: "mm",
+  format: "a4"
+});
 
-  let y = 20;
+// Récupération des paramètres du shooting
+const { data: parametres, error } = await supabaseClient
+  .from("shooting_parametres")
+  .select("*")
+  .single();
+
+if (error || !parametres) {
+  console.error(
+    "Erreur récupération paramètres shooting :",
+    error
+  );
+
+  alert(
+    "Impossible de récupérer les informations du shooting."
+  );
+
+  return;
+}
+
+const pageWidth = 210;
+const marge = 12;
+
+let y = 15;
 
   doc.setFontSize(18);
   doc.text("La Récré Du P'tit Loup", 20, y);
