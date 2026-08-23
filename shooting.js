@@ -798,6 +798,65 @@ doc.text(
 );
 
 y += 32;
+  // ===============================
+// AUTORISATION
+// ===============================
+
+doc.setTextColor(70, 130, 90);
+
+doc.setFont(
+  "helvetica",
+  "bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+  "AUTORISATION",
+  marge,
+  y
+);
+
+y += 5;
+
+doc.setTextColor(0);
+
+doc.setFont(
+  "helvetica",
+  "normal"
+);
+
+doc.setFontSize(10);
+
+const texteAutorisation =
+
+"Je soussigné(e), responsable légal du ou des enfants désignés ci-dessus, autorise la réalisation de photographies dans le cadre du shooting photo organisé par l'association La Récré Du P'tit Loup.\n\n"
+
++
+
+"J'autorise également la diffusion des photographies réalisées par " +
+(parametres.nom_photographe || "la photographe") +
+" dans une galerie privée accessible uniquement aux familles participantes afin de permettre la consultation et le téléchargement des images.\n\n"
+
++
+
+"Ces photographies ne seront utilisées à aucune autre fin sans l'accord préalable des représentants légaux.";
+
+const lignesAutorisation =
+doc.splitTextToSize(
+  texteAutorisation,
+  176
+);
+
+doc.text(
+  lignesAutorisation,
+  marge,
+  y
+);
+
+y +=
+  (lignesAutorisation.length * 4.5)
+  + 10;
 // Ajout de la signature
 
 if (signaturePad && !signaturePad.isEmpty()) {
