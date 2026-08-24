@@ -434,7 +434,7 @@ commentaire: ""
       return;
     }
 
-await genererPDF();
+const pdfBase64 = await genererPDF();
     // ===============================
 // Envoi email Brevo shooting
 // ===============================
@@ -468,7 +468,7 @@ await fetch(
       creneau: creneau.value,
 
       typePhoto: choixPhoto
-
+pdfBase64: pdfBase64
     })
 
   }
@@ -1057,7 +1057,9 @@ if (signaturePad && !signaturePad.isEmpty()) {
 }
 
 y += 28;
-  doc.save("Autorisation_Shooting.pdf");
+  const pdfBase64 = doc.output("datauristring").split(",")[1];
+
+return pdfBase64;
 
 }
 // ===============================
