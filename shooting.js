@@ -467,7 +467,7 @@ await fetch(
 
       creneau: creneau.value,
 
-      typePhoto: choixPhoto
+      typePhoto: choixPhoto,
 pdfBase64: pdfBase64
     })
 
@@ -478,7 +478,7 @@ pdfBase64: pdfBase64
 
 
 
-.
+
     alert("✅ Inscription enregistrée avec succès !");
 
 
