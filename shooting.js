@@ -857,29 +857,70 @@ doc.text(
 y +=
   (lignesAutorisation.length * 4.5)
   + 10;
-// Ajout de la signature
+// ===============================
+// SIGNATURE DU RESPONSABLE LÉGAL
+// ===============================
 
+doc.setTextColor(70, 130, 90);
+
+doc.setFont(
+  "helvetica",
+  "bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+  "✍ Signature du responsable légal",
+  marge,
+  y
+);
+
+y += 5;
+
+// Cadre de signature
+doc.setDrawColor(120);
+
+doc.rect(
+  marge,
+  y,
+  180,
+  22
+);
+
+// Signature manuscrite
 if (signaturePad && !signaturePad.isEmpty()) {
 
-  const signatureImage = signaturePad.toDataURL("image/png");
+  const signatureImage =
+    signaturePad.toDataURL("image/png");
 
   doc.addImage(
     signatureImage,
     "PNG",
-    20,
-    y,
-    80,
-    40
+    marge + 5,
+    y + 2,
+    70,
+    17
   );
-
-  y += 50;
 
 } else {
 
-  doc.line(20, y + 20, 90, y + 20);
+  doc.setFont(
+    "helvetica",
+    "normal"
+  );
+
+  doc.setFontSize(9);
+
+  doc.text(
+    "Signature non disponible",
+    marge + 5,
+    y + 12
+  );
 
 }
 
+y += 28;
   doc.save("Autorisation_Shooting.pdf");
 
 }
