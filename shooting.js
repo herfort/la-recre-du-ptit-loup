@@ -554,7 +554,143 @@ const pageWidth = 210;
 const marge = 12;
 
 let y = 15;
+// ===============================
+// EN-TÊTE
+// ===============================
 
+doc.setTextColor(70, 130, 90);
+
+doc.setFont(
+  "helvetica",
+  "bold"
+);
+
+doc.setFontSize(18);
+
+doc.text(
+  "La Récré Du P'tit Loup",
+  pageWidth / 2,
+  y,
+  {
+    align: "center"
+  }
+);
+
+y += 8;
+
+doc.setFontSize(14);
+
+doc.text(
+  "AUTORISATION PARENTALE",
+  pageWidth / 2,
+  y,
+  {
+    align: "center"
+  }
+);
+
+y += 6;
+
+doc.setFont(
+  "helvetica",
+  "normal"
+);
+
+doc.setFontSize(10);
+
+doc.setTextColor(80);
+
+doc.text(
+  "Droit à l'image - Shooting Photo",
+  pageWidth / 2,
+  y,
+  {
+    align: "center"
+  }
+);
+
+y += 8;
+
+doc.setDrawColor(150);
+
+doc.line(
+  marge,
+  y,
+  pageWidth - marge,
+  y
+);
+
+y += 8;
+
+
+// ===============================
+// INFORMATIONS PHOTOGRAPHE
+// ===============================
+
+doc.setTextColor(70, 130, 90);
+
+doc.setFont(
+  "helvetica",
+  "bold"
+);
+
+doc.setFontSize(12);
+
+doc.text(
+  "PHOTOGRAPHE",
+  marge,
+  y
+);
+
+y += 5;
+
+doc.setDrawColor(170);
+
+doc.rect(
+  marge,
+  y,
+  180,
+  28
+);
+
+doc.setTextColor(0);
+
+doc.setFont(
+  "helvetica",
+  "normal"
+);
+
+doc.setFontSize(10);
+
+doc.text(
+  "Nom : " +
+  (parametres.nom_photographe || ""),
+  marge + 4,
+  y + 6
+);
+
+doc.text(
+  "Téléphone : " +
+  (parametres.telephone_photographe || ""),
+  marge + 4,
+  y + 12
+);
+
+doc.text(
+  "Email : " +
+  (parametres.email_photographe || ""),
+  marge + 4,
+  y + 18
+);
+
+doc.text(
+  "Facebook : " +
+  (parametres.facebook_photographe || ""),
+  marge + 4,
+  y + 24
+);
+
+y += 36;
  // ===============================
 // RESPONSABLE LÉGAL
 // ===============================
