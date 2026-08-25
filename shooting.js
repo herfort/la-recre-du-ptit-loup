@@ -384,23 +384,57 @@ if (formulaire) {
     const email = document.getElementById("email").value.trim();
 
 
-    const enfants = [];
+const enfants = [];
 
-    document.querySelectorAll(".enfant").forEach(bloc => {
-
-      const nomEnfant =
-      bloc.querySelector('input[name^="nom_enfant_"]').value.trim();
-
-      const prenomEnfant =
-      bloc.querySelector('input[name^="prenom_enfant_"]').value.trim();
+const typeInscription =
+  document.querySelector(
+    'input[name="typeInscription"]:checked'
+  )?.value || "parent";
 
 
-      enfants.push({
-        nom: nomEnfant,
-        prenom: prenomEnfant
-      });
+document.querySelectorAll(".enfant").forEach(bloc => {
 
-    });
+  const nomEnfant =
+    bloc.querySelector(
+      'input[name^="nom_enfant_"]'
+    ).value.trim();
+
+  const prenomEnfant =
+    bloc.querySelector(
+      'input[name^="prenom_enfant_"]'
+    ).value.trim();
+
+
+  const enfant = {
+    nom: nomEnfant,
+    prenom: prenomEnfant
+  };
+
+
+  // Si inscription par une assistante maternelle
+  if (typeInscription === "assistante") {
+
+    enfant.nom_parent =
+      bloc.querySelector(
+        'input[name^="nom_parent_enfant_"]'
+      ).value.trim();
+
+    enfant.prenom_parent =
+      bloc.querySelector(
+        'input[name^="prenom_parent_enfant_"]'
+      ).value.trim();
+
+    enfant.email_parent =
+      bloc.querySelector(
+        'input[name^="email_parent_enfant_"]'
+      ).value.trim();
+
+  }
+
+
+  enfants.push(enfant);
+
+});
 
 
     const choixPhoto =
@@ -477,10 +511,7 @@ if (creneauOccupe) {
 // Vérification de la signature
 // ===============================
 
-const typeInscription =
-  document.querySelector(
-    'input[name="typeInscription"]:checked'
-  )?.value || "parent";
+
 
 
 // Le parent doit signer directement
