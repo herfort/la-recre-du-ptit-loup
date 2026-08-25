@@ -36,24 +36,63 @@ if (boutonAjouterEnfant && listeEnfants) {
     bloc.className = "enfant";
 
 
-    bloc.innerHTML = `
-      <h3>👶 Enfant ${compteurEnfant}</h3>
+   bloc.innerHTML = `
+  <h3>👶 Enfant ${compteurEnfant}</h3>
 
-      <label>Nom</label>
-      <input type="text" name="nom_enfant_${compteurEnfant}">
+  <label>Nom de l'enfant</label>
+  <input
+    type="text"
+    name="nom_enfant_${compteurEnfant}"
+  >
 
-      <label>Prénom</label>
-      <input type="text" name="prenom_enfant_${compteurEnfant}">
+  <label>Prénom de l'enfant</label>
+  <input
+    type="text"
+    name="prenom_enfant_${compteurEnfant}"
+  >
 
-      <button type="button" class="supprimerEnfant">
-        ❌ Supprimer
-      </button>
+  <div class="infosParentEmployeur" style="display:none;">
 
-      <hr>
-    `;
+    <h4>👨‍👩‍👧 Parent employeur / responsable légal</h4>
+
+    <label>Nom du parent</label>
+    <input
+      type="text"
+      name="nom_parent_enfant_${compteurEnfant}"
+    >
+
+    <label>Prénom du parent</label>
+    <input
+      type="text"
+      name="prenom_parent_enfant_${compteurEnfant}"
+    >
+
+    <label>Email du parent</label>
+    <input
+      type="email"
+      name="email_parent_enfant_${compteurEnfant}"
+    >
+
+  </div>
+
+  <button type="button" class="supprimerEnfant">
+    ❌ Supprimer
+  </button>
+
+  <hr>
+`;
 
 
     listeEnfants.appendChild(bloc);
+    if (
+  document.querySelector(
+    'input[name="typeInscription"]:checked'
+  )?.value === "assistante"
+) {
+  bloc.querySelector(
+    ".infosParentEmployeur"
+  ).style.display = "block";
+}
     if(parametresShooting){
   genererCreneaux(parametresShooting);
 }
