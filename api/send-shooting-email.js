@@ -97,14 +97,14 @@ export default async function handler(req, res) {
 
           `,
 
-          attachments: pdfBase64
-            ? [
-                {
-                  name: "Autorisation_Shooting.pdf",
-                  content: pdfBase64
-                }
-              ]
-            : []
+        attachment: pdfBase64
+  ? [
+      {
+        name: "Autorisation_Shooting.pdf",
+        content: pdfBase64
+      }
+    ]
+  : []
 
         })
       }
