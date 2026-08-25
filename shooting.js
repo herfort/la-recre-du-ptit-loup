@@ -556,31 +556,37 @@ if (
 
   return;
 }
-    const { error } = await supabaseClient
-      .from("shooting_inscriptions")
-      .insert([
-        {
-          nom_parent: nom,
-          prenom_parent: prenom,
-          telephone: telephone,
-          email: email,
-          enfants: enfants,
-          type_photo: choixPhoto,
-          creneau: creneau.value,
-          duree: dureeNecessaire,
-autorisation:
-  typeInscription === "parent",
+ const {
+  data: inscriptionCreee,
+  error
+} = await supabaseClient
+  .from("shooting_inscriptions")
+  .insert([
+    {
+      nom_parent: nom,
+      prenom_parent: prenom,
+      telephone: telephone,
+      email: email,
+      enfants: enfants,
+      type_photo: choixPhoto,
+      creneau: creneau.value,
+      duree: dureeNecessaire,
 
-signature:
-  typeInscription === "parent" &&
-  signaturePad &&
-  !signaturePad.isEmpty()
-    ? signaturePad.toDataURL("image/png")
-    : null,
+      autorisation:
+        typeInscription === "parent",
 
-commentaire: ""
-        }
-      ]);
+      signature:
+        typeInscription === "parent" &&
+        signaturePad &&
+        !signaturePad.isEmpty()
+          ? signaturePad.toDataURL("image/png")
+          : null,
+
+      commentaire: ""
+    }
+  ])
+  .select("id")
+  .single();
 
 
     if (error) {
