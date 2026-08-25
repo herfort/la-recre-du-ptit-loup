@@ -328,7 +328,43 @@ if(typePhoto){
 
 }
 
+// ===============================
+// Affichage parent employeur
+// ===============================
 
+document
+  .querySelectorAll(
+    'input[name="typeInscription"]'
+  )
+  .forEach(radio => {
+
+    radio.addEventListener(
+      "change",
+      function() {
+
+        const type =
+          document.querySelector(
+            'input[name="typeInscription"]:checked'
+          )?.value;
+
+        document
+          .querySelectorAll(
+            ".infosParentEmployeur"
+          )
+          .forEach(zone => {
+
+            if(type === "assistante") {
+              zone.style.display = "block";
+            } else {
+              zone.style.display = "none";
+            }
+
+          });
+
+      }
+    );
+
+  });
 // ===============================
 // Enregistrement de l'inscription
 // ===============================
