@@ -596,7 +596,57 @@ if (
 
       return;
     }
+// ===============================
+// Autorisations des parents employeurs
+// ===============================
 
+if (typeInscription === "assistante") {
+
+  const autorisations = enfants.map(enfant => {
+
+    return {
+
+      inscription_id: inscriptionCreee.id,
+
+      nom_enfant: enfant.nom,
+      prenom_enfant: enfant.prenom,
+
+      nom_parent: enfant.nom_parent,
+      prenom_parent: enfant.prenom_parent,
+      email_parent: enfant.email_parent,
+
+      token: crypto.randomUUID(),
+
+      signature: null,
+      autorisation_signee: false,
+      date_signature: null
+
+    };
+
+  });
+
+
+  const { error: erreurAutorisations } =
+    await supabaseClient
+      .from("shooting_autorisations")
+      .insert(autorisations);
+
+
+  if (erreurAutorisations) {
+
+    console.error(
+      "❌ Erreur création autorisations :",
+      erreurAutorisations
+    );
+
+    alert(
+      "L'inscription a été enregistrée, mais les autorisations des parents n'ont pas pu être créées."
+    );
+
+    return;
+  }
+
+}
 const pdfBase64 = await genererPDF();
     // ===============================
 // Envoi email Brevo shooting
