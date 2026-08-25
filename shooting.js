@@ -632,19 +632,82 @@ if (typeInscription === "assistante") {
       .insert(autorisations);
 
 
-  if (erreurAutorisations) {
+if (erreurAutorisations) {
+
+  console.error(
+    "❌ Erreur création autorisations :",
+    erreurAutorisations
+  );
+
+  alert(
+    "L'inscription a été enregistrée, mais les autorisations des parents n'ont pas pu être créées."
+  );
+
+  return;
+}
+
+
+// ===============================
+// Envoi des mails aux parents
+// ===============================
+
+for (const autorisation of autorisations) {
+
+  try {
+
+    const reponseMail = await fetch(
+      "/api/send-autorisation-parent",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+
+          emailParent:
+            autorisation.email_parent,
+
+          prenomParent:
+            autorisation.prenom_parent,
+
+          prenomEnfant:
+            autorisation.prenom_enfant,
+
+          nomEnfant:
+            autorisation.nom_enfant,
+
+          token:
+            autorisation.token
+
+        })
+
+      }
+    );
+
+    const resultatMail =
+      await reponseMail.json();
+
+    if (!reponseMail.ok) {
+
+      console.error(
+        "❌ Erreur mail parent :",
+        resultatMail
+      );
+
+    }
+
+  } catch (erreurMail) {
 
     console.error(
-      "❌ Erreur création autorisations :",
-      erreurAutorisations
+      "❌ Erreur envoi mail parent :",
+      erreurMail
     );
 
-    alert(
-      "L'inscription a été enregistrée, mais les autorisations des parents n'ont pas pu être créées."
-    );
-
-    return;
   }
+
+}
 
 }
 const pdfBase64 = await genererPDF();
