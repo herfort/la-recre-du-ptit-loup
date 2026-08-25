@@ -37,14 +37,9 @@ export default async function handler(req, res) {
     // Création du lien personnel
     // ===============================
 
-    const protocole =
-      req.headers["x-forwarded-proto"] || "https";
-
-    const domaine =
-      req.headers.host;
-
-    const lienSignature =
-      `${protocole}://${domaine}/autorisation-shooting.html?token=${encodeURIComponent(token)}`;
+   const lienSignature =
+  "https://la-recre-du-ptit-loup-git-main-larecreduptitloup.vercel.app/autorisation-shooting.html?token=" +
+  encodeURIComponent(token);
 
 
     // ===============================
