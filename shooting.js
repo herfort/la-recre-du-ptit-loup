@@ -495,544 +495,105 @@ pdfBase64: pdfBase64
 
 async function genererPDF() {
 
-const { jsPDF } = window.jspdf;
+  const { jsPDF } = window.jspdf;
 
-const doc = new jsPDF({
-  orientation: "portrait",
-  unit: "mm",
-  format: "a4"
-});
+  const { data: parametres, error } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("*")
+      .single();
 
-// Récupération des paramètres du shooting
-const { data: parametres, error } = await supabaseClient
-  .from("shooting_parametres")
-  .select("*")
-  .single();
+  if (error || !parametres) {
 
-if (error || !parametres) {
-  console.error(
-    "Erreur récupération paramètres shooting :",
-    error
-  );
+    console.error(
+      "Erreur récupération paramètres shooting :",
+      error
+    );
 
-  alert(
-    "Impossible de récupérer les informations du shooting."
-  );
+    alert(
+      "Impossible de récupérer les informations du shooting."
+    );
 
-  return;
-}
-
-const pageWidth = 210;
-const marge = 12;
-
-let y = 15;
-// ===============================
-// EN-TÊTE
-// ===============================
-
-doc.setTextColor(70, 130, 90);
-
-doc.setFont(
-  "helvetica",
-  "bold"
-);
-
-doc.setFontSize(18);
-
-doc.text(
-  "La Récré Du P'tit Loup",
-  pageWidth / 2,
-  y,
-  {
-    align: "center"
+    return null;
   }
-);
 
-y += 8;
 
-doc.setFontSize(14);
+  const enfants = [];
 
-doc.text(
-  "AUTORISATION PARENTALE",
-  pageWidth / 2,
-  y,
-  {
-    align: "center"
-  }
-);
+  document.querySelectorAll(".enfant")
+    .forEach(bloc => {
 
-y += 6;
+      const nom =
+        bloc.querySelector(
+          'input[name^="nom_enfant_"]'
+        ).value.trim();
 
-doc.setFont(
-  "helvetica",
-  "normal"
-);
+      const prenom =
+        bloc.querySelector(
+          'input[name^="prenom_enfant_"]'
+        ).value.trim();
 
-doc.setFontSize(10);
+      enfants.push({
+        nom,
+        prenom
+      });
 
-doc.setTextColor(80);
+    });
 
-doc.text(
-  "Droit à l'image - Shooting Photo",
-  pageWidth / 2,
-  y,
-  {
-    align: "center"
-  }
-);
 
-y += 8;
-
-doc.setDrawColor(150);
-
-doc.line(
-  marge,
-  y,
-  pageWidth - marge,
-  y
-);
-
-y += 8;
-
-
-// ===============================
-// INFORMATIONS PHOTOGRAPHE
-// ===============================
-
-doc.setTextColor(70, 130, 90);
-
-doc.setFont(
-  "helvetica",
-  "bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-  "PHOTOGRAPHE",
-  marge,
-  y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-doc.rect(
-  marge,
-  y,
-  180,
-  28
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-  "helvetica",
-  "normal"
-);
-
-doc.setFontSize(10);
-
-doc.text(
-  "Nom : " +
-  (parametres.nom_photographe || ""),
-  marge + 4,
-  y + 6
-);
-
-doc.text(
-  "Téléphone : " +
-  (parametres.telephone_photographe || ""),
-  marge + 4,
-  y + 12
-);
-
-doc.text(
-  "Email : " +
-  (parametres.email_photographe || ""),
-  marge + 4,
-  y + 18
-);
-
-doc.text(
-  "Facebook : " +
-  (parametres.facebook_photographe || ""),
-  marge + 4,
-  y + 24
-);
-
-y += 36;
- // ===============================
-// RESPONSABLE LÉGAL
-// ===============================
-
-doc.setTextColor(70, 130, 90);
-
-doc.setFont(
-  "helvetica",
-  "bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-  "RESPONSABLE LÉGAL",
-  marge,
-  y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-doc.rect(
-  marge,
-  y,
-  180,
-  25
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-  "helvetica",
-  "normal"
-);
-
-doc.setFontSize(10);
-
-doc.text(
-  "Nom : " +
-  document.getElementById("prenom").value +
-  " " +
-  document.getElementById("nom").value,
-  marge + 4,
-  y + 6
-);
-
-doc.text(
-  "Téléphone : " +
-  document.getElementById("telephone").value,
-  marge + 4,
-  y + 12
-);
-
-doc.text(
-  "Email : " +
-  document.getElementById("email").value,
-  marge + 4,
-  y + 18
-);
-
-y += 33;
-
-
-// ===============================
-// ENFANT(S)
-// ===============================
-
-doc.setTextColor(70, 130, 90);
-
-doc.setFont(
-  "helvetica",
-  "bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-  "ENFANT(S)",
-  marge,
-  y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-const blocsEnfants =
-  document.querySelectorAll(".enfant");
-
-const hauteurEnfants =
-  Math.max(
-    18,
-    blocsEnfants.length * 6 + 6
-  );
-
-doc.rect(
-  marge,
-  y,
-  180,
-  hauteurEnfants
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-  "helvetica",
-  "normal"
-);
-
-doc.setFontSize(10);
-
-let yy = y + 6;
-
-blocsEnfants.forEach(bloc => {
-
-  const nom =
-    bloc.querySelector(
-      'input[name^="nom_enfant_"]'
-    ).value;
-
-  const prenom =
-    bloc.querySelector(
-      'input[name^="prenom_enfant_"]'
-    ).value;
-
-  doc.text(
-    "• " + prenom + " " + nom,
-    marge + 4,
-    yy
-  );
-
-  yy += 6;
-
-});
-
-y += hauteurEnfants + 8;
-  // ===============================
-// SÉANCE PHOTO
-// ===============================
-
-doc.setTextColor(70, 130, 90);
-
-doc.setFont(
-  "helvetica",
-  "bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-  "SÉANCE PHOTO",
-  marge,
-  y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-doc.rect(
-  marge,
-  y,
-  180,
-  24
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-  "helvetica",
-  "normal"
-);
-
-doc.setFontSize(10);
-
-// Date
-doc.text(
-  "Date : " +
-  (
-    parametres.date_shooting
-      ? new Date(
-          parametres.date_shooting
-        ).toLocaleDateString("fr-FR")
-      : ""
-  ),
-  marge + 4,
-  y + 6
-);
-
-// Créneau
-doc.text(
-  "Créneau : " +
-  (
+  const creneau =
     document.querySelector(
       'input[name="creneau"]:checked'
-    )?.value || ""
-  ),
-  marge + 4,
-  y + 12
-);
+    );
 
-// Type de photo
-let typePhotoPDF =
-  document.getElementById("typePhoto").value;
 
-if (typePhotoPDF === "individuel") {
+  const signature =
+    signaturePad &&
+    !signaturePad.isEmpty()
+      ? signaturePad.toDataURL("image/png")
+      : null;
 
-  typePhotoPDF =
-    "Photo individuelle";
 
-}
-else if (typePhotoPDF === "fratrie") {
+  const doc = creerPDFShooting({
 
-  typePhotoPDF =
-    "Photo fratrie";
+    jsPDF: jsPDF,
 
-}
-else if (typePhotoPDF === "les2") {
+    parametres: parametres,
 
-  typePhotoPDF =
-    "Photo individuelle + fratrie";
+    nomParent:
+      document.getElementById("nom").value.trim(),
 
-}
+    prenomParent:
+      document.getElementById("prenom").value.trim(),
 
-doc.text(
-  "Type de photo : " +
-  typePhotoPDF,
-  95,
-  y + 12
-);
+    telephone:
+      document.getElementById("telephone").value.trim(),
 
-// Durée
-doc.text(
-  "Durée : " +
-  calculerDureeSeance() +
-  " minutes",
-  marge + 4,
-  y + 18
-);
+    email:
+      document.getElementById("email").value.trim(),
 
-y += 32;
-  // ===============================
-// AUTORISATION
-// ===============================
+    enfants: enfants,
 
-doc.setTextColor(70, 130, 90);
+    typePhoto:
+      document.getElementById("typePhoto").value,
 
-doc.setFont(
-  "helvetica",
-  "bold"
-);
+    creneau:
+      creneau ? creneau.value : "",
 
-doc.setFontSize(12);
+    duree:
+      calculerDureeSeance(),
 
-doc.text(
-  "AUTORISATION",
-  marge,
-  y
-);
+    signature: signature
 
-y += 5;
+  });
 
-doc.setTextColor(0);
 
-doc.setFont(
-  "helvetica",
-  "normal"
-);
+  const pdfBase64 =
+    doc.output("datauristring")
+      .split(",")[1];
 
-doc.setFontSize(10);
 
-const texteAutorisation =
-
-"Je soussigné(e), responsable légal du ou des enfants désignés ci-dessus, autorise la réalisation de photographies dans le cadre du shooting photo organisé par l'association La Récré Du P'tit Loup.\n\n"
-
-+
-
-"J'autorise également la diffusion des photographies réalisées par " +
-(parametres.nom_photographe || "la photographe") +
-" dans une galerie privée accessible uniquement aux familles participantes afin de permettre la consultation et le téléchargement des images.\n\n"
-
-+
-
-"Ces photographies ne seront utilisées à aucune autre fin sans l'accord préalable des représentants légaux.";
-
-const lignesAutorisation =
-doc.splitTextToSize(
-  texteAutorisation,
-  176
-);
-
-doc.text(
-  lignesAutorisation,
-  marge,
-  y
-);
-
-y +=
-  (lignesAutorisation.length * 4.5)
-  + 10;
-// ===============================
-// SIGNATURE DU RESPONSABLE LÉGAL
-// ===============================
-
-doc.setTextColor(70, 130, 90);
-
-doc.setFont(
-  "helvetica",
-  "bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-  "✍ Signature du responsable légal",
-  marge,
-  y
-);
-
-y += 5;
-
-// Cadre de signature
-doc.setDrawColor(120);
-
-doc.rect(
-  marge,
-  y,
-  180,
-  22
-);
-
-// Signature manuscrite
-if (signaturePad && !signaturePad.isEmpty()) {
-
-  const signatureImage =
-    signaturePad.toDataURL("image/png");
-
-  doc.addImage(
-    signatureImage,
-    "PNG",
-    marge + 5,
-    y + 2,
-    70,
-    17
-  );
-
-} else {
-
-  doc.setFont(
-    "helvetica",
-    "normal"
-  );
-
-  doc.setFontSize(9);
-
-  doc.text(
-    "Signature non disponible",
-    marge + 5,
-    y + 12
-  );
-
-}
-
-y += 28;
-  const pdfBase64 = doc.output("datauristring").split(",")[1];
-
-return pdfBase64;
-
+  return pdfBase64;
 }
 // ===============================
 // Signature électronique
