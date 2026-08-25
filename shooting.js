@@ -435,7 +435,39 @@ document.querySelectorAll(".enfant").forEach(bloc => {
   enfants.push(enfant);
 
 });
+// ===============================
+// Vérification parents employeurs
+// ===============================
 
+if (typeInscription === "assistante") {
+
+  if (enfants.length === 0) {
+
+    alert("Merci d'ajouter au moins un enfant.");
+    return;
+
+  }
+
+  for (const enfant of enfants) {
+
+    if (
+      !enfant.nom ||
+      !enfant.prenom ||
+      !enfant.nom_parent ||
+      !enfant.prenom_parent ||
+      !enfant.email_parent
+    ) {
+
+      alert(
+        "Merci de renseigner toutes les informations de l'enfant et de son parent employeur."
+      );
+
+      return;
+    }
+
+  }
+
+}
 
     const choixPhoto =
     document.getElementById("typePhoto").value;
