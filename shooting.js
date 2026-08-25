@@ -473,14 +473,25 @@ if (creneauOccupe) {
 
   return;
 }
-    // Vérification de la signature
+  // ===============================
+// Vérification de la signature
+// ===============================
 
-if (signaturePad.isEmpty()) {
+const typeInscription =
+  document.querySelector(
+    'input[name="typeInscription"]:checked'
+  )?.value || "parent";
+
+
+// Le parent doit signer directement
+if (
+  typeInscription === "parent" &&
+  (!signaturePad || signaturePad.isEmpty())
+) {
 
   alert("Merci de signer l'autorisation.");
 
   return;
-
 }
     const { error } = await supabaseClient
       .from("shooting_inscriptions")
@@ -494,8 +505,16 @@ if (signaturePad.isEmpty()) {
           type_photo: choixPhoto,
           creneau: creneau.value,
           duree: dureeNecessaire,
-          autorisation: true,
-signature: signaturePad.toDataURL("image/png"),
+autorisation:
+  typeInscription === "parent",
+
+signature:
+  typeInscription === "parent" &&
+  signaturePad &&
+  !signaturePad.isEmpty()
+    ? signaturePad.toDataURL("image/png")
+    : null,
+
 commentaire: ""
         }
       ]);
