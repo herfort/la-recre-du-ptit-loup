@@ -348,633 +348,115 @@ location.reload();
 // Partie 1 / 4
 // ======================================================
 
-async function voirAutorisation(id){
+async function voirAutorisation(id) {
 
-// ===============================
-// Récupération de l'inscription
-// ===============================
-
-const { data, error } =
-await supabaseClient
-.from("shooting_inscriptions")
-.select("*")
-.eq("id", id)
-.single();
-
-if(error || !data){
-
-console.error(error);
-
-alert(
-"Impossible de récupérer l'inscription."
-);
-
-return;
-
-}
-
-// ===============================
-// Récupération des paramètres
-// ===============================
-
-const {
-data: parametres,
-error: erreurParametres
-}
-=
-await supabaseClient
-.from("shooting_parametres")
-.select("*")
-.single();
-
-if(erreurParametres){
-
-console.error(erreurParametres);
-
-alert(
-"Impossible de récupérer les paramètres du shooting."
-);
-
-return;
-
-}
-
-// ===============================
-// Création du PDF
-// ===============================
-
-const { jsPDF } =
-window.jspdf;
-
-const doc =
-new jsPDF({
-
-orientation:"portrait",
-unit:"mm",
-format:"a4"
-
-});
-
-const largeur = 210;
-
-const marge = 15;
-
-let y = 18;
-
-// ===============================
-// Couleurs
-// ===============================
-
-const vert =
-[43,125,64];
-
-const gris =
-[110,110,110];
-
-// ===============================
-// Titre
-// ===============================
-
-doc.setTextColor(...vert);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
-
-doc.setFontSize(18);
-
-doc.text(
-"LA RÉCRÉ DU P'TIT LOUP",
-largeur/2,
-18,
-{
-align:"center"
-}
-);
-
-doc.setTextColor(0);
-
-doc.setFontSize(13);
-
-doc.text(
-"Autorisation parentale",
-largeur/2,
-27,
-{
-align:"center"
-}
-);
-
-doc.setFontSize(11);
-
-doc.setTextColor(...gris);
-
-doc.text(
-"Shooting Photo",
-largeur/2,
-34,
-{
-align:"center"
-}
-);
-
-// Ligne
-
-doc.setDrawColor(...vert);
-
-doc.setLineWidth(0.6);
-
-doc.line(
-15,
-39,
-195,
-39
-);
-
-y = 48;
   // ===============================
-// Informations photographe
-// ===============================
-
-doc.setTextColor(...vert);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-" PHOTOGRAPHE",
-marge,
-y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-doc.rect(
-marge,
-y,
-180,
-28
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-"helvetica",
-"normal"
-);
-
-doc.setFontSize(10);
-
-doc.text(
-"Nom : " +
-(parametres.nom_photographe || ""),
-marge + 4,
-y + 6
-);
-
-doc.text(
-"Téléphone : " +
-(parametres.telephone_photographe || ""),
-marge + 4,
-y + 12
-);
-
-doc.text(
-"Email : " +
-(parametres.email_photographe || ""),
-marge + 4,
-y + 18
-);
-
-doc.text(
-"Facebook : " +
-(parametres.facebook_photographe || ""),
-marge + 4,
-y + 24
-);
-
-y += 36;
-
-
-// ===============================
-// Responsable légal
-// ===============================
-
-doc.setTextColor(...vert);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-" RESPONSABLE LÉGAL",
-marge,
-y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-doc.rect(
-marge,
-y,
-180,
-25
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-"helvetica",
-"normal"
-);
-
-doc.setFontSize(10);
-
-doc.text(
-"Nom : " +
-data.prenom_parent +
-" " +
-data.nom_parent,
-marge + 4,
-y + 6
-);
-
-doc.text(
-"Téléphone : " +
-data.telephone,
-marge + 4,
-y + 12
-);
-
-doc.text(
-"Email : " +
-data.email,
-marge + 4,
-y + 18
-);
-
-y += 33;
-
-
-// ===============================
-// Enfant(s)
-// ===============================
-
-doc.setTextColor(...vert);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-"ENFANT(S)",
-marge,
-y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-const hauteurEnfants =
-Math.max(
-18,
-data.enfants.length * 6 + 6
-);
-
-doc.rect(
-marge,
-y,
-180,
-hauteurEnfants
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-"helvetica",
-"normal"
-);
-
-doc.setFontSize(10);
-
-let yy =
-y + 6;
-
-data.enfants.forEach(enfant=>{
-
-doc.text(
-"• " +
-enfant.prenom +
-" " +
-enfant.nom,
-marge + 4,
-yy
-);
-
-yy += 6;
-
-});
-
-y += hauteurEnfants + 8;
+  // Récupération de l'inscription
   // ===============================
-// Séance photo
-// ===============================
 
-doc.setTextColor(...vert);
+  const { data, error } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-doc.setFont(
-"helvetica",
-"bold"
-);
+  if (error || !data) {
 
-doc.setFontSize(12);
+    console.error(error);
 
-doc.text(
-" SÉANCE PHOTO",
-marge,
-y
-);
-
-y += 5;
-
-doc.setDrawColor(170);
-
-doc.rect(
-marge,
-y,
-180,
-24
-);
-
-doc.setTextColor(0);
-
-doc.setFont(
-"helvetica",
-"normal"
-);
-
-doc.setFontSize(10);
-
-doc.text(
-"Date : " +
-(parametres.date_shooting || ""),
-marge + 4,
-y + 6
-);
-
-doc.text(
-"Créneau : " +
-data.creneau,
-marge + 4,
-y + 12
-);
-
-let typePhoto = data.type_photo;
-
-if(typePhoto === "individuelle"){
-  typePhoto = "Photo individuelle";
-}
-else if(typePhoto === "fratrie"){
-  typePhoto = "Photo fratrie";
-}
-else if(typePhoto === "les2"){
-  typePhoto = "Photo individuelle + fratrie";
-}
-
-doc.text(
-"Type de photo : " + typePhoto,
-95,
-y + 12
-);
-
-doc.text(
-"Durée : " +
-data.duree +
-" minutes",
-marge + 4,
-y + 18
-);
-
-y += 32;
-
-
-// ===============================
-// Autorisation
-// ===============================
-
-doc.setTextColor(...vert);
-
-doc.setFont(
-"helvetica",
-"bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-" AUTORISATION",
-marge,
-y
-);
-
-y += 5;
-
-doc.setTextColor(0);
-
-doc.setFont(
-"helvetica",
-"normal"
-);
-
-doc.setFontSize(10);
-
-const texte =
-
-"Je soussigné(e), responsable légal du ou des enfants désignés ci-dessus, autorise la réalisation de photographies dans le cadre du shooting photo organisé par l'association La Récré Du P'tit Loup.\n\n"
-
-+
-
-"J'autorise également la diffusion des photographies réalisées par ADONIS STUDIO PHOTO dans une galerie privée accessible uniquement aux familles participantes afin de permettre la consultation et le téléchargement des images.\n\n"
-
-+
-
-"Ces photographies ne seront utilisées à aucune autre fin sans l'accord préalable des représentants légaux.";
-
-const lignes =
-doc.splitTextToSize(
-texte,
-176
-);
-
-doc.text(
-lignes,
-marge,
-y
-);
-
-y +=
-(lignes.length * 4.5)
-+
-10;
-
-
-// ===============================
-// Signature du responsable légal
-// ===============================
-
-doc.setTextColor(...vert);
-
-doc.setFont(
-  "helvetica",
-  "bold"
-);
-
-doc.setFontSize(12);
-
-doc.text(
-  "✍ Signature du responsable légal",
-  marge,
-  y
-);
-
-y += 5;
-
-// Cadre de signature
-doc.setDrawColor(120);
-
-doc.rect(
-  marge,
-  y,
-  180,
-  22
-);
-
-// Affichage de la signature enregistrée
-if (data.signature) {
-
-  try {
-
-    doc.addImage(
-      data.signature,
-      "PNG",
-      marge + 5,
-      y + 2,
-      70,
-      17
+    alert(
+      "Impossible de récupérer l'inscription."
     );
 
-  } catch (erreur) {
-
-    console.error(
-      "Erreur affichage signature :",
-      erreur
-    );
-
+    return;
   }
 
-} else {
 
-  doc.setFont(
-    "helvetica",
-    "normal"
-  );
-
-  doc.setFontSize(9);
-
-  doc.text(
-    "Signature non disponible",
-    marge + 5,
-    y + 12
-  );
-
-}
-
-y += 28;
   // ===============================
-// Pied de page
-// ===============================
+  // Récupération des paramètres
+  // ===============================
 
-doc.setDrawColor(180);
+  const {
+    data: parametres,
+    error: erreurParametres
+  } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("*")
+      .single();
 
-doc.line(
-15,
-282,
-195,
-282
-);
+  if (erreurParametres || !parametres) {
 
-doc.setFont(
-"helvetica",
-"bold"
-);
+    console.error(erreurParametres);
 
-doc.setFontSize(9);
+    alert(
+      "Impossible de récupérer les paramètres du shooting."
+    );
 
-doc.setTextColor(...vert);
+    return;
+  }
 
-doc.text(
-"Association La Récré Du P'tit Loup",
-105,
-287,
-{
-align:"center"
-}
-);
 
-doc.setFont(
-"helvetica",
-"normal"
-);
+  // ===============================
+  // Création du PDF commun
+  // ===============================
 
-doc.setTextColor(80);
+  const { jsPDF } =
+    window.jspdf;
 
-doc.setFontSize(8);
+  const doc =
+    creerPDFShooting({
 
-doc.text(
-"72 rue de la Planquette - 60290 Laigneville",
-105,
-291,
-{
-align:"center"
-}
-);
+      jsPDF: jsPDF,
 
-doc.text(
-"06 62 37 46 38 - larecreduptitloup@gmail.com",
-105,
-295,
-{
-align:"center"
-}
-);
+      parametres: parametres,
 
-// ===============================
-// Téléchargement
-// ===============================
+      nomParent:
+        data.nom_parent || "",
 
-const nomFichier =
-"Autorisation_" +
-data.nom_parent.replace(/\s+/g,"_") +
-".pdf";
+      prenomParent:
+        data.prenom_parent || "",
 
-doc.save(
-nomFichier
-);
+      telephone:
+        data.telephone || "",
+
+      email:
+        data.email || "",
+
+      enfants:
+        data.enfants || [],
+
+      typePhoto:
+        data.type_photo || "",
+
+      creneau:
+        data.creneau || "",
+
+      duree:
+        data.duree || 0,
+
+      signature:
+        data.signature || null
+
+    });
+
+
+  // ===============================
+  // Nom du fichier
+  // ===============================
+
+  const nomFichier =
+    "Autorisation_" +
+    (data.nom_parent || "Shooting")
+      .replace(/\s+/g, "_") +
+    ".pdf";
+
+
+  // ===============================
+  // Téléchargement
+  // ===============================
+
+  doc.save(nomFichier);
 
 }
