@@ -208,6 +208,11 @@ ${inscription.nom_parent}
 <td>${enfants}</td>
 
 <td>${inscription.type_photo}</td>
+
+<td>
+${statutAutorisation}
+</td>
+
 <td>${inscription.duree} min</td>
 
 <td>
