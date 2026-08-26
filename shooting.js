@@ -457,14 +457,14 @@ if (typeInscription === "assistante") {
 
   for (const enfant of enfants) {
 
-    if (
-      !enfant.nom ||
-      !enfant.prenom ||
-      !enfant.nom_parent ||
-      !enfant.prenom_parent ||
-      !enfant.email_parent
-      !enfant.telephone_parent ||
-    ) {
+   if (
+  !enfant.nom ||
+  !enfant.prenom ||
+  !enfant.nom_parent ||
+  !enfant.prenom_parent ||
+  !enfant.email_parent ||
+  !enfant.telephone_parent
+) {
 
       alert(
         "Merci de renseigner toutes les informations de l'enfant et de son parent employeur."
