@@ -113,7 +113,43 @@ calculerDureeSeance();
 
 
   });
+// ===============================
+// Affichage signature Parent / Assistante
+// ===============================
 
+const blocSignature =
+  document.getElementById("blocSignature");
+
+function gererAffichageSignature() {
+
+  const typeInscription =
+    document.querySelector(
+      'input[name="typeInscription"]:checked'
+    )?.value;
+
+  if (blocSignature) {
+
+    blocSignature.style.display =
+      typeInscription === "assistante"
+        ? "none"
+        : "block";
+
+  }
+
+}
+
+document
+  .querySelectorAll('input[name="typeInscription"]')
+  .forEach(radio => {
+
+    radio.addEventListener(
+      "change",
+      gererAffichageSignature
+    );
+
+  });
+
+gererAffichageSignature();
 }
 // ===============================
 // Chargement paramètres shooting
