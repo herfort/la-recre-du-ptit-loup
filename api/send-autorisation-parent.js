@@ -1,50 +1,41 @@
 export default async function handler(req, res) {
 
   if (req.method !== "POST") {
-
     return res.status(405).json({
       error: "Méthode non autorisée"
     });
-
   }
 
   const {
     emailParent,
     prenomParent,
-    prenomEnfant,
-    nomEnfant,
+    enfants,
     token
   } = req.body;
 
-
   if (
     !emailParent ||
-    !prenomEnfant ||
-    !nomEnfant ||
+    !Array.isArray(enfants) ||
+    enfants.length === 0 ||
     !token
   ) {
-
     return res.status(400).json({
       error: "Informations manquantes"
     });
-
   }
-
 
   try {
 
-    // ===============================
-    // Création du lien personnel
-    // ===============================
+    const lienSignature =
+      "https://project-y73gh.vercel.app/autorisation-shooting.html?token=" +
+      encodeURIComponent(token);
 
-  const lienSignature =
-  "https://project-y73gh.vercel.app/autorisation-shooting.html?token=" +
-  encodeURIComponent(token);
-
-
-    // ===============================
-    // Envoi avec Brevo
-    // ===============================
+    const listeEnfantsHTML =
+      enfants
+        .map(enfant =>
+          `<strong>${enfant.prenom} ${enfant.nom}</strong>`
+        )
+        .join("<br>");
 
     const response = await fetch(
       "https://api.brevo.com/v3/smtp/email",
@@ -101,13 +92,11 @@ export default async function handler(req, res) {
               </p>
 
               <p style="font-size:18px;">
-                <strong>
-                  ${prenomEnfant} ${nomEnfant}
-                </strong>
+                ${listeEnfantsHTML}
               </p>
 
               <p>
-                L'inscription a été réalisée par son
+                L'inscription a été réalisée par leur
                 assistante maternelle.
               </p>
 
@@ -137,10 +126,8 @@ export default async function handler(req, res) {
 
               <p>
                 Ce lien est personnel et concerne
-                uniquement l'autorisation de
-                <strong>
-                  ${prenomEnfant} ${nomEnfant}
-                </strong>.
+                uniquement l'autorisation des enfants
+                indiqués ci-dessus.
               </p>
 
               <p>
@@ -159,10 +146,7 @@ export default async function handler(req, res) {
       }
     );
 
-
-    const data =
-      await response.json();
-
+    const data = await response.json();
 
     if (!response.ok) {
 
@@ -177,14 +161,11 @@ export default async function handler(req, res) {
           error: "Erreur Brevo",
           details: data
         });
-
     }
-
 
     return res.status(200).json({
       success: true
     });
-
 
   } catch (err) {
 
@@ -196,7 +177,5 @@ export default async function handler(req, res) {
     return res.status(500).json({
       error: err.message
     });
-
   }
-
 }
