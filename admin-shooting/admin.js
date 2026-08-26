@@ -151,7 +151,49 @@ const enfants =
 inscription.enfants
 .map(e=>e.prenom+" "+e.nom)
 .join("<br>");
+let statutAutorisation = "";
 
+if (
+  inscription.autorisations &&
+  inscription.autorisations.length > 0
+) {
+
+  statutAutorisation =
+    inscription.autorisations
+      .map(autorisation => {
+
+        const enfant =
+          autorisation.prenom_enfant +
+          " " +
+          autorisation.nom_enfant;
+
+        if (autorisation.autorisation_signee) {
+
+          return (
+            "✅ " +
+            enfant +
+            " : signée"
+          );
+
+        }
+
+        return (
+          "⏳ " +
+          enfant +
+          " : en attente"
+        );
+
+      })
+      .join("<br>");
+
+} else {
+
+  statutAutorisation =
+    inscription.autorisation
+      ? "✅ Autorisation signée"
+      : "—";
+
+}
 tbody.innerHTML += `
 
 <tr>
