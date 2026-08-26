@@ -99,6 +99,79 @@ if (boutonAjouterEnfant && listeEnfants) {
 
 
     listeEnfants.appendChild(bloc);
+    // ===============================
+// Même famille que l'enfant précédent
+// ===============================
+
+const caseMemeFamille =
+  bloc.querySelector(".memeFamille");
+
+if (caseMemeFamille) {
+
+  caseMemeFamille.addEventListener("change", function () {
+
+    if (!this.checked) {
+      return;
+    }
+
+    const tousLesBlocs =
+      document.querySelectorAll(".enfant");
+
+    const blocActuel =
+      this.closest(".enfant");
+
+    const index =
+      Array.from(tousLesBlocs)
+        .indexOf(blocActuel);
+
+    if (index <= 0) {
+      return;
+    }
+
+    const blocPrecedent =
+      tousLesBlocs[index - 1];
+
+
+    const nomParentPrecedent =
+      blocPrecedent.querySelector(
+        'input[name^="nom_parent_enfant_"]'
+      )?.value || "";
+
+    const prenomParentPrecedent =
+      blocPrecedent.querySelector(
+        'input[name^="prenom_parent_enfant_"]'
+      )?.value || "";
+
+    const telephoneParentPrecedent =
+      blocPrecedent.querySelector(
+        'input[name^="telephone_parent_enfant_"]'
+      )?.value || "";
+
+    const emailParentPrecedent =
+      blocPrecedent.querySelector(
+        'input[name^="email_parent_enfant_"]'
+      )?.value || "";
+
+
+    bloc.querySelector(
+      'input[name^="nom_parent_enfant_"]'
+    ).value = nomParentPrecedent;
+
+    bloc.querySelector(
+      'input[name^="prenom_parent_enfant_"]'
+    ).value = prenomParentPrecedent;
+
+    bloc.querySelector(
+      'input[name^="telephone_parent_enfant_"]'
+    ).value = telephoneParentPrecedent;
+
+    bloc.querySelector(
+      'input[name^="email_parent_enfant_"]'
+    ).value = emailParentPrecedent;
+
+  });
+
+}
     if (
   document.querySelector(
     'input[name="typeInscription"]:checked'
