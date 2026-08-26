@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Autorisation parentale - Shooting Photo</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="shooting.css">
+</head>
+
+<body>
+
+<div class="card">
+
+  <h1>✍️ Autorisation parentale</h1>
+
+  <div id="zoneChargement">
+    Chargement de votre autorisation...
+  </div>
+
+  <div id="zoneAutorisation" style="display:none;">
+
+    <p>
+      Vous autorisez la réalisation de photographies
+      dans le cadre du shooting photo organisé par
+      La Récré Du P'tit Loup.
+    </p>
+
+    <div class="section">
+
+      <h2>👶 Enfant concerné</h2>
+
+      <p id="nomEnfant"></p>
+
+    </div>
+
+    <div class="section">
+
+      <h2>👨‍👩‍👧 Responsable légal</h2>
+
+      <p id="nomParent"></p>
+
+    </div>
+
+    <div class="section">
+
+      <h2>✍️ Signature</h2>
+
+      <p>
+        Merci de signer dans le cadre ci-dessous.
+      </p>
+
+      <canvas
+        id="signaturePad"
+        width="500"
+        height="180"
+        style="
+          border:2px solid #999;
+          border-radius:8px;
+          background:white;
+          max-width:100%;
+          touch-action:none;
+        ">
+      </canvas>
+
+      <br><br>
+
+      <button
+        type="button"
+        id="effacerSignature"
+      >
+        🗑️ Effacer la signature
+      </button>
+
+    </div>
+
+    <button
+      type="button"
+      id="validerAutorisation"
+    >
+      ✅ Valider mon autorisation
+    </button>
+
+  </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
+<script src="autorisation-shooting.js"></script>
+
+</body>
+</html>
