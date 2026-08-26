@@ -163,10 +163,34 @@ async function chargerAutorisation() {
   }
 
 
+ // ===============================
+// Affichage enfant(s)
+// ===============================
+
+if (
+  Array.isArray(data.enfants) &&
+  data.enfants.length > 0
+) {
+
+  nomEnfant.innerHTML =
+    data.enfants
+      .map(enfant =>
+        "👶 " +
+        enfant.prenom +
+        " " +
+        enfant.nom
+      )
+      .join("<br>");
+
+} else {
+
+  // Compatibilité avec les anciennes autorisations
   nomEnfant.textContent =
     data.prenom_enfant +
     " " +
     data.nom_enfant;
+
+}
 
 
   nomParent.textContent =
