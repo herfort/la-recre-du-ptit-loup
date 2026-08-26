@@ -601,3 +601,205 @@ async function voirAutorisation(id) {
   doc.save(nomFichier);
 
 }
+// ======================================================
+// PDF INDIVIDUEL PAR ENFANT
+// ======================================================
+
+async function voirAutorisationEnfant(
+  autorisationId,
+  inscriptionId
+) {
+
+  // ===============================
+  // Autorisation de l'enfant
+  // ===============================
+
+  const {
+    data: autorisation,
+    error: erreurAutorisation
+  } =
+    await supabaseClient
+      .from("shooting_autorisations")
+      .select("*")
+      .eq("id", autorisationId)
+      .single();
+
+
+  if (
+    erreurAutorisation ||
+    !autorisation
+  ) {
+
+    console.error(
+      erreurAutorisation
+    );
+
+    alert(
+      "Impossible de récupérer l'autorisation de cet enfant."
+    );
+
+    return;
+  }
+
+
+  // ===============================
+  // Inscription shooting
+  // ===============================
+
+  const {
+    data: inscription,
+    error: erreurInscription
+  } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .select("*")
+      .eq("id", inscriptionId)
+      .single();
+
+
+  if (
+    erreurInscription ||
+    !inscription
+  ) {
+
+    console.error(
+      erreurInscription
+    );
+
+    alert(
+      "Impossible de récupérer l'inscription."
+    );
+
+    return;
+  }
+
+
+  // ===============================
+  // Paramètres shooting
+  // ===============================
+
+  const {
+    data: parametres,
+    error: erreurParametres
+  } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("*")
+      .single();
+
+
+  if (
+    erreurParametres ||
+    !parametres
+  ) {
+
+    console.error(
+      erreurParametres
+    );
+
+    alert(
+      "Impossible de récupérer les paramètres du shooting."
+    );
+
+    return;
+  }
+
+
+  // ===============================
+  // Vérification signature
+  // ===============================
+
+  if (
+    !autorisation.autorisation_signee ||
+    !autorisation.signature
+  ) {
+
+    alert(
+      "Cette autorisation n'a pas encore été signée par le parent."
+    );
+
+    return;
+  }
+
+
+  // ===============================
+  // Création PDF
+  // ===============================
+
+  const { jsPDF } =
+    window.jspdf;
+
+
+  const doc =
+    creerPDFShooting({
+
+      jsPDF: jsPDF,
+
+      parametres: parametres,
+
+      // VRAI parent responsable légal
+      nomParent:
+        autorisation.nom_parent || "",
+
+      prenomParent:
+        autorisation.prenom_parent || "",
+
+      // L'assistante reste celle qui a donné
+      // le téléphone dans l'inscription
+      telephone:
+        inscription.telephone || "",
+
+      // Email du vrai parent
+      email:
+        autorisation.email_parent || "",
+
+      // UN SEUL enfant
+      enfants: [
+        {
+          nom:
+            autorisation.nom_enfant || "",
+
+          prenom:
+            autorisation.prenom_enfant || ""
+        }
+      ],
+
+      typePhoto:
+        inscription.type_photo || "",
+
+      creneau:
+        inscription.creneau || "",
+
+      duree:
+        inscription.duree || 0,
+
+      // Signature du vrai parent
+      signature:
+        autorisation.signature || null
+
+    });
+
+
+  // ===============================
+  // Nom du fichier
+  // ===============================
+
+  const nomFichier =
+    "Autorisation_" +
+    (autorisation.prenom_enfant || "Enfant")
+      .replace(/\s+/g, "_") +
+    "_" +
+    (autorisation.nom_enfant || "")
+      .replace(/\s+/g, "_") +
+    ".pdf";
+
+
+  // ===============================
+  // Téléchargement
+  // ===============================
+
+  doc.save(
+    nomFichier
+  );
+
+}
