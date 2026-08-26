@@ -621,6 +621,7 @@ if (typeInscription === "assistante") {
 
       nom_parent: enfant.nom_parent,
       prenom_parent: enfant.prenom_parent,
+      telephone_parent: enfant.telephone_parent,
       email_parent: enfant.email_parent,
 
       token: crypto.randomUUID(),
