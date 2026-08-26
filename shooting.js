@@ -66,7 +66,11 @@ if (boutonAjouterEnfant && listeEnfants) {
       type="text"
       name="prenom_parent_enfant_${compteurEnfant}"
     >
-
+<label>Téléphone du parent</label>
+<input
+  type="tel"
+  name="telephone_parent_enfant_${compteurEnfant}"
+>
     <label>Email du parent</label>
     <input
       type="email"
