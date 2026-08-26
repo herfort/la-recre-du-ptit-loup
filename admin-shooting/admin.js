@@ -264,10 +264,7 @@ ${statutAutorisation}
 
 <td>
 
-<button 
-onclick="voirAutorisation(${inscription.id})">
-📄 PDF
-</button>
+${boutonsPDF}
 
 <button
 onclick="supprimerInscription(${inscription.id})">
