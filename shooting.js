@@ -54,7 +54,18 @@ if (boutonAjouterEnfant && listeEnfants) {
   <div class="infosParentEmployeur" style="display:none;">
 
     <h4>👨‍👩‍👧 Parent employeur / responsable légal</h4>
+<label
+  class="optionMemeFamille"
+  style="${compteurEnfant === 1 ? "display:none;" : "display:block;"}"
+>
+  <input
+    type="checkbox"
+    class="memeFamille"
+  >
+  👨‍👩‍👧‍👦 Même famille que l'enfant précédent
+</label>
 
+<br>
     <label>Nom du parent</label>
     <input
       type="text"
