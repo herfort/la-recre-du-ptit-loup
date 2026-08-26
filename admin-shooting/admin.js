@@ -746,8 +746,8 @@ async function voirAutorisationEnfant(
 
       // L'assistante reste celle qui a donné
       // le téléphone dans l'inscription
-      telephone:
-        inscription.telephone || "",
+    telephone:
+  autorisation.telephone_parent || "",
 
       // Email du vrai parent
       email:
