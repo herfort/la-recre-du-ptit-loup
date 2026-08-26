@@ -37,8 +37,8 @@ export default async function handler(req, res) {
     // Création du lien personnel
     // ===============================
 
-   const lienSignature =
-  "https://la-recre-du-ptit-loup-git-main-larecreduptitloup.vercel.app/autorisation-shooting.html?token=" +
+  const lienSignature =
+  "https://project-y73gh.vercel.app/autorisation-shooting.html?token=" +
   encodeURIComponent(token);
 
 
