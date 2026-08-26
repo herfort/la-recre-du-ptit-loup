@@ -146,18 +146,26 @@ async function chargerAutorisation() {
   // Autorisation déjà signée
   if (data.autorisation_signee) {
 
-    zoneChargement.innerHTML = `
-      <h2>✅ Autorisation déjà signée</h2>
+   const listeEnfants =
+  Array.isArray(data.enfants) &&
+  data.enfants.length > 0
+    ? data.enfants
+        .map(enfant =>
+          enfant.prenom + " " + enfant.nom
+        )
+        .join(", ")
+    : data.prenom_enfant + " " + data.nom_enfant;
 
-      <p>
-        L'autorisation pour
-        <strong>
-          ${data.prenom_enfant}
-          ${data.nom_enfant}
-        </strong>
-        a déjà été validée.
-      </p>
-    `;
+
+zoneChargement.innerHTML = `
+  <h2>✅ Autorisation déjà signée</h2>
+
+  <p>
+    L'autorisation pour
+    <strong>${listeEnfants}</strong>
+    a déjà été validée.
+  </p>
+`;
 
     return;
   }
