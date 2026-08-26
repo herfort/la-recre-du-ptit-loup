@@ -533,7 +533,10 @@ document.querySelectorAll(".enfant").forEach(bloc => {
     nom: nomEnfant,
     prenom: prenomEnfant
   };
+const memeFamille =
+  bloc.querySelector(".memeFamille")?.checked || false;
 
+enfant.meme_famille = memeFamille;
 
   // Si inscription par une assistante maternelle
   if (typeInscription === "assistante") {
