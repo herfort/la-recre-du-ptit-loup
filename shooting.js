@@ -772,7 +772,11 @@ for (let i = 0; i < enfants.length; i++) {
 
     inscription_id:
       inscriptionCreee.id,
+nom_enfant:
+  enfant.nom,
 
+prenom_enfant:
+  enfant.prenom,
     enfants: [
       {
         nom: enfant.nom,
