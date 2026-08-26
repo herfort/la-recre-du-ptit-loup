@@ -857,7 +857,7 @@ for (const autorisation of autorisations) {
             autorisation.prenom_parent,
 
          enfants:
-  autorisation.enfants
+  autorisation.enfants,
           token:
             autorisation.token
 
