@@ -463,6 +463,7 @@ if (typeInscription === "assistante") {
       !enfant.nom_parent ||
       !enfant.prenom_parent ||
       !enfant.email_parent
+      !enfant.telephone_parent ||
     ) {
 
       alert(
