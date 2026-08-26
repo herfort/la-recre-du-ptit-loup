@@ -22,25 +22,75 @@ console.log("✅ Administration connectée à Supabase");
 
 async function chargerInscriptions(){
 
-const { data, error } =
-await supabaseClient
-.from("shooting_inscriptions")
-.select("*")
-.order("creneau");
+  // ===============================
+  // Inscriptions shooting
+  // ===============================
 
-if(error){
+  const { data, error } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .select("*")
+      .order("creneau");
 
-console.error(error);
-return;
+  if(error){
+
+    console.error(error);
+    return;
+
+  }
+
+
+  // ===============================
+  // Autorisations parentales
+  // ===============================
+
+  const {
+    data: autorisations,
+    error: erreurAutorisations
+  } =
+    await supabaseClient
+      .from("shooting_autorisations")
+      .select(
+        "inscription_id, prenom_enfant, nom_enfant, autorisation_signee, date_signature"
+      );
+
+
+  if(erreurAutorisations){
+
+    console.error(
+      "Erreur chargement autorisations :",
+      erreurAutorisations
+    );
+
+  }
+
+
+  // ===============================
+  // Ajout des autorisations
+  // aux inscriptions
+  // ===============================
+
+  data.forEach(inscription => {
+
+    inscription.autorisations =
+      (autorisations || []).filter(
+        autorisation =>
+          Number(autorisation.inscription_id) ===
+          Number(inscription.id)
+      );
+
+  });
+
+
+  console.log(
+    "Inscriptions + autorisations :",
+    data
+  );
+
+
+  afficherInscriptions(data);
 
 }
-
-console.log(data);
-
-afficherInscriptions(data);
-
-}
-
 // ===============================
 // Affichage du tableau
 // ===============================
