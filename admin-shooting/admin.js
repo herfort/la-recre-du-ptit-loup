@@ -151,6 +151,53 @@ const enfants =
 inscription.enfants
 .map(e=>e.prenom+" "+e.nom)
 .join("<br>");
+  // ===============================
+// Boutons PDF
+// ===============================
+
+let boutonsPDF = "";
+
+if (
+  inscription.autorisations &&
+  inscription.autorisations.length > 0
+) {
+
+  boutonsPDF =
+    inscription.autorisations
+      .map(autorisation => {
+
+        const nomEnfant =
+          autorisation.prenom_enfant +
+          " " +
+          autorisation.nom_enfant;
+
+        return `
+          <button
+            onclick="voirAutorisationEnfant(
+              ${autorisation.id},
+              ${inscription.id}
+            )"
+          >
+            📄 PDF ${nomEnfant}
+          </button>
+          <br>
+        `;
+
+      })
+      .join("");
+
+} else {
+
+  // Parent qui inscrit directement son enfant
+  boutonsPDF = `
+    <button
+      onclick="voirAutorisation(${inscription.id})"
+    >
+      📄 PDF
+    </button>
+  `;
+
+}
 let statutAutorisation = "";
 
 if (
