@@ -733,29 +733,77 @@ if (
 
 if (typeInscription === "assistante") {
 
-  const autorisations = enfants.map(enfant => {
+ const autorisations = [];
 
-    return {
+for (let i = 0; i < enfants.length; i++) {
 
-      inscription_id: inscriptionCreee.id,
+  const enfant = enfants[i];
 
-      nom_enfant: enfant.nom,
-      prenom_enfant: enfant.prenom,
+  // ===============================
+  // Même famille que l'enfant précédent
+  // ===============================
 
-      nom_parent: enfant.nom_parent,
-      prenom_parent: enfant.prenom_parent,
-      telephone_parent: enfant.telephone_parent,
-      email_parent: enfant.email_parent,
+  if (
+    enfant.meme_famille === true &&
+    autorisations.length > 0
+  ) {
 
-      token: crypto.randomUUID(),
+    const autorisationPrecedente =
+      autorisations[
+        autorisations.length - 1
+      ];
 
-      signature: null,
-      autorisation_signee: false,
-      date_signature: null
+    // On ajoute le deuxième enfant
+    // dans la même autorisation
+    autorisationPrecedente.enfants.push({
+      nom: enfant.nom,
+      prenom: enfant.prenom
+    });
 
-    };
+    continue;
+  }
+
+
+  // ===============================
+  // Nouvelle famille
+  // ===============================
+
+  autorisations.push({
+
+    inscription_id:
+      inscriptionCreee.id,
+
+    enfants: [
+      {
+        nom: enfant.nom,
+        prenom: enfant.prenom
+      }
+    ],
+
+    nom_parent:
+      enfant.nom_parent,
+
+    prenom_parent:
+      enfant.prenom_parent,
+
+    telephone_parent:
+      enfant.telephone_parent,
+
+    email_parent:
+      enfant.email_parent,
+
+    token:
+      crypto.randomUUID(),
+
+    signature: null,
+
+    autorisation_signee: false,
+
+    date_signature: null
 
   });
+
+}
 
 
   const { error: erreurAutorisations } =
