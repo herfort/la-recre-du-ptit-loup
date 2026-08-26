@@ -51,8 +51,8 @@ async function chargerInscriptions(){
     await supabaseClient
       .from("shooting_autorisations")
       .select(
-        "inscription_id, prenom_enfant, nom_enfant, autorisation_signee, date_signature"
-      );
+  "id, inscription_id, nom_enfant, prenom_enfant, nom_parent, prenom_parent, email_parent, signature, autorisation_signee, date_signature"
+);
 
 
   if(erreurAutorisations){
