@@ -427,7 +427,10 @@ document.querySelectorAll(".enfant").forEach(bloc => {
       bloc.querySelector(
         'input[name^="prenom_parent_enfant_"]'
       ).value.trim();
-
+enfant.telephone_parent =
+  bloc.querySelector(
+    'input[name^="telephone_parent_enfant_"]'
+  ).value.trim();
     enfant.email_parent =
       bloc.querySelector(
         'input[name^="email_parent_enfant_"]'
