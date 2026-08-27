@@ -60,11 +60,7 @@ export default async function handler(req, res) {
             }
           ],
 
-          bcc: [
-            {
-              email: "larecreduptitloup@gmail.com"
-            }
-          ],
+        
 
           subject:
             "📸 Autorisation parentale - Shooting Photo",
