@@ -754,13 +754,14 @@ async function voirAutorisationEnfant(
         autorisation.email_parent || "",
 
       // UN SEUL enfant
-      enfants: [
+    enfants:
+  Array.isArray(autorisation.enfants) &&
+  autorisation.enfants.length > 0
+    ? autorisation.enfants
+    : [
         {
-          nom:
-            autorisation.nom_enfant || "",
-
-          prenom:
-            autorisation.prenom_enfant || ""
+          nom: autorisation.nom_enfant || "",
+          prenom: autorisation.prenom_enfant || ""
         }
       ],
 
