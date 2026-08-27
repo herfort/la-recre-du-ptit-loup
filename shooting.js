@@ -1066,7 +1066,10 @@ for (const autorisation of autorisations) {
 }
 
 }
-const pdfBase64 = await genererPDF();
+const pdfBase64 =
+  typeInscription === "parent"
+    ? await genererPDF()
+    : null;
     // ===============================
 // Envoi email Brevo shooting
 // ===============================
