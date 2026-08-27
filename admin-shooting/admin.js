@@ -97,188 +97,292 @@ async function chargerInscriptions(){
 
 function afficherInscriptions(data){
 
-const tbody =
-document.getElementById(
-"listeInscriptions"
-);
+  const tbody =
+    document.getElementById(
+      "listeInscriptions"
+    );
 
-tbody.innerHTML = "";
+  tbody.innerHTML = "";
 
-if(data.length === 0){
+  if(data.length === 0){
 
-tbody.innerHTML = `
-<tr>
-<td colspan="5">
-Aucune inscription
-</td>
-</tr>
-`;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7">
+          Aucune inscription
+        </td>
+      </tr>
+    `;
 
-return;
+    return;
+  }
 
-}
-// ===============================
-// Statistiques
-// ===============================
-
-let nbEnfants = 0;
-let tempsReserve = 0;
-
-data.forEach(inscription => {
-
-  nbEnfants += inscription.enfants.length;
-  tempsReserve += inscription.duree;
-
-});
-
-document.getElementById("nbFamilles").textContent =
-data.length;
-
-document.getElementById("nbEnfants").textContent =
-nbEnfants;
-
-const heures =
-Math.floor(tempsReserve / 60);
-
-const minutes =
-tempsReserve % 60;
-
-document.getElementById("tempsReserve").textContent =
-heures + " h " + minutes + " min";
-data.forEach(inscription=>{
-
-const enfants =
-inscription.enfants
-.map(e=>e.prenom+" "+e.nom)
-.join("<br>");
   // ===============================
-// Boutons PDF
-// ===============================
+  // Statistiques
+  // ===============================
 
-let boutonsPDF = "";
+  let nbEnfants = 0;
+  let tempsReserve = 0;
 
-if (
-  inscription.autorisations &&
-  inscription.autorisations.length > 0
-) {
+  data.forEach(inscription => {
 
-  boutonsPDF =
-    inscription.autorisations
-      .map(autorisation => {
+    nbEnfants += inscription.enfants.length;
+    tempsReserve += inscription.duree;
 
-        const nomEnfant =
-          autorisation.prenom_enfant +
-          " " +
-          autorisation.nom_enfant;
+  });
 
-        return `
+  document.getElementById("nbFamilles").textContent =
+    data.length;
+
+  document.getElementById("nbEnfants").textContent =
+    nbEnfants;
+
+  const heures =
+    Math.floor(tempsReserve / 60);
+
+  const minutes =
+    tempsReserve % 60;
+
+  document.getElementById("tempsReserve").textContent =
+    heures + " h " + minutes + " min";
+
+
+  // ===============================
+  // Affichage inscriptions
+  // ===============================
+
+  data.forEach(inscription => {
+
+    const autorisations =
+      inscription.autorisations || [];
+
+    let contenuEnfants = "";
+    let contenuType = "";
+    let contenuAutorisation = "";
+    let boutonsPDF = "";
+
+
+    // ==========================================
+    // INSCRIPTION ASSISTANTE MATERNELLE
+    // ==========================================
+
+    if (autorisations.length > 0) {
+
+      autorisations.forEach(
+        (autorisation, index) => {
+
+          const enfantsFamille =
+            Array.isArray(autorisation.enfants) &&
+            autorisation.enfants.length > 0
+              ? autorisation.enfants
+              : [
+                  {
+                    prenom:
+                      autorisation.prenom_enfant || "",
+                    nom:
+                      autorisation.nom_enfant || ""
+                  }
+                ];
+
+
+          const listeEnfants =
+            enfantsFamille
+              .map(enfant =>
+                enfant.prenom +
+                " " +
+                enfant.nom
+              )
+              .join("<br>");
+
+
+          const typePhoto =
+            autorisation.type_photo ||
+            autorisation.typePhoto ||
+            "—";
+
+
+          let typeTexte = typePhoto;
+
+          if (typePhoto === "individuel") {
+            typeTexte = "Photo individuelle";
+          }
+
+          else if (typePhoto === "fratrie") {
+            typeTexte = "Photo fratrie";
+          }
+
+          else if (typePhoto === "les2") {
+            typeTexte =
+              "Individuelle + fratrie";
+          }
+
+
+          contenuEnfants += `
+            <div class="famille-admin">
+              <strong>
+                👨‍👩‍👧‍👦 Famille ${index + 1}
+              </strong>
+
+              <div class="famille-enfants">
+                ${listeEnfants}
+              </div>
+            </div>
+          `;
+
+
+          contenuType += `
+            <div class="famille-admin">
+              📸 ${typeTexte}
+            </div>
+          `;
+
+
+          contenuAutorisation += `
+            <div class="famille-admin">
+
+              ${
+                autorisation.autorisation_signee
+                  ? "✅ Autorisation signée"
+                  : "⏳ En attente"
+              }
+
+            </div>
+          `;
+
+
+          const nomBouton =
+            enfantsFamille
+              .map(enfant =>
+                enfant.prenom
+              )
+              .join(" / ");
+
+
+          boutonsPDF += `
+            <button
+              onclick="voirAutorisationEnfant(
+                ${autorisation.id},
+                ${inscription.id}
+              )"
+            >
+              📄 PDF ${nomBouton}
+            </button>
+          `;
+
+        }
+      );
+
+    }
+
+
+    // ==========================================
+    // INSCRIPTION DIRECTE PAR UN PARENT
+    // ==========================================
+
+    else {
+
+      contenuEnfants =
+        inscription.enfants
+          .map(enfant =>
+            enfant.prenom +
+            " " +
+            enfant.nom
+          )
+          .join("<br>");
+
+
+      let typeTexte =
+        inscription.type_photo;
+
+      if (typeTexte === "individuel") {
+        typeTexte = "Photo individuelle";
+      }
+
+      else if (typeTexte === "fratrie") {
+        typeTexte = "Photo fratrie";
+      }
+
+      else if (typeTexte === "les2") {
+        typeTexte =
+          "Individuelle + fratrie";
+      }
+
+      contenuType =
+        typeTexte;
+
+
+      contenuAutorisation =
+        inscription.autorisation
+          ? "✅ Autorisation signée"
+          : "—";
+
+
+      boutonsPDF = `
+        <button
+          onclick="voirAutorisation(
+            ${inscription.id}
+          )"
+        >
+          📄 PDF
+        </button>
+      `;
+
+    }
+
+
+    // ==========================================
+    // TABLEAU
+    // ==========================================
+
+    tbody.innerHTML += `
+
+      <tr>
+
+        <td>
+          ${inscription.creneau}
+        </td>
+
+        <td>
+          ${inscription.prenom_parent}
+          ${inscription.nom_parent}
+        </td>
+
+        <td>
+          ${contenuEnfants}
+        </td>
+
+        <td>
+          ${contenuType}
+        </td>
+
+        <td>
+          ${contenuAutorisation}
+        </td>
+
+        <td>
+          <strong>
+            ${inscription.duree} min
+          </strong>
+        </td>
+
+        <td>
+
+          ${boutonsPDF}
+
           <button
-            onclick="voirAutorisationEnfant(
-              ${autorisation.id},
+            onclick="supprimerInscription(
               ${inscription.id}
             )"
           >
-            📄 PDF ${nomEnfant}
+            ❌
           </button>
-          <br>
-        `;
 
-      })
-      .join("");
+        </td>
 
-} else {
+      </tr>
+    `;
 
-  // Parent qui inscrit directement son enfant
-  boutonsPDF = `
-    <button
-      onclick="voirAutorisation(${inscription.id})"
-    >
-      📄 PDF
-    </button>
-  `;
-
-}
-let statutAutorisation = "";
-
-if (
-  inscription.autorisations &&
-  inscription.autorisations.length > 0
-) {
-
-  statutAutorisation =
-    inscription.autorisations
-      .map(autorisation => {
-
-        const enfant =
-          autorisation.prenom_enfant +
-          " " +
-          autorisation.nom_enfant;
-
-        if (autorisation.autorisation_signee) {
-
-          return (
-            "✅ " +
-            enfant +
-            " : signée"
-          );
-
-        }
-
-        return (
-          "⏳ " +
-          enfant +
-          " : en attente"
-        );
-
-      })
-      .join("<br>");
-
-} else {
-
-  statutAutorisation =
-    inscription.autorisation
-      ? "✅ Autorisation signée"
-      : "—";
-
-}
-tbody.innerHTML += `
-
-<tr>
-
-<td>${inscription.creneau}</td>
-
-<td>
-${inscription.prenom_parent}
-${inscription.nom_parent}
-</td>
-
-<td>${enfants}</td>
-
-<td>${inscription.type_photo}</td>
-
-<td>
-${statutAutorisation}
-</td>
-
-<td>${inscription.duree} min</td>
-
-<td>
-
-${boutonsPDF}
-
-<button
-onclick="supprimerInscription(${inscription.id})">
-❌
-</button>
-
-</td>
-
-</tr>
-
-
-`;
-
-});
+  });
 
 }
 // ===============================
