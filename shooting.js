@@ -87,7 +87,24 @@ if (boutonAjouterEnfant && listeEnfants) {
       type="email"
       name="email_parent_enfant_${compteurEnfant}"
     >
+<label>Type de photo pour cette famille</label>
 
+<select
+  class="typePhotoFamille"
+  name="type_photo_famille_${compteurEnfant}"
+>
+  <option value="individuel">
+    Photo individuelle
+  </option>
+
+  <option value="fratrie">
+    Photo fratrie
+  </option>
+
+  <option value="les2">
+    Individuelle + fratrie
+  </option>
+</select>
   </div>
 
   <button type="button" class="supprimerEnfant">
