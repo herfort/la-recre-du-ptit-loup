@@ -228,6 +228,9 @@ calculerDureeSeance();
 const blocSignature =
   document.getElementById("blocSignature");
 
+const blocTypePhoto =
+  document.getElementById("blocTypePhoto");
+
 function gererAffichageSignature() {
 
   const typeInscription =
@@ -238,6 +241,15 @@ function gererAffichageSignature() {
   if (blocSignature) {
 
     blocSignature.style.display =
+      typeInscription === "assistante"
+        ? "none"
+        : "block";
+
+  }
+
+  if (blocTypePhoto) {
+
+    blocTypePhoto.style.display =
       typeInscription === "assistante"
         ? "none"
         : "block";
