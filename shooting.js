@@ -414,37 +414,186 @@ async function genererCreneaux(parametres) {
 chargerParametresShooting();
 function calculerDureeSeance() {
 
-  const nombreEnfants = document.querySelectorAll(".enfant").length;
-
-  const type = document.getElementById("typePhoto").value;
-
+  const typeInscription =
+    document.querySelector(
+      'input[name="typeInscription"]:checked'
+    )?.value;
 
   let duree = 0;
 
 
-  if (type === "individuel" || type === "les2") {
-    duree += nombreEnfants * 5;
+  // ==========================================
+  // PARENT
+  // ==========================================
+
+  if (typeInscription !== "assistante") {
+
+    const nombreEnfants =
+      document.querySelectorAll(".enfant").length;
+
+    const type =
+      document.getElementById("typePhoto")?.value;
+
+    if (
+      type === "individuel" ||
+      type === "les2"
+    ) {
+
+      duree += nombreEnfants * 5;
+
+    }
+
+    if (
+      type === "fratrie" ||
+      type === "les2"
+    ) {
+
+      duree += 5;
+
+    }
+
   }
 
 
-  if (type === "fratrie" || type === "les2") {
-    duree += 5;
+  // ==========================================
+  // ASSISTANTE MATERNELLE
+  // Calcul famille par famille
+  // ==========================================
+
+  else {
+
+    const blocs =
+      Array.from(
+        document.querySelectorAll(".enfant")
+      );
+
+    let familleActuelle = null;
+
+    const familles = [];
+
+
+    blocs.forEach((bloc, index) => {
+
+      const memeFamille =
+        bloc.querySelector(".memeFamille")
+          ?.checked || false;
+
+
+      // Nouvel enfant = nouvelle famille
+      // sauf si "même famille" est coché
+      if (
+        index === 0 ||
+        !memeFamille
+      ) {
+
+        familleActuelle = {
+
+          nombreEnfants: 1,
+
+          typePhoto:
+            bloc.querySelector(
+              ".typePhotoFamille"
+            )?.value || "individuel"
+
+        };
+
+        familles.push(
+          familleActuelle
+        );
+
+      }
+
+      else {
+
+        familleActuelle.nombreEnfants++;
+
+      }
+
+    });
+
+
+    // Calcul de chaque famille
+    familles.forEach(famille => {
+
+      if (
+        famille.typePhoto === "individuel" ||
+        famille.typePhoto === "les2"
+      ) {
+
+        duree +=
+          famille.nombreEnfants * 5;
+
+      }
+
+
+      if (
+        famille.typePhoto === "fratrie" ||
+        famille.typePhoto === "les2"
+      ) {
+
+        duree += 5;
+
+      }
+
+    });
+
   }
 
 
-  const affichage = document.getElementById("dureeSeance");
+  // ==========================================
+  // AFFICHAGE
+  // ==========================================
 
+  const affichage =
+    document.getElementById(
+      "dureeSeance"
+    );
 
   if (affichage) {
 
     affichage.textContent =
-      "Durée estimée : " + duree + " minutes";
+      "Durée estimée : " +
+      duree +
+      " minutes";
 
   }
 
-console.log("Durée calculée :", duree);
+
+  console.log(
+    "Durée calculée :",
+    duree
+  );
+
   return duree;
+
 }
+document.addEventListener(
+  "change",
+  function(e) {
+
+    if (
+      e.target.classList.contains(
+        "typePhotoFamille"
+      ) ||
+      e.target.classList.contains(
+        "memeFamille"
+      )
+    ) {
+
+      calculerDureeSeance();
+
+      if (parametresShooting) {
+
+        genererCreneaux(
+          parametresShooting
+        );
+
+      }
+
+    }
+
+  }
+);
 // Mise à jour durée quand on ajoute/supprime ou change le type
 
 document.addEventListener("click", function(e){
