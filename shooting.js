@@ -731,7 +731,10 @@ enfant.telephone_parent =
       bloc.querySelector(
         'input[name^="email_parent_enfant_"]'
       ).value.trim();
-
+enfant.type_photo_famille =
+  bloc.querySelector(
+    ".typePhotoFamille"
+  )?.value || "individuel";
   }
 
 
