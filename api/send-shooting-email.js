@@ -222,19 +222,16 @@ export default async function handler(req, res) {
 
           `,
 
-          attachment:
-            typeInscription === "parent" &&
-            pdfBase64
-              ? [
-                  {
-                    name:
-                      "Autorisation_Shooting.pdf",
-
-                    content:
-                      pdfBase64
-                  }
-                ]
-              : []
+         ...(typeInscription === "parent" && pdfBase64
+  ? {
+      attachment: [
+        {
+          name: "Autorisation_Shooting.pdf",
+          content: pdfBase64
+        }
+      ]
+    }
+  : {})
 
         })
       }
