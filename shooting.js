@@ -185,7 +185,14 @@ if (caseMemeFamille) {
     bloc.querySelector(
       'input[name^="email_parent_enfant_"]'
     ).value = emailParentPrecedent;
+const typePhotoPrecedent =
+  blocPrecedent.querySelector(
+    ".typePhotoFamille"
+  )?.value || "individuel";
 
+bloc.querySelector(
+  ".typePhotoFamille"
+).value = typePhotoPrecedent;
   });
 
 }
