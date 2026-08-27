@@ -987,7 +987,8 @@ prenom_enfant:
 
     email_parent:
       enfant.email_parent,
-
+type_photo:
+  enfant.type_photo_famille,
     token:
       crypto.randomUUID(),
 
