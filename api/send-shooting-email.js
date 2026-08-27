@@ -120,18 +120,18 @@ export default async function handler(req, res) {
     // PARENT
     // ===============================
 
-    else {
+   else if (typeInscription === "parent") {
 
-      contenuSupplementaire = `
+  contenuSupplementaire = `
 
-        <p>
-          Vous trouverez en pièce jointe votre
-          autorisation parentale signée.
-        </p>
+    <p>
+      Vous trouverez en pièce jointe votre
+      autorisation parentale signée.
+    </p>
 
-      `;
+  `;
 
-    }
+}
 
 
     // ==========================================
