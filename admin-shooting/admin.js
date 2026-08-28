@@ -908,3 +908,444 @@ async function voirAutorisationEnfant(
   );
 
 }
+// ======================================================
+// IMPRIMER TOUTES LES AUTORISATIONS
+// ======================================================
+
+document
+  .getElementById("imprimerToutesAutorisations")
+  .addEventListener(
+    "click",
+    imprimerToutesAutorisations
+  );
+
+
+async function imprimerToutesAutorisations() {
+
+  const bouton =
+    document.getElementById(
+      "imprimerToutesAutorisations"
+    );
+
+  bouton.disabled = true;
+  bouton.textContent =
+    "⏳ Création du PDF...";
+
+
+  try {
+
+    // ==========================================
+    // PARAMÈTRES DU SHOOTING
+    // ==========================================
+
+    const {
+      data: parametres,
+      error: erreurParametres
+    } =
+      await supabaseClient
+        .from("shooting_parametres")
+        .select("*")
+        .single();
+
+
+    if (
+      erreurParametres ||
+      !parametres
+    ) {
+
+      throw new Error(
+        "Impossible de récupérer les paramètres du shooting."
+      );
+
+    }
+
+
+    // ==========================================
+    // TOUTES LES INSCRIPTIONS
+    // ==========================================
+
+    const {
+      data: inscriptions,
+      error: erreurInscriptions
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .select("*")
+        .order("creneau");
+
+
+    if (erreurInscriptions) {
+
+      throw erreurInscriptions;
+
+    }
+
+
+    // ==========================================
+    // AUTORISATIONS DES ASSISTANTES
+    // ==========================================
+
+    const {
+      data: autorisations,
+      error: erreurAutorisations
+    } =
+      await supabaseClient
+        .from("shooting_autorisations")
+        .select("*");
+
+
+    if (erreurAutorisations) {
+
+      throw erreurAutorisations;
+
+    }
+
+
+    // ==========================================
+    // CRÉATION DU PDF GLOBAL
+    // ==========================================
+
+    const {
+      PDFDocument
+    } =
+      PDFLib;
+
+
+    const pdfGlobal =
+      await PDFDocument.create();
+
+
+    const { jsPDF } =
+      window.jspdf;
+
+
+    let nombreAutorisations = 0;
+
+
+    // ==========================================
+    // PARCOURS DES INSCRIPTIONS
+    // ==========================================
+
+    for (
+      const inscription
+      of inscriptions
+    ) {
+
+      const autorisationsInscription =
+        (autorisations || [])
+          .filter(
+            autorisation =>
+              Number(
+                autorisation.inscription_id
+              ) ===
+              Number(
+                inscription.id
+              )
+          );
+
+
+      // ========================================
+      // ASSISTANTE MATERNELLE
+      // ========================================
+
+      if (
+        autorisationsInscription.length > 0
+      ) {
+
+        for (
+          const autorisation
+          of autorisationsInscription
+        ) {
+
+          // On imprime uniquement
+          // les autorisations signées
+
+          if (
+            !autorisation.autorisation_signee ||
+            !autorisation.signature
+          ) {
+
+            continue;
+
+          }
+
+
+          const enfantsFamille =
+
+            Array.isArray(
+              autorisation.enfants
+            ) &&
+
+            autorisation.enfants.length > 0
+
+              ? autorisation.enfants
+
+              : [
+                  {
+                    nom:
+                      autorisation.nom_enfant ||
+                      "",
+
+                    prenom:
+                      autorisation.prenom_enfant ||
+                      ""
+                  }
+                ];
+
+
+          const doc =
+            creerPDFShooting({
+
+              jsPDF: jsPDF,
+
+              parametres:
+                parametres,
+
+              nomParent:
+                autorisation.nom_parent ||
+                "",
+
+              prenomParent:
+                autorisation.prenom_parent ||
+                "",
+
+              telephone:
+                autorisation.telephone_parent ||
+                "",
+
+              email:
+                autorisation.email_parent ||
+                "",
+
+              enfants:
+                enfantsFamille,
+
+              typePhoto:
+                autorisation.type_photo ||
+                "",
+
+              creneau:
+                inscription.creneau ||
+                "",
+
+              duree:
+                inscription.duree ||
+                0,
+
+              signature:
+                autorisation.signature ||
+                null
+
+            });
+
+
+          const pdfBytes =
+            doc.output(
+              "arraybuffer"
+            );
+
+
+          const pdfTemporaire =
+            await PDFDocument.load(
+              pdfBytes
+            );
+
+
+          const pages =
+            await pdfGlobal.copyPages(
+              pdfTemporaire,
+              pdfTemporaire.getPageIndices()
+            );
+
+
+          pages.forEach(
+            page =>
+              pdfGlobal.addPage(page)
+          );
+
+
+          nombreAutorisations++;
+
+        }
+
+      }
+
+
+      // ========================================
+      // INSCRIPTION DIRECTE D'UN PARENT
+      // ========================================
+
+      else {
+
+        if (
+          !inscription.autorisation ||
+          !inscription.signature
+        ) {
+
+          continue;
+
+        }
+
+
+        const doc =
+          creerPDFShooting({
+
+            jsPDF: jsPDF,
+
+            parametres:
+              parametres,
+
+            nomParent:
+              inscription.nom_parent ||
+              "",
+
+            prenomParent:
+              inscription.prenom_parent ||
+              "",
+
+            telephone:
+              inscription.telephone ||
+              "",
+
+            email:
+              inscription.email ||
+              "",
+
+            enfants:
+              inscription.enfants ||
+              [],
+
+            typePhoto:
+              inscription.type_photo ||
+              "",
+
+            creneau:
+              inscription.creneau ||
+              "",
+
+            duree:
+              inscription.duree ||
+              0,
+
+            signature:
+              inscription.signature ||
+              null
+
+          });
+
+
+        const pdfBytes =
+          doc.output(
+            "arraybuffer"
+          );
+
+
+        const pdfTemporaire =
+          await PDFDocument.load(
+            pdfBytes
+          );
+
+
+        const pages =
+          await pdfGlobal.copyPages(
+            pdfTemporaire,
+            pdfTemporaire.getPageIndices()
+          );
+
+
+        pages.forEach(
+          page =>
+            pdfGlobal.addPage(page)
+        );
+
+
+        nombreAutorisations++;
+
+      }
+
+    }
+
+
+    // ==========================================
+    // AUCUNE AUTORISATION
+    // ==========================================
+
+    if (
+      nombreAutorisations === 0
+    ) {
+
+      alert(
+        "Aucune autorisation signée à imprimer."
+      );
+
+      return;
+
+    }
+
+
+    // ==========================================
+    // CRÉATION DU FICHIER FINAL
+    // ==========================================
+
+    const pdfFinal =
+      await pdfGlobal.save();
+
+
+    const blob =
+      new Blob(
+        [pdfFinal],
+        {
+          type:
+            "application/pdf"
+        }
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    // ==========================================
+    // OUVERTURE DU PDF
+    // ==========================================
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+
+    alert(
+      "✅ " +
+      nombreAutorisations +
+      " autorisation(s) regroupée(s) dans le PDF."
+    );
+
+
+  }
+
+  catch (erreur) {
+
+    console.error(
+      "Erreur PDF global :",
+      erreur
+    );
+
+    alert(
+      "❌ Une erreur est survenue lors de la création du PDF."
+    );
+
+  }
+
+  finally {
+
+    bouton.disabled = false;
+
+    bouton.textContent =
+      "🖨️ Imprimer toutes les autorisations";
+
+  }
+
+}
