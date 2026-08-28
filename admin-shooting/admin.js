@@ -1349,3 +1349,493 @@ async function imprimerToutesAutorisations() {
   }
 
 }
+// ======================================================
+// PLANNING PDF PHOTOGRAPHE
+// ======================================================
+
+document
+  .getElementById("telechargerPlanningPhotographe")
+  .addEventListener(
+    "click",
+    telechargerPlanningPhotographe
+  );
+
+
+async function telechargerPlanningPhotographe() {
+
+  const bouton =
+    document.getElementById(
+      "telechargerPlanningPhotographe"
+    );
+
+  bouton.disabled = true;
+  bouton.textContent = "⏳ Création du planning...";
+
+  try {
+
+    // ==========================================
+    // PARAMÈTRES SHOOTING
+    // ==========================================
+
+    const {
+      data: parametres,
+      error: erreurParametres
+    } =
+      await supabaseClient
+        .from("shooting_parametres")
+        .select("*")
+        .single();
+
+    if (erreurParametres || !parametres) {
+      throw new Error(
+        "Impossible de récupérer les paramètres."
+      );
+    }
+
+
+    // ==========================================
+    // INSCRIPTIONS
+    // ==========================================
+
+    const {
+      data: inscriptions,
+      error: erreurInscriptions
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .select("*")
+        .order("creneau");
+
+    if (erreurInscriptions) {
+      throw erreurInscriptions;
+    }
+
+
+    // ==========================================
+    // AUTORISATIONS / FAMILLES
+    // ==========================================
+
+    const {
+      data: autorisations,
+      error: erreurAutorisations
+    } =
+      await supabaseClient
+        .from("shooting_autorisations")
+        .select("*");
+
+    if (erreurAutorisations) {
+      throw erreurAutorisations;
+    }
+
+
+    if (!inscriptions || inscriptions.length === 0) {
+      alert("Aucune réservation dans le planning.");
+      return;
+    }
+
+
+    // ==========================================
+    // CRÉATION DU PDF
+    // ==========================================
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
+    });
+
+
+    const marge = 15;
+    let y = 18;
+
+
+    // ==========================================
+    // TITRE
+    // ==========================================
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+
+    doc.text(
+      "LA RÉCRÉ DU P'TIT LOUP",
+      105,
+      y,
+      { align: "center" }
+    );
+
+    y += 9;
+
+    doc.setFontSize(15);
+
+    doc.text(
+      "Planning Shooting Photo",
+      105,
+      y,
+      { align: "center" }
+    );
+
+    y += 7;
+
+
+    // Date
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+
+    let dateTexte = "";
+
+    if (parametres.date_shooting) {
+
+      dateTexte =
+        new Date(
+          parametres.date_shooting + "T12:00:00"
+        ).toLocaleDateString(
+          "fr-FR",
+          {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          }
+        );
+
+    }
+
+    doc.text(
+      dateTexte,
+      105,
+      y,
+      { align: "center" }
+    );
+
+    y += 12;
+
+
+    // ==========================================
+    // PETITE FONCTION TYPE PHOTO
+    // ==========================================
+
+    function nomTypePhoto(type) {
+
+      if (type === "individuel") {
+        return "Photo individuelle";
+      }
+
+      if (type === "fratrie") {
+        return "Photo fratrie";
+      }
+
+      if (type === "les2") {
+        return "Individuelle + fratrie";
+      }
+
+      return type || "—";
+    }
+
+
+    // ==========================================
+    // INSCRIPTIONS
+    // ==========================================
+
+    inscriptions.forEach(inscription => {
+
+      const autorisationsInscription =
+        (autorisations || []).filter(
+          autorisation =>
+            Number(autorisation.inscription_id) ===
+            Number(inscription.id)
+        );
+
+
+      // Calcul de la hauteur nécessaire
+      let hauteurBloc = 24;
+
+      if (autorisationsInscription.length > 0) {
+
+        hauteurBloc =
+          18 +
+          autorisationsInscription.reduce(
+            (total, autorisation) => {
+
+              const enfants =
+                Array.isArray(autorisation.enfants)
+                  ? autorisation.enfants.length
+                  : 1;
+
+              return total + 8 + (enfants * 5);
+
+            },
+            0
+          );
+
+      } else {
+
+        hauteurBloc =
+          24 +
+          ((inscription.enfants || []).length * 5);
+
+      }
+
+
+      // Nouvelle page si nécessaire
+      if (y + hauteurBloc > 280) {
+
+        doc.addPage();
+        y = 18;
+
+      }
+
+
+      // ========================================
+      // HEURE + RESPONSABLE
+      // ========================================
+
+      doc.setDrawColor(190);
+      doc.setFillColor(245, 247, 245);
+
+      doc.roundedRect(
+        marge,
+        y,
+        180,
+        hauteurBloc,
+        2,
+        2,
+        "FD"
+      );
+
+
+      doc.setFont(
+        "helvetica",
+        "bold"
+      );
+
+      doc.setFontSize(12);
+
+      doc.text(
+        inscription.creneau || "",
+        marge + 5,
+        y + 7
+      );
+
+
+      doc.setFontSize(10);
+
+      doc.text(
+        (inscription.prenom_parent || "") +
+        " " +
+        (inscription.nom_parent || ""),
+        marge + 30,
+        y + 7
+      );
+
+
+      doc.text(
+        (inscription.duree || 0) +
+        " min",
+        190,
+        y + 7,
+        { align: "right" }
+      );
+
+
+      let ligneY = y + 14;
+
+
+      // ========================================
+      // ASSISTANTE MATERNELLE
+      // ========================================
+
+      if (autorisationsInscription.length > 0) {
+
+        autorisationsInscription.forEach(
+          (autorisation, index) => {
+
+            const enfantsFamille =
+              Array.isArray(
+                autorisation.enfants
+              ) &&
+              autorisation.enfants.length > 0
+
+                ? autorisation.enfants
+
+                : [{
+                    prenom:
+                      autorisation.prenom_enfant || "",
+                    nom:
+                      autorisation.nom_enfant || ""
+                  }];
+
+
+            doc.setFont(
+              "helvetica",
+              "bold"
+            );
+
+            doc.setFontSize(9);
+
+            doc.text(
+              "Famille " + (index + 1) +
+              " - " +
+              nomTypePhoto(
+                autorisation.type_photo
+              ),
+              marge + 8,
+              ligneY
+            );
+
+            ligneY += 5;
+
+
+            doc.setFont(
+              "helvetica",
+              "normal"
+            );
+
+            enfantsFamille.forEach(
+              enfant => {
+
+                doc.text(
+                  "• " +
+                  (enfant.prenom || "") +
+                  " " +
+                  (enfant.nom || ""),
+                  marge + 12,
+                  ligneY
+                );
+
+                ligneY += 5;
+
+              }
+            );
+
+
+            ligneY += 3;
+
+          }
+        );
+
+      }
+
+
+      // ========================================
+      // PARENT DIRECT
+      // ========================================
+
+      else {
+
+        doc.setFont(
+          "helvetica",
+          "bold"
+        );
+
+        doc.setFontSize(9);
+
+        doc.text(
+          nomTypePhoto(
+            inscription.type_photo
+          ),
+          marge + 8,
+          ligneY
+        );
+
+        ligneY += 6;
+
+
+        doc.setFont(
+          "helvetica",
+          "normal"
+        );
+
+
+        (inscription.enfants || [])
+          .forEach(enfant => {
+
+            doc.text(
+              "• " +
+              (enfant.prenom || "") +
+              " " +
+              (enfant.nom || ""),
+              marge + 12,
+              ligneY
+            );
+
+            ligneY += 5;
+
+          });
+
+      }
+
+
+      y += hauteurBloc + 5;
+
+    });
+
+
+    // ==========================================
+    // PIED DE PAGE
+    // ==========================================
+
+    const totalPages =
+      doc.internal.getNumberOfPages();
+
+    for (
+      let page = 1;
+      page <= totalPages;
+      page++
+    ) {
+
+      doc.setPage(page);
+
+      doc.setFontSize(8);
+      doc.setFont(
+        "helvetica",
+        "normal"
+      );
+
+      doc.text(
+        "La Récré Du P'tit Loup - Page " +
+        page +
+        " / " +
+        totalPages,
+        105,
+        290,
+        { align: "center" }
+      );
+
+    }
+
+
+    // ==========================================
+    // TÉLÉCHARGEMENT
+    // ==========================================
+
+    doc.save(
+      "Planning_Photographe.pdf"
+    );
+
+  }
+
+  catch (erreur) {
+
+    console.error(
+      "Erreur planning photographe :",
+      erreur
+    );
+
+    alert(
+      "❌ Impossible de créer le planning photographe."
+    );
+
+  }
+
+  finally {
+
+    bouton.disabled = false;
+
+    bouton.textContent =
+      "📅 Télécharger le planning photographe";
+
+  }
+
+}
