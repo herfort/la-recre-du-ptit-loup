@@ -2379,3 +2379,84 @@ document
       );
     }
   );
+// ======================================================
+// AFFICHAGE PARENT EMPLOYEUR - FORMULAIRE ADMIN
+// ======================================================
+
+function gererTypeInscriptionAdmin() {
+
+  const typeInscription =
+    document.querySelector(
+      'input[name="typeInscriptionAdmin"]:checked'
+    )?.value;
+
+
+  document
+    .querySelectorAll(".adminParentEmployeur")
+    .forEach(bloc => {
+
+      bloc.style.display =
+        typeInscription === "assistante"
+          ? "block"
+          : "none";
+
+    });
+
+
+  // Pour une assistante maternelle,
+  // le type de photo général n'est pas utilisé
+  const typePhotoGeneral =
+    document.getElementById("adminTypePhoto");
+
+  if (typePhotoGeneral) {
+
+    const titre =
+      typePhotoGeneral.previousElementSibling;
+
+    if (typeInscription === "assistante") {
+
+      typePhotoGeneral.style.display = "none";
+
+      if (titre) {
+        titre.style.display = "none";
+      }
+
+    }
+
+    else {
+
+      typePhotoGeneral.style.display = "block";
+
+      if (titre) {
+        titre.style.display = "block";
+      }
+
+    }
+
+  }
+
+}
+
+
+// Quand Parent / Assistante change
+document
+  .querySelectorAll(
+    'input[name="typeInscriptionAdmin"]'
+  )
+  .forEach(radio => {
+
+    radio.addEventListener(
+      "change",
+      () => {
+
+        gererTypeInscriptionAdmin();
+        chargerCreneauxAdmin();
+
+      }
+    );
+
+  });
+
+
+// État au chargement
+gererTypeInscriptionAdmin();
