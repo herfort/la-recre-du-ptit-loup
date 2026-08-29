@@ -1917,3 +1917,38 @@ async function telechargerPlanningPhotographe() {
   }
 
 }
+// ======================================================
+// OUVRIR / FERMER LE FORMULAIRE ADMIN
+// ======================================================
+
+const boutonAjouterReservation =
+  document.getElementById("ajouterReservationAdmin");
+
+const formulaireReservationAdmin =
+  document.getElementById("formulaireReservationAdmin");
+
+const boutonAnnulerReservation =
+  document.getElementById("adminAnnulerReservation");
+
+
+boutonAjouterReservation.addEventListener(
+  "click",
+  () => {
+
+    formulaireReservationAdmin.style.display =
+      formulaireReservationAdmin.style.display === "none"
+        ? "block"
+        : "none";
+
+  }
+);
+
+
+boutonAnnulerReservation.addEventListener(
+  "click",
+  () => {
+
+    formulaireReservationAdmin.style.display = "none";
+
+  }
+);
