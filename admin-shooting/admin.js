@@ -1935,14 +1935,21 @@ boutonAjouterReservation.addEventListener(
   "click",
   () => {
 
+    const estCache =
+      formulaireReservationAdmin.style.display === "none";
+
     formulaireReservationAdmin.style.display =
-      formulaireReservationAdmin.style.display === "none"
+      estCache
         ? "block"
         : "none";
 
+
+    if (estCache) {
+      chargerCreneauxAdmin();
+    }
+
   }
 );
-
 
 boutonAnnulerReservation.addEventListener(
   "click",
