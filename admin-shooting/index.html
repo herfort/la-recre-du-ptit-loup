@@ -68,6 +68,116 @@ La Récré Du P'tit Loup
 >
   ➕ Ajouter une réservation
 </button>
+  <!-- =========================================
+     FORMULAIRE AJOUT RÉSERVATION ADMIN
+========================================= -->
+
+<div
+  id="formulaireReservationAdmin"
+  style="display:none;"
+>
+
+  <h2>➕ Ajouter une réservation</h2>
+
+  <p>
+    Inscription effectuée manuellement depuis l'administration.
+  </p>
+
+  <div class="admin-choix-type">
+
+    <label>
+      <input
+        type="radio"
+        name="typeInscriptionAdmin"
+        value="parent"
+        checked
+      >
+      👨‍👩‍👧 Parent
+    </label>
+
+    <label>
+      <input
+        type="radio"
+        name="typeInscriptionAdmin"
+        value="assistante"
+      >
+      👩‍🍼 Assistante maternelle
+    </label>
+
+  </div>
+
+  <hr>
+
+  <h3>👤 Responsable de la réservation</h3>
+
+  <div class="admin-form-grid">
+
+    <div>
+      <label>Nom</label>
+      <input
+        type="text"
+        id="adminNom"
+      >
+    </div>
+
+    <div>
+      <label>Prénom</label>
+      <input
+        type="text"
+        id="adminPrenom"
+      >
+    </div>
+
+    <div>
+      <label>Téléphone</label>
+      <input
+        type="tel"
+        id="adminTelephone"
+      >
+    </div>
+
+    <div>
+      <label>Email</label>
+      <input
+        type="email"
+        id="adminEmail"
+      >
+    </div>
+
+  </div>
+
+
+  <h3>👶 Enfant(s)</h3>
+
+  <div id="adminListeEnfants"></div>
+
+  <button
+    type="button"
+    id="adminAjouterEnfant"
+  >
+    ➕ Ajouter un enfant
+  </button>
+
+
+  <div class="admin-actions-formulaire">
+
+    <button
+      type="button"
+      id="adminAnnulerReservation"
+    >
+      ❌ Annuler
+    </button>
+
+    <button
+      type="button"
+      id="adminEnregistrerReservation"
+    >
+      ✅ Enregistrer la réservation
+    </button>
+
+  </div>
+
+</div>
 <div class="tableau">
 
 <h2>📋 Inscriptions</h2>
