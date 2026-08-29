@@ -2218,3 +2218,50 @@ async function chargerCreneauxAdmin() {
   }
 
 }
+// ======================================================
+// CALCUL DE LA DURÉE DE LA RÉSERVATION ADMIN
+// ======================================================
+
+function calculerDureeAdmin() {
+
+  const typePhoto =
+    document.getElementById("adminTypePhoto").value;
+
+  const enfants =
+    document.querySelectorAll(
+      "#adminListeEnfants .admin-enfant"
+    );
+
+  const nombreEnfants =
+    enfants.length;
+
+
+  if (nombreEnfants === 0) {
+    return 0;
+  }
+
+
+  if (typePhoto === "individuel") {
+
+    return nombreEnfants * 5;
+
+  }
+
+
+  if (typePhoto === "fratrie") {
+
+    return 5;
+
+  }
+
+
+  if (typePhoto === "les2") {
+
+    return (nombreEnfants * 5) + 5;
+
+  }
+
+
+  return 0;
+
+}
