@@ -2123,12 +2123,16 @@ async function chargerCreneauxAdmin() {
 
   while (heure < finJournee) {
 
-    const finCreneau =
-      new Date(heure);
+   const dureeNecessaire =
+  calculerDureeAdmin();
 
-    finCreneau.setMinutes(
-      finCreneau.getMinutes() + 5
-    );
+const finCreneau =
+  new Date(heure);
+
+finCreneau.setMinutes(
+  finCreneau.getMinutes() +
+  dureeNecessaire
+);
 
 
     let disponible = true;
