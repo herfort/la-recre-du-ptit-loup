@@ -2031,3 +2031,183 @@ adminAjouterEnfant.addEventListener(
 
 // Ajouter automatiquement un premier enfant
 ajouterEnfantAdmin();
+// ======================================================
+// CHARGER LES CRÉNEAUX DISPONIBLES DANS LE FORMULAIRE ADMIN
+// ======================================================
+
+async function chargerCreneauxAdmin() {
+
+  const selectCreneau =
+    document.getElementById("adminCreneau");
+
+  selectCreneau.innerHTML = `
+    <option value="">
+      Choisir un créneau
+    </option>
+  `;
+
+
+  const {
+    data: parametres,
+    error: erreurParametres
+  } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("*")
+      .single();
+
+
+  if (erreurParametres || !parametres) {
+
+    console.error(erreurParametres);
+    return;
+
+  }
+
+
+  const {
+    data: inscriptions,
+    error: erreurInscriptions
+  } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .select("creneau,duree");
+
+
+  if (erreurInscriptions) {
+
+    console.error(erreurInscriptions);
+    return;
+
+  }
+
+
+  const dateBase =
+    parametres.date_shooting;
+
+
+  let heure =
+    new Date(
+      `${dateBase}T${parametres.heure_debut}`
+    );
+
+
+  const finJournee =
+    new Date(
+      `${dateBase}T${parametres.heure_fin}`
+    );
+
+
+  const pauseDebut =
+    parametres.pause_debut
+      ? new Date(
+          `${dateBase}T${parametres.pause_debut}`
+        )
+      : null;
+
+
+  const pauseFin =
+    parametres.pause_fin
+      ? new Date(
+          `${dateBase}T${parametres.pause_fin}`
+        )
+      : null;
+
+
+  while (heure < finJournee) {
+
+    const finCreneau =
+      new Date(heure);
+
+    finCreneau.setMinutes(
+      finCreneau.getMinutes() + 5
+    );
+
+
+    let disponible = true;
+
+
+    // Pause photographe
+    if (
+      pauseDebut &&
+      pauseFin &&
+      heure < pauseFin &&
+      finCreneau > pauseDebut
+    ) {
+
+      disponible = false;
+
+    }
+
+
+    // Réservations existantes
+    (inscriptions || []).forEach(
+      reservation => {
+
+        const debutReservation =
+          new Date(
+            `${dateBase}T${reservation.creneau}`
+          );
+
+
+        const finReservation =
+          new Date(debutReservation);
+
+
+        finReservation.setMinutes(
+          finReservation.getMinutes() +
+          Number(reservation.duree || 0)
+        );
+
+
+        if (
+          heure < finReservation &&
+          finCreneau > debutReservation
+        ) {
+
+          disponible = false;
+
+        }
+
+      }
+    );
+
+
+    if (disponible) {
+
+      const heures =
+        String(
+          heure.getHours()
+        ).padStart(2, "0");
+
+
+      const minutes =
+        String(
+          heure.getMinutes()
+        ).padStart(2, "0");
+
+
+      const valeur =
+        `${heures}:${minutes}`;
+
+
+      const option =
+        document.createElement("option");
+
+
+      option.value = valeur;
+      option.textContent = valeur;
+
+
+      selectCreneau.appendChild(option);
+
+    }
+
+
+    heure.setMinutes(
+      heure.getMinutes() + 5
+    );
+
+  }
+
+}
