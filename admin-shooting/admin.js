@@ -2106,7 +2106,7 @@ function ajouterEnfantAdmin() {
 
 
   adminListeEnfants.appendChild(bloc);
-
+gererTypeInscriptionAdmin();
 
   bloc
     .querySelector(".adminSupprimerEnfant")
