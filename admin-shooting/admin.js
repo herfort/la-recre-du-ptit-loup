@@ -2269,3 +2269,21 @@ function calculerDureeAdmin() {
   return 0;
 
 }
+document
+  .getElementById("adminTypePhoto")
+  .addEventListener(
+    "change",
+    chargerCreneauxAdmin
+  );
+
+document
+  .getElementById("adminAjouterEnfant")
+  .addEventListener(
+    "click",
+    () => {
+      setTimeout(
+        chargerCreneauxAdmin,
+        0
+      );
+    }
+  );
