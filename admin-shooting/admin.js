@@ -2403,46 +2403,147 @@ finCreneau.setMinutes(
 
 function calculerDureeAdmin() {
 
-  const typePhoto =
-    document.getElementById("adminTypePhoto").value;
+  const typeInscription =
+    document.querySelector(
+      'input[name="typeInscriptionAdmin"]:checked'
+    )?.value;
 
-  const enfants =
-    document.querySelectorAll(
-      "#adminListeEnfants .admin-enfant"
+  const blocsEnfants =
+    Array.from(
+      document.querySelectorAll(
+        "#adminListeEnfants .admin-enfant"
+      )
     );
 
-  const nombreEnfants =
-    enfants.length;
 
-
-  if (nombreEnfants === 0) {
+  if (blocsEnfants.length === 0) {
     return 0;
   }
 
 
-  if (typePhoto === "individuel") {
+  // ==========================================
+  // PARENT
+  // ==========================================
 
-    return nombreEnfants * 5;
+  if (typeInscription === "parent") {
 
+    const typePhoto =
+      document.getElementById(
+        "adminTypePhoto"
+      ).value;
+
+    const nombreEnfants =
+      blocsEnfants.length;
+
+
+    if (typePhoto === "individuel") {
+      return nombreEnfants * 5;
+    }
+
+    if (typePhoto === "fratrie") {
+      return 5;
+    }
+
+    if (typePhoto === "les2") {
+      return (nombreEnfants * 5) + 5;
+    }
+
+    return 0;
   }
 
+
+  // ==========================================
+  // ASSISTANTE MATERNELLE
+  // ==========================================
+
+  let dureeTotale = 0;
+  let familleActuelle = null;
+
+
+  blocsEnfants.forEach(
+    (bloc, index) => {
+
+      const memeFamille =
+        bloc.querySelector(
+          ".adminMemeFamille"
+        )?.checked || false;
+
+
+      // Nouvelle famille
+      if (
+        index === 0 ||
+        !memeFamille
+      ) {
+
+        familleActuelle = {
+          nombreEnfants: 1,
+          typePhoto:
+            bloc.querySelector(
+              ".adminTypePhotoFamille"
+            )?.value || "individuel"
+        };
+
+        // On calcule cette famille ensuite
+        dureeTotale +=
+          calculerDureeFamilleAdmin(
+            familleActuelle.nombreEnfants,
+            familleActuelle.typePhoto
+          );
+
+      }
+
+      // Enfant supplémentaire de la même famille
+      else {
+
+        // Retirer l'ancien calcul
+        dureeTotale -=
+          calculerDureeFamilleAdmin(
+            familleActuelle.nombreEnfants,
+            familleActuelle.typePhoto
+          );
+
+        familleActuelle.nombreEnfants++;
+
+        // Recalcul avec l'enfant supplémentaire
+        dureeTotale +=
+          calculerDureeFamilleAdmin(
+            familleActuelle.nombreEnfants,
+            familleActuelle.typePhoto
+          );
+
+      }
+
+    }
+  );
+
+
+  return dureeTotale;
+
+}
+
+
+// ======================================================
+// DURÉE D'UNE FAMILLE
+// ======================================================
+
+function calculerDureeFamilleAdmin(
+  nombreEnfants,
+  typePhoto
+) {
+
+  if (typePhoto === "individuel") {
+    return nombreEnfants * 5;
+  }
 
   if (typePhoto === "fratrie") {
-
     return 5;
-
   }
-
 
   if (typePhoto === "les2") {
-
     return (nombreEnfants * 5) + 5;
-
   }
 
-
   return 0;
-
 }
 document
   .getElementById("adminTypePhoto")
