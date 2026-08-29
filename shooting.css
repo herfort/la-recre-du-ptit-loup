@@ -53,3 +53,155 @@ button{
     background:#f8d7da;
     pointer-events:none;
 }
+/* =========================================
+   CHOIX PARENT / ASSISTANTE MATERNELLE
+========================================= */
+
+.choix-profil {
+  margin-bottom: 25px;
+}
+
+.texte-choix-profil {
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+
+/* Grande carte cliquable */
+.carte-profil {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  padding: 18px;
+  margin-bottom: 12px;
+
+  border: 2px solid #dddddd;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+
+/* Petit effet au passage de la souris */
+.carte-profil:hover {
+  border-color: #7da889;
+  background: #f8fbf9;
+}
+
+
+/* Bouton radio */
+.carte-profil input[type="radio"] {
+  width: 22px;
+  height: 22px;
+
+  flex-shrink: 0;
+
+  cursor: pointer;
+
+  accent-color: #4d865e;
+}
+
+
+/* Icône */
+.icone-profil {
+  font-size: 38px;
+  width: 55px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+
+/* Texte */
+.contenu-profil {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+
+/* PARENT / ASSISTANTE MATERNELLE */
+.contenu-profil strong {
+  font-size: 18px;
+  color: #356b45;
+}
+
+
+/* Explication */
+.contenu-profil span {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+
+/* Exemple */
+.contenu-profil small {
+  display: block;
+
+  margin-top: 5px;
+  padding: 7px 10px;
+
+  background: #f1f6f2;
+  border-radius: 7px;
+
+  color: #555555;
+  font-size: 13px;
+}
+
+
+/* =========================================
+   CARTE SÉLECTIONNÉE
+========================================= */
+
+.carte-profil:has(
+  input[type="radio"]:checked
+) {
+  border-color: #4d865e;
+  background: #f2f8f4;
+
+  box-shadow:
+    0 0 0 2px rgba(77, 134, 94, 0.08);
+}
+
+
+/* Titre de la carte sélectionnée */
+.carte-profil:has(
+  input[type="radio"]:checked
+) .contenu-profil strong {
+  color: #27663b;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .carte-profil {
+    gap: 10px;
+    padding: 14px 10px;
+  }
+
+  .icone-profil {
+    font-size: 30px;
+    width: 40px;
+  }
+
+  .contenu-profil strong {
+    font-size: 16px;
+  }
+
+  .contenu-profil span {
+    font-size: 14px;
+  }
+
+  .contenu-profil small {
+    font-size: 12px;
+  }
+
+}
