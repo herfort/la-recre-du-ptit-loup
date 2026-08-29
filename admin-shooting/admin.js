@@ -2107,7 +2107,90 @@ function ajouterEnfantAdmin() {
 
   adminListeEnfants.appendChild(bloc);
 gererTypeInscriptionAdmin();
+// ==========================================
+// MÊME FAMILLE QUE L'ENFANT PRÉCÉDENT
+// ==========================================
 
+const caseMemeFamille =
+  bloc.querySelector(".adminMemeFamille");
+
+if (caseMemeFamille) {
+
+  caseMemeFamille.addEventListener(
+    "change",
+    () => {
+
+      if (!caseMemeFamille.checked) {
+        return;
+      }
+
+      const tousLesEnfants =
+        Array.from(
+          document.querySelectorAll(
+            "#adminListeEnfants .admin-enfant"
+          )
+        );
+
+      const position =
+        tousLesEnfants.indexOf(bloc);
+
+      if (position <= 0) {
+        return;
+      }
+
+      const blocPrecedent =
+        tousLesEnfants[position - 1];
+
+
+      // Coordonnées du parent
+      bloc.querySelector(
+        ".adminNomParentEnfant"
+      ).value =
+        blocPrecedent.querySelector(
+          ".adminNomParentEnfant"
+        )?.value || "";
+
+
+      bloc.querySelector(
+        ".adminPrenomParentEnfant"
+      ).value =
+        blocPrecedent.querySelector(
+          ".adminPrenomParentEnfant"
+        )?.value || "";
+
+
+      bloc.querySelector(
+        ".adminTelephoneParentEnfant"
+      ).value =
+        blocPrecedent.querySelector(
+          ".adminTelephoneParentEnfant"
+        )?.value || "";
+
+
+      bloc.querySelector(
+        ".adminEmailParentEnfant"
+      ).value =
+        blocPrecedent.querySelector(
+          ".adminEmailParentEnfant"
+        )?.value || "";
+
+
+      // Même type de photo
+      bloc.querySelector(
+        ".adminTypePhotoFamille"
+      ).value =
+        blocPrecedent.querySelector(
+          ".adminTypePhotoFamille"
+        )?.value || "individuel";
+
+
+      // Recalcul des créneaux
+      chargerCreneauxAdmin();
+
+    }
+  );
+
+}
   bloc
     .querySelector(".adminSupprimerEnfant")
     .addEventListener(
