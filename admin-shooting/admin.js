@@ -1952,3 +1952,82 @@ boutonAnnulerReservation.addEventListener(
 
   }
 );
+// ======================================================
+// AJOUTER DES ENFANTS DANS LE FORMULAIRE ADMIN
+// ======================================================
+
+const adminListeEnfants =
+  document.getElementById("adminListeEnfants");
+
+const adminAjouterEnfant =
+  document.getElementById("adminAjouterEnfant");
+
+let compteurEnfantAdmin = 0;
+
+
+function ajouterEnfantAdmin() {
+
+  compteurEnfantAdmin++;
+
+  const bloc =
+    document.createElement("div");
+
+  bloc.className = "admin-enfant";
+
+  bloc.innerHTML = `
+    <h4>👶 Enfant ${compteurEnfantAdmin}</h4>
+
+    <div class="admin-form-grid">
+
+      <div>
+        <label>Nom</label>
+        <input
+          type="text"
+          class="adminEnfantNom"
+        >
+      </div>
+
+      <div>
+        <label>Prénom</label>
+        <input
+          type="text"
+          class="adminEnfantPrenom"
+        >
+      </div>
+
+    </div>
+
+    <button
+      type="button"
+      class="adminSupprimerEnfant"
+    >
+      🗑️ Supprimer cet enfant
+    </button>
+  `;
+
+
+  adminListeEnfants.appendChild(bloc);
+
+
+  bloc
+    .querySelector(".adminSupprimerEnfant")
+    .addEventListener(
+      "click",
+      () => {
+
+        bloc.remove();
+
+      }
+    );
+
+}
+
+
+adminAjouterEnfant.addEventListener(
+  "click",
+  ajouterEnfantAdmin
+);
+
+
+// Ajouter automatiquement un premier enfant
+ajouterEnfantAdmin();
