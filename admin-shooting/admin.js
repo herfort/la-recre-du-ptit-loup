@@ -1981,36 +1981,128 @@ function ajouterEnfantAdmin() {
 
   bloc.className = "admin-enfant";
 
-  bloc.innerHTML = `
-    <h4>👶 Enfant ${compteurEnfantAdmin}</h4>
+ bloc.innerHTML = `
+
+  <h4>👶 Enfant ${compteurEnfantAdmin}</h4>
+
+  <div class="admin-form-grid">
+
+    <div>
+      <label>Nom de l'enfant</label>
+      <input
+        type="text"
+        class="adminEnfantNom"
+      >
+    </div>
+
+    <div>
+      <label>Prénom de l'enfant</label>
+      <input
+        type="text"
+        class="adminEnfantPrenom"
+      >
+    </div>
+
+  </div>
+
+
+  <!-- INFORMATIONS PARENT EMPLOYEUR -->
+  <div
+    class="adminParentEmployeur"
+    style="display:none;"
+  >
+
+    <h4>
+      👨‍👩‍👧 Parent employeur / responsable légal
+    </h4>
+
+    <label
+      class="adminOptionMemeFamille"
+      style="${
+        compteurEnfantAdmin === 1
+          ? "display:none;"
+          : "display:block;"
+      }"
+    >
+
+      <input
+        type="checkbox"
+        class="adminMemeFamille"
+      >
+
+      👨‍👩‍👧‍👦 Même famille que l'enfant précédent
+
+    </label>
+
 
     <div class="admin-form-grid">
 
       <div>
-        <label>Nom</label>
+        <label>Nom du parent</label>
         <input
           type="text"
-          class="adminEnfantNom"
+          class="adminNomParentEnfant"
         >
       </div>
 
       <div>
-        <label>Prénom</label>
+        <label>Prénom du parent</label>
         <input
           type="text"
-          class="adminEnfantPrenom"
+          class="adminPrenomParentEnfant"
+        >
+      </div>
+
+      <div>
+        <label>Téléphone du parent</label>
+        <input
+          type="tel"
+          class="adminTelephoneParentEnfant"
+        >
+      </div>
+
+      <div>
+        <label>Email du parent</label>
+        <input
+          type="email"
+          class="adminEmailParentEnfant"
         >
       </div>
 
     </div>
 
-    <button
-      type="button"
-      class="adminSupprimerEnfant"
-    >
-      🗑️ Supprimer cet enfant
-    </button>
-  `;
+
+    <label>
+      Type de photo pour cette famille
+    </label>
+
+    <select class="adminTypePhotoFamille">
+
+      <option value="individuel">
+        Photo individuelle
+      </option>
+
+      <option value="fratrie">
+        Photo fratrie
+      </option>
+
+      <option value="les2">
+        Individuelle + fratrie
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <button
+    type="button"
+    class="adminSupprimerEnfant"
+  >
+    🗑️ Supprimer cet enfant
+  </button>
+
+`;
 
 
   adminListeEnfants.appendChild(bloc);
