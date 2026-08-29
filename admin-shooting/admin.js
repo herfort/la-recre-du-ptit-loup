@@ -2644,3 +2644,587 @@ document
 
 // État au chargement
 gererTypeInscriptionAdmin();
+// ======================================================
+// ENREGISTRER UNE RÉSERVATION DEPUIS L'ADMIN
+// ======================================================
+
+document
+  .getElementById("adminEnregistrerReservation")
+  .addEventListener(
+    "click",
+    enregistrerReservationAdmin
+  );
+
+
+async function enregistrerReservationAdmin() {
+
+  const bouton =
+    document.getElementById(
+      "adminEnregistrerReservation"
+    );
+
+  bouton.disabled = true;
+  bouton.textContent = "⏳ Enregistrement...";
+
+
+  try {
+
+    // ==========================================
+    // TYPE D'INSCRIPTION
+    // ==========================================
+
+    const typeInscription =
+      document.querySelector(
+        'input[name="typeInscriptionAdmin"]:checked'
+      )?.value;
+
+
+    // ==========================================
+    // RESPONSABLE
+    // ==========================================
+
+    const nom =
+      document.getElementById("adminNom")
+        .value.trim();
+
+    const prenom =
+      document.getElementById("adminPrenom")
+        .value.trim();
+
+    const telephone =
+      document.getElementById("adminTelephone")
+        .value.trim();
+
+    const email =
+      document.getElementById("adminEmail")
+        .value.trim();
+
+    const creneau =
+      document.getElementById("adminCreneau")
+        .value;
+
+
+    if (
+      !nom ||
+      !prenom ||
+      !telephone ||
+      !email ||
+      !creneau
+    ) {
+
+      alert(
+        "Merci de remplir les coordonnées du responsable et de choisir un créneau."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // ENFANTS
+    // ==========================================
+
+    const blocsEnfants =
+      Array.from(
+        document.querySelectorAll(
+          "#adminListeEnfants .admin-enfant"
+        )
+      );
+
+
+    if (blocsEnfants.length === 0) {
+
+      alert(
+        "Ajoutez au moins un enfant."
+      );
+
+      return;
+    }
+
+
+    const enfants = [];
+
+
+    for (
+      const bloc
+      of blocsEnfants
+    ) {
+
+      const nomEnfant =
+        bloc.querySelector(
+          ".adminEnfantNom"
+        )?.value.trim();
+
+      const prenomEnfant =
+        bloc.querySelector(
+          ".adminEnfantPrenom"
+        )?.value.trim();
+
+
+      if (
+        !nomEnfant ||
+        !prenomEnfant
+      ) {
+
+        alert(
+          "Merci de renseigner le nom et le prénom de chaque enfant."
+        );
+
+        return;
+      }
+
+
+      const enfant = {
+
+        nom:
+          nomEnfant,
+
+        prenom:
+          prenomEnfant,
+
+        meme_famille:
+          bloc.querySelector(
+            ".adminMemeFamille"
+          )?.checked || false
+
+      };
+
+
+      // ========================================
+      // ASSISTANTE MATERNELLE
+      // ========================================
+
+      if (
+        typeInscription === "assistante"
+      ) {
+
+        enfant.nom_parent =
+          bloc.querySelector(
+            ".adminNomParentEnfant"
+          )?.value.trim() || "";
+
+        enfant.prenom_parent =
+          bloc.querySelector(
+            ".adminPrenomParentEnfant"
+          )?.value.trim() || "";
+
+        enfant.telephone_parent =
+          bloc.querySelector(
+            ".adminTelephoneParentEnfant"
+          )?.value.trim() || "";
+
+        enfant.email_parent =
+          bloc.querySelector(
+            ".adminEmailParentEnfant"
+          )?.value.trim() || "";
+
+        enfant.type_photo =
+          bloc.querySelector(
+            ".adminTypePhotoFamille"
+          )?.value || "individuel";
+
+
+        if (
+          !enfant.nom_parent ||
+          !enfant.prenom_parent ||
+          !enfant.email_parent
+        ) {
+
+          alert(
+            "Merci de renseigner les coordonnées du parent employeur pour chaque famille."
+          );
+
+          return;
+        }
+
+      }
+
+
+      enfants.push(
+        enfant
+      );
+
+    }
+
+
+    // ==========================================
+    // DURÉE
+    // ==========================================
+
+    const duree =
+      calculerDureeAdmin();
+
+
+    if (duree <= 0) {
+
+      alert(
+        "Impossible de calculer la durée de la réservation."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // TYPE PHOTO PRINCIPAL
+    // ==========================================
+
+    const typePhoto =
+      typeInscription === "parent"
+        ? document.getElementById(
+            "adminTypePhoto"
+          ).value
+        : null;
+
+
+    // ==========================================
+    // CRÉATION DE L'INSCRIPTION
+    // ==========================================
+
+    const {
+      data: inscriptionCreee,
+      error: erreurInscription
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .insert({
+
+          nom_parent:
+            nom,
+
+          prenom_parent:
+            prenom,
+
+          telephone:
+            telephone,
+
+          email:
+            email,
+
+          enfants:
+            enfants,
+
+          type_photo:
+            typePhoto,
+
+          creneau:
+            creneau,
+
+          duree:
+            duree,
+
+          autorisation:
+            false,
+
+          signature:
+            null,
+
+          commentaire:
+            "Inscription ajoutée depuis l'administration"
+
+        })
+        .select()
+        .single();
+
+
+    if (
+      erreurInscription ||
+      !inscriptionCreee
+    ) {
+
+      console.error(
+        erreurInscription
+      );
+
+      throw new Error(
+        "Impossible d'enregistrer la réservation."
+      );
+
+    }
+
+
+    // ==========================================
+    // AUTORISATIONS À CRÉER
+    // ==========================================
+
+    const autorisations = [];
+
+
+    // ==========================================
+    // PARENT
+    // Une seule autorisation pour tous ses enfants
+    // ==========================================
+
+    if (
+      typeInscription === "parent"
+    ) {
+
+      autorisations.push({
+
+        inscription_id:
+          inscriptionCreee.id,
+
+        nom_enfant:
+          enfants[0].nom,
+
+        prenom_enfant:
+          enfants[0].prenom,
+
+        enfants:
+          enfants.map(
+            enfant => ({
+              nom:
+                enfant.nom,
+
+              prenom:
+                enfant.prenom
+            })
+          ),
+
+        nom_parent:
+          nom,
+
+        prenom_parent:
+          prenom,
+
+        telephone_parent:
+          telephone,
+
+        email_parent:
+          email,
+
+        type_photo:
+          typePhoto,
+
+        token:
+          crypto.randomUUID(),
+
+        signature:
+          null,
+
+        autorisation_signee:
+          false,
+
+        date_signature:
+          null
+
+      });
+
+    }
+
+
+    // ==========================================
+    // ASSISTANTE MATERNELLE
+    // Une autorisation par famille
+    // ==========================================
+
+    else {
+
+      for (
+        let i = 0;
+        i < enfants.length;
+        i++
+      ) {
+
+        const enfant =
+          enfants[i];
+
+
+        // Même famille que l'enfant précédent
+        if (
+          enfant.meme_famille === true &&
+          autorisations.length > 0
+        ) {
+
+          autorisations[
+            autorisations.length - 1
+          ].enfants.push({
+
+            nom:
+              enfant.nom,
+
+            prenom:
+              enfant.prenom
+
+          });
+
+          continue;
+
+        }
+
+
+        // Nouvelle famille
+        autorisations.push({
+
+          inscription_id:
+            inscriptionCreee.id,
+
+          nom_enfant:
+            enfant.nom,
+
+          prenom_enfant:
+            enfant.prenom,
+
+          enfants: [
+            {
+              nom:
+                enfant.nom,
+
+              prenom:
+                enfant.prenom
+            }
+          ],
+
+          nom_parent:
+            enfant.nom_parent,
+
+          prenom_parent:
+            enfant.prenom_parent,
+
+          telephone_parent:
+            enfant.telephone_parent,
+
+          email_parent:
+            enfant.email_parent,
+
+          type_photo:
+            enfant.type_photo,
+
+          token:
+            crypto.randomUUID(),
+
+          signature:
+            null,
+
+          autorisation_signee:
+            false,
+
+          date_signature:
+            null
+
+        });
+
+      }
+
+    }
+
+
+    // ==========================================
+    // ENREGISTREMENT DES AUTORISATIONS
+    // ==========================================
+
+    const {
+      error: erreurAutorisations
+    } =
+      await supabaseClient
+        .from("shooting_autorisations")
+        .insert(
+          autorisations
+        );
+
+
+    if (erreurAutorisations) {
+
+      console.error(
+        erreurAutorisations
+      );
+
+      throw new Error(
+        "La réservation a été créée mais les autorisations n'ont pas pu être enregistrées."
+      );
+
+    }
+
+
+    // ==========================================
+    // ENVOI DES EMAILS DE SIGNATURE
+    // ==========================================
+
+    for (
+      const autorisation
+      of autorisations
+    ) {
+
+      const reponse =
+        await fetch(
+          "/api/send-autorisation-parent",
+          {
+
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+
+                emailParent:
+                  autorisation.email_parent,
+
+                prenomParent:
+                  autorisation.prenom_parent,
+
+                enfants:
+                  autorisation.enfants,
+
+                token:
+                  autorisation.token
+
+              })
+
+          }
+        );
+
+
+      if (!reponse.ok) {
+
+        console.error(
+          "Erreur email autorisation pour :",
+          autorisation.email_parent
+        );
+
+      }
+
+    }
+
+
+    // ==========================================
+    // TERMINÉ
+    // ==========================================
+
+    alert(
+      "✅ Réservation enregistrée.\n\nLe ou les parents ont reçu leur lien pour signer l'autorisation."
+    );
+
+
+    location.reload();
+
+  }
+
+  catch (erreur) {
+
+    console.error(
+      "Erreur réservation admin :",
+      erreur
+    );
+
+    alert(
+      "❌ Une erreur est survenue : " +
+      erreur.message
+    );
+
+  }
+
+  finally {
+
+    bouton.disabled = false;
+
+    bouton.textContent =
+      "✅ Enregistrer la réservation";
+
+  }
+
+}
