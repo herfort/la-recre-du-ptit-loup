@@ -24,27 +24,80 @@
    <div id="contenu">
 
 <form id="formulaire">
-<div class="section">
+<div class="section choix-profil">
 
   <h2>👤 Vous êtes</h2>
 
-  <label>
+  <p class="texte-choix-profil">
+    Choisissez votre situation :
+  </p>
+
+
+  <!-- PARENT -->
+  <label class="carte-profil">
+
     <input
       type="radio"
       name="typeInscription"
       value="parent"
       checked
     >
-    Parent
+
+    <div class="icone-profil">
+      👨‍👩‍👧
+    </div>
+
+    <div class="contenu-profil">
+
+      <strong>
+        PARENT
+      </strong>
+
+      <span>
+        Je suis le parent ou le responsable légal
+        de l'enfant.
+      </span>
+
+      <small>
+        Exemple : j'inscris mon ou mes propres enfants.
+      </small>
+
+    </div>
+
   </label>
 
-  <label>
+
+  <!-- ASSISTANTE MATERNELLE -->
+  <label class="carte-profil">
+
     <input
       type="radio"
       name="typeInscription"
       value="assistante"
     >
-    Assistante maternelle
+
+    <div class="icone-profil">
+      👩‍🍼
+    </div>
+
+    <div class="contenu-profil">
+
+      <strong>
+        ASSISTANTE MATERNELLE
+      </strong>
+
+      <span>
+        Je suis assistante maternelle et j'inscris
+        les enfants que j'accueille.
+      </span>
+
+      <small>
+        Exemple : les enfants inscrits sont ceux
+        de mes parents employeurs.
+      </small>
+
+    </div>
+
   </label>
 
 </div>
