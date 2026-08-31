@@ -216,16 +216,24 @@ export default async function handler(req, res) {
               ${creneau}
             </p>
 
-            ${
-              typeInscription === "parent"
-                ? `
-                  <p>
-                    <b>Type de séance :</b>
-                    ${typePhoto}
-                  </p>
-                `
-                : ""
-            }
+          ${
+  typeInscription === "parent"
+    ? `
+      <p>
+        <b>Type de séance :</b>
+        ${
+          typePhoto === "individuel"
+            ? "Photo individuelle"
+            : typePhoto === "fratrie"
+              ? "Photo fratrie"
+              : typePhoto === "les2"
+                ? "Photo individuelle + fratrie"
+                : typePhoto || ""
+        }
+      </p>
+    `
+    : ""
+}
 
             ${contenuSupplementaire}
 
