@@ -1042,13 +1042,15 @@ data.forEach(item=>{
 
 if(!groupes[item.accompagnateur]){
 
-groupes[item.accompagnateur]={
+  groupes[item.accompagnateur]={
 
-type:item.type_participant,
+    type:item.type_participant,
 
-enfants:[]
+    statut:item.statut || "Inscrit",
 
-};
+    enfants:[]
+
+  };
 
 }
 
