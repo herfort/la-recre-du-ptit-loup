@@ -451,52 +451,49 @@ alert("Inscription supprimée");
 chargerInscriptions();
 
 }
-  async function supprimerFamille(ids){
+ async function supprimerFamille(ids){
 
-if(!confirm(
-"Supprimer toute cette famille ?"
-)){
-return;
-}
+  if(!ids || ids.length === 0){
 
-for(const id of ids){
+    alert(
+      "Aucune inscription à supprimer."
+    );
 
-await client
-.from("inscriptions")
-.delete()
-.eq("id",id);
+    return;
+  }
 
-}
+  if(!confirm(
+    "Supprimer toute cette famille ?"
+  )){
+    return;
+  }
 
-chargerInscriptions();
-chargerBilanAnnuel();
+  const { error } =
+  await client
+  .from("inscriptions")
+  .delete()
+  .in("id", ids);
 
-}
-async function supprimerFamille(email){
+  if(error){
 
-if(!confirm(
-"Supprimer toute cette famille ?"
-)){
-return;
-}
+    console.error(error);
 
-const { error } = await client
-.from("inscriptions")
-.delete()
-.eq("email", email);
+    alert(
+      "Erreur lors de la suppression : " +
+      error.message
+    );
 
-if(error){
-alert(error.message);
-return;
-}
+    return;
+  }
 
-alert("Famille supprimée");
+  alert(
+    "✅ Famille supprimée"
+  );
 
-chargerInscriptions();
-chargerBilanAnnuel();
+  chargerInscriptions();
+  chargerBilanAnnuel();
 
 }
-
  
 async function annulerSeanceSelectionnee(){
 
