@@ -135,7 +135,59 @@ window.location.href = "index.html";
 
 </div>
 <p id="stats"></p>
+<div class="test-form">
 
+<h3>🧪 Ajouter une séance d'essai</h3>
+
+<p>
+La famille sera ajoutée à la séance sélectionnée ci-dessus.
+</p>
+
+<input
+id="testNom"
+type="text"
+placeholder="Nom du parent">
+
+<input
+id="testPrenom"
+type="text"
+placeholder="Prénom du parent">
+
+<input
+id="testEmail"
+type="email"
+placeholder="Adresse e-mail">
+
+<input
+id="testEnfant1"
+type="text"
+placeholder="Enfant 1">
+
+<input
+id="testEnfant2"
+type="text"
+placeholder="Enfant 2 (facultatif)">
+
+<input
+id="testEnfant3"
+type="text"
+placeholder="Enfant 3 (facultatif)">
+
+<input
+id="testEnfant4"
+type="text"
+placeholder="Enfant 4 (facultatif)">
+
+<button
+type="button"
+onclick="ajouterSeanceTest()"
+class="bouton-test">
+🧪 Ajouter cette famille en séance d'essai
+</button>
+
+<div id="messageTest"></div>
+
+</div>
 <button onclick="genererPDF()">
 📄 Télécharger PDF
 </button>
