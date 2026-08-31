@@ -160,21 +160,113 @@ function afficherInscriptions(data){
   // Statistiques
   // ===============================
 
-  let nbEnfants = 0;
-  let tempsReserve = 0;
+let nbEnfants = 0;
+let tempsReserve = 0;
 
-  data.forEach(inscription => {
+let nbFamilles = 0;
+let nbAutorisationsSignees = 0;
+let nbAutorisationsAttente = 0;
 
-    nbEnfants += inscription.enfants.length;
-    tempsReserve += inscription.duree;
 
-  });
+data.forEach(inscription => {
 
-  document.getElementById("nbFamilles").textContent =
-    data.length;
+  // Nombre d'enfants
+  nbEnfants +=
+    Array.isArray(inscription.enfants)
+      ? inscription.enfants.length
+      : 0;
 
-  document.getElementById("nbEnfants").textContent =
+
+  // Temps réservé
+  tempsReserve +=
+    Number(inscription.duree) || 0;
+
+
+  const autorisations =
+    inscription.autorisations || [];
+
+
+  // ======================================
+  // AUTORISATIONS PAR FAMILLE
+  // ======================================
+
+  if (autorisations.length > 0) {
+
+    // Une autorisation = une famille
+    nbFamilles += autorisations.length;
+
+
+    autorisations.forEach(
+      autorisation => {
+
+        if (
+          autorisation.autorisation_signee === true
+        ) {
+
+          nbAutorisationsSignees++;
+
+        } else {
+
+          nbAutorisationsAttente++;
+
+        }
+
+      }
+    );
+
+  }
+
+  else {
+
+    // Parent inscrit directement :
+    // une réservation = une famille
+    nbFamilles++;
+
+
+    if (
+      inscription.autorisation === true ||
+      inscription.signature
+    ) {
+
+      nbAutorisationsSignees++;
+
+    } else {
+
+      nbAutorisationsAttente++;
+
+    }
+
+  }
+
+});
+
+
+document
+  .getElementById("nbFamilles")
+  .textContent =
+    nbFamilles;
+
+
+document
+  .getElementById("nbEnfants")
+  .textContent =
     nbEnfants;
+
+
+document
+  .getElementById(
+    "nbAutorisationsSignees"
+  )
+  .textContent =
+    nbAutorisationsSignees;
+
+
+document
+  .getElementById(
+    "nbAutorisationsAttente"
+  )
+  .textContent =
+    nbAutorisationsAttente;
 
   const heures =
     Math.floor(tempsReserve / 60);
