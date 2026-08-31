@@ -3238,3 +3238,119 @@ async function enregistrerReservationAdmin() {
   }
 
 }
+// ==========================================
+// RENVOYER LE MAIL DE SIGNATURE
+// ==========================================
+
+async function renvoyerMailSignature(
+  autorisationId
+) {
+
+  try {
+
+    const {
+      data: autorisation,
+      error
+    } =
+      await supabaseClient
+        .from(
+          "shooting_autorisations"
+        )
+        .select("*")
+        .eq(
+          "id",
+          autorisationId
+        )
+        .single();
+
+
+    if (
+      error ||
+      !autorisation
+    ) {
+
+      console.error(error);
+
+      alert(
+        "Impossible de retrouver cette autorisation."
+      );
+
+      return;
+    }
+
+
+    if (
+      autorisation.autorisation_signee
+    ) {
+
+      alert(
+        "Cette autorisation est déjà signée."
+      );
+
+      return;
+    }
+
+
+    const reponse =
+      await fetch(
+        "/api/send-autorisation-parent",
+        {
+
+          method:
+            "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              emailParent:
+                autorisation.email_parent,
+
+              prenomParent:
+                autorisation.prenom_parent,
+
+              enfants:
+                autorisation.enfants,
+
+              token:
+                autorisation.token
+
+            })
+
+        }
+      );
+
+
+    if (!reponse.ok) {
+
+      throw new Error(
+        "L'email n'a pas pu être envoyé."
+      );
+
+    }
+
+
+    alert(
+      "✅ Le mail de signature a bien été renvoyé."
+    );
+
+  }
+
+  catch (erreur) {
+
+    console.error(
+      "Erreur renvoi mail signature :",
+      erreur
+    );
+
+    alert(
+      "❌ Erreur lors du renvoi du mail de signature."
+    );
+
+  }
+
+}
