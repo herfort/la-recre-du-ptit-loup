@@ -717,47 +717,280 @@ calculerCreneauxLibres();
 // Suppression inscription
 // ===============================
 
-async function supprimerInscription(id){
+// ===============================
+// SUPPRESSION D'UNE RÉSERVATION
+// + EMAIL D'ANNULATION
+// ===============================
 
-const confirmation = confirm(
-"Êtes-vous sûr de vouloir supprimer cette réservation ?"
-);
+async function supprimerInscription(id) {
 
+  const confirmation =
+    confirm(
+      "Êtes-vous sûr de vouloir supprimer cette réservation ?"
+    );
 
-if(!confirmation){
-return;
-}
-
-
-const { error } =
-await supabaseClient
-.from("shooting_inscriptions")
-.delete()
-.eq("id", id);
+  if (!confirmation) {
+    return;
+  }
 
 
+  try {
 
-if(error){
+    // ==========================================
+    // RÉCUPÉRER LA RÉSERVATION
+    // ==========================================
 
-console.error(error);
-
-alert(
-"Erreur lors de la suppression"
-);
-
-return;
-
-}
-
-
-alert(
-"✅ Inscription supprimée"
-);
+    const {
+      data: inscription,
+      error: erreurInscription
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .select("*")
+        .eq("id", id)
+        .single();
 
 
-// Actualisation
+    if (
+      erreurInscription ||
+      !inscription
+    ) {
 
-location.reload();
+      console.error(
+        erreurInscription
+      );
+
+      alert(
+        "Impossible de retrouver la réservation."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // RÉCUPÉRER LES PARENTS DES ENFANTS
+    // ==========================================
+
+    const {
+      data: autorisations,
+      error: erreurAutorisations
+    } =
+      await supabaseClient
+        .from("shooting_autorisations")
+        .select("email_parent")
+        .eq(
+          "inscription_id",
+          id
+        );
+
+
+    if (erreurAutorisations) {
+
+      console.error(
+        erreurAutorisations
+      );
+
+    }
+
+
+    // ==========================================
+    // LISTE DES DESTINATAIRES
+    // ==========================================
+
+    const emails =
+      [];
+
+
+    // Email de la personne ayant fait
+    // la réservation :
+    // parent ou assistante maternelle
+    if (inscription.email) {
+
+      emails.push(
+        inscription.email.trim()
+      );
+
+    }
+
+
+    // Emails des parents employeurs
+    (autorisations || [])
+      .forEach(
+        autorisation => {
+
+          if (
+            autorisation.email_parent
+          ) {
+
+            emails.push(
+              autorisation.email_parent.trim()
+            );
+
+          }
+
+        }
+      );
+
+
+    // Supprimer les doublons
+    const emailsUniques =
+      [
+        ...new Set(
+          emails.filter(Boolean)
+        )
+      ];
+
+
+    // ==========================================
+    // RÉCUPÉRER LA DATE DU SHOOTING
+    // ==========================================
+
+    const {
+      data: parametres
+    } =
+      await supabaseClient
+        .from("shooting_parametres")
+        .select("date_shooting")
+        .single();
+
+
+    // ==========================================
+    // SUPPRIMER LA RÉSERVATION
+    // ==========================================
+
+    const {
+      error: erreurSuppression
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .delete()
+        .eq(
+          "id",
+          id
+        );
+
+
+    if (erreurSuppression) {
+
+      console.error(
+        erreurSuppression
+      );
+
+      alert(
+        "❌ Erreur lors de la suppression."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // ENVOYER LE MAIL D'ANNULATION
+    // ==========================================
+
+    if (emailsUniques.length > 0) {
+
+      try {
+
+        const reponseMail =
+          await fetch(
+            "/api/send-annulation-reservation",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body:
+                JSON.stringify({
+
+                  emails:
+                    emailsUniques,
+
+                  date:
+                    parametres?.date_shooting ||
+                    "",
+
+                  creneau:
+                    inscription.creneau ||
+                    ""
+
+                })
+            }
+          );
+
+
+        const resultatMail =
+          await reponseMail.json();
+
+
+        if (!reponseMail.ok) {
+
+          console.error(
+            "Erreur email d'annulation :",
+            resultatMail
+          );
+
+
+          alert(
+            "⚠️ La réservation a bien été supprimée, mais le mail d'annulation n'a pas pu être envoyé."
+          );
+
+          location.reload();
+
+          return;
+        }
+
+      }
+
+      catch (erreurMail) {
+
+        console.error(
+          "Erreur mail annulation :",
+          erreurMail
+        );
+
+
+        alert(
+          "⚠️ La réservation a bien été supprimée, mais le mail d'annulation n'a pas pu être envoyé."
+        );
+
+        location.reload();
+
+        return;
+      }
+
+    }
+
+
+    // ==========================================
+    // TERMINÉ
+    // ==========================================
+
+    alert(
+      "✅ Réservation supprimée et mail d'annulation envoyé."
+    );
+
+
+    location.reload();
+
+  }
+
+  catch (erreur) {
+
+    console.error(
+      "Erreur suppression réservation :",
+      erreur
+    );
+
+    alert(
+      "❌ Une erreur est survenue."
+    );
+
+  }
 
 }
 // ======================================================
