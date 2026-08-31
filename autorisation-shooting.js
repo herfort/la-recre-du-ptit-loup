@@ -141,7 +141,8 @@ async function chargerAutorisation() {
 
     return;
   }
-
+// Autorisation actuellement chargée
+window.autorisationCourante = data;
 
   // Autorisation déjà signée
   if (data.autorisation_signee) {
