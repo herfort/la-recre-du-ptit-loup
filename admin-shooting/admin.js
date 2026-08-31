@@ -3366,3 +3366,299 @@ async function renvoyerMailSignature(
   }
 
 }
+// ==========================================
+// RENVOYER LA CONFIRMATION + PDF SIGNÉ
+// ==========================================
+
+async function renvoyerConfirmationParent(
+  autorisationId
+) {
+
+  try {
+
+    // ======================================
+    // AUTORISATION
+    // ======================================
+
+    const {
+      data: autorisation,
+      error: erreurAutorisation
+    } =
+      await supabaseClient
+        .from("shooting_autorisations")
+        .select("*")
+        .eq(
+          "id",
+          autorisationId
+        )
+        .single();
+
+
+    if (
+      erreurAutorisation ||
+      !autorisation
+    ) {
+
+      console.error(
+        erreurAutorisation
+      );
+
+      alert(
+        "Impossible de retrouver cette autorisation."
+      );
+
+      return;
+    }
+
+
+    if (
+      !autorisation.autorisation_signee ||
+      !autorisation.signature
+    ) {
+
+      alert(
+        "Cette autorisation n'est pas encore signée."
+      );
+
+      return;
+    }
+
+
+    // ======================================
+    // INSCRIPTION
+    // ======================================
+
+    const {
+      data: inscription,
+      error: erreurInscription
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .select("*")
+        .eq(
+          "id",
+          autorisation.inscription_id
+        )
+        .single();
+
+
+    if (
+      erreurInscription ||
+      !inscription
+    ) {
+
+      console.error(
+        erreurInscription
+      );
+
+      alert(
+        "Impossible de retrouver la réservation."
+      );
+
+      return;
+    }
+
+
+    // ======================================
+    // PARAMÈTRES DU SHOOTING
+    // ======================================
+
+    const {
+      data: parametres,
+      error: erreurParametres
+    } =
+      await supabaseClient
+        .from("shooting_parametres")
+        .select("*")
+        .limit(1)
+        .single();
+
+
+    if (
+      erreurParametres ||
+      !parametres
+    ) {
+
+      console.error(
+        erreurParametres
+      );
+
+      alert(
+        "Impossible de récupérer les paramètres du shooting."
+      );
+
+      return;
+    }
+
+
+    // ======================================
+    // ENFANTS DE CETTE AUTORISATION
+    // ======================================
+
+    const enfantsPDF =
+      Array.isArray(
+        autorisation.enfants
+      ) &&
+      autorisation.enfants.length > 0
+
+        ? autorisation.enfants
+
+        : [
+            {
+              nom:
+                autorisation.nom_enfant,
+
+              prenom:
+                autorisation.prenom_enfant
+            }
+          ];
+
+
+    // ======================================
+    // TYPE DE PHOTO
+    // ======================================
+
+    const typePhotoPDF =
+      autorisation.type_photo ||
+      inscription.type_photo ||
+      "";
+
+
+    // ======================================
+    // CRÉATION DU PDF
+    // ======================================
+
+    const { jsPDF } =
+      window.jspdf;
+
+
+    const pdf =
+      creerPDFShooting({
+
+        jsPDF:
+          jsPDF,
+
+        parametres:
+          parametres,
+
+        nomParent:
+          autorisation.nom_parent,
+
+        prenomParent:
+          autorisation.prenom_parent,
+
+        telephone:
+          autorisation.telephone_parent || "",
+
+        email:
+          autorisation.email_parent || "",
+
+        enfants:
+          enfantsPDF,
+
+        typePhoto:
+          typePhotoPDF,
+
+        creneau:
+          inscription.creneau,
+
+        duree:
+          inscription.duree,
+
+        signature:
+          autorisation.signature
+
+      });
+
+
+    const pdfBase64 =
+      pdf.output(
+        "datauristring"
+      ).split(",")[1];
+
+
+    // ======================================
+    // ENVOI DU MAIL
+    // ======================================
+
+    const reponse =
+      await fetch(
+        "/api/send-shooting-email",
+        {
+
+          method:
+            "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              email:
+                autorisation.email_parent,
+
+              nom:
+                autorisation.nom_parent,
+
+              prenom:
+                autorisation.prenom_parent,
+
+              enfants:
+                enfantsPDF,
+
+              date:
+                parametres.date_shooting,
+
+              creneau:
+                inscription.creneau,
+
+              typePhoto:
+                typePhotoPDF,
+
+              pdfBase64:
+                pdfBase64,
+
+              typeInscription:
+                "parent",
+
+              duree:
+                inscription.duree
+
+            })
+
+        }
+      );
+
+
+    if (!reponse.ok) {
+
+      throw new Error(
+        "L'email n'a pas pu être envoyé."
+      );
+
+    }
+
+
+    alert(
+      "✅ La confirmation et le PDF signé ont bien été renvoyés."
+    );
+
+  }
+
+  catch (erreur) {
+
+    console.error(
+      "Erreur renvoi confirmation :",
+      erreur
+    );
+
+    alert(
+      "❌ Erreur lors du renvoi de la confirmation."
+    );
+
+  }
+
+}
