@@ -4146,25 +4146,52 @@ async function annulerEnfantAssistante(
 
     }
 
-    else {
+  else {
 
-      // ==========================================
-      // SINON ON MET À JOUR LA FAMILLE
-      // ==========================================
+  // ==========================================
+  // SINON ON MET À JOUR LA FAMILLE
+  // ==========================================
 
-      const {
-        error: erreurMiseAJour
-      } =
-        await supabaseClient
-          .from("shooting_autorisations")
-          .update({
-            enfants:
-              enfantsFamille
-          })
-          .eq(
-            "id",
-            autorisationId
-          );
+  let nouveauTypePhoto =
+    autorisation.type_photo ||
+    "individuel";
+
+
+  // S'il ne reste qu'un seul enfant,
+  // fratrie ou individuel + fratrie
+  // deviennent automatiquement individuel
+  if (
+    enfantsFamille.length === 1 &&
+    (
+      nouveauTypePhoto === "fratrie" ||
+      nouveauTypePhoto === "les2"
+    )
+  ) {
+
+    nouveauTypePhoto =
+      "individuel";
+
+  }
+
+
+  const {
+    error: erreurMiseAJour
+  } =
+    await supabaseClient
+      .from("shooting_autorisations")
+      .update({
+
+        enfants:
+          enfantsFamille,
+
+        type_photo:
+          nouveauTypePhoto
+
+      })
+      .eq(
+        "id",
+        autorisationId
+      );
 
 
       if (erreurMiseAJour) {
