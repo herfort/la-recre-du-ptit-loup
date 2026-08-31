@@ -4440,13 +4440,31 @@ try {
     );
 
 
-  if (!reponseMail.ok) {
+const resultatMail =
+  await reponseMail.json();
 
-    console.error(
-      "Le mail d'annulation n'a pas pu être envoyé."
-    );
 
-  }
+if (!reponseMail.ok) {
+
+  console.error(
+    "Erreur mail annulation :",
+    resultatMail
+  );
+
+  alert(
+    "❌ L'enfant a bien été annulé, mais le mail n'a pas pu être envoyé.\n\n" +
+    JSON.stringify(resultatMail)
+  );
+
+}
+else {
+
+  console.log(
+    "✅ Mail d'annulation envoyé :",
+    resultatMail
+  );
+
+}
 
 }
 
