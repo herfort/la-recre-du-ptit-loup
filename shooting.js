@@ -1123,7 +1123,7 @@ pdfBase64: pdfBase64,
 typeInscription:
   document.querySelector(
     'input[name="typeInscription"]:checked'
-  )?.value
+  )?.value,
   duree: dureeNecessaire
     })
 
