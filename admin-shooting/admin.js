@@ -1692,7 +1692,157 @@ async function telechargerPlanningPhotographe() {
       return type || "—";
     }
 
+// ==========================================
+// REGROUPEMENT PAR ACCOMPAGNANT
+// ==========================================
 
+function heureEnMinutes(heure) {
+
+  if (!heure) {
+    return 0;
+  }
+
+  const parties =
+    heure.split(":");
+
+  return (
+    Number(parties[0]) * 60 +
+    Number(parties[1])
+  );
+}
+
+
+function cleAccompagnant(inscription) {
+
+  const email =
+    (inscription.email || "")
+      .trim()
+      .toLowerCase();
+
+  if (email) {
+    return "email:" + email;
+  }
+
+
+  const telephone =
+    (inscription.telephone || "")
+      .replace(/\D/g, "");
+
+  if (telephone) {
+    return "tel:" + telephone;
+  }
+
+
+  return (
+    (inscription.prenom_parent || "") +
+    "|" +
+    (inscription.nom_parent || "")
+  )
+    .trim()
+    .toLowerCase();
+}
+
+
+const planningRegroupe = [];
+
+
+inscriptions.forEach(inscription => {
+
+  const autorisationsInscription =
+    (autorisations || []).filter(
+      autorisation =>
+        Number(
+          autorisation.inscription_id
+        ) ===
+        Number(
+          inscription.id
+        )
+    );
+
+
+  const entree = {
+
+    ...inscription,
+
+    duree:
+      Number(inscription.duree) || 0,
+
+    enfants:
+      Array.isArray(inscription.enfants)
+        ? [...inscription.enfants]
+        : [],
+
+    autorisationsPlanning:
+      autorisationsInscription,
+
+    cleAccompagnant:
+      cleAccompagnant(inscription)
+
+  };
+
+
+  const precedent =
+    planningRegroupe[
+      planningRegroupe.length - 1
+    ];
+
+
+  if (precedent) {
+
+    const finPrecedent =
+      heureEnMinutes(
+        precedent.creneau
+      ) +
+      Number(
+        precedent.duree || 0
+      );
+
+    const debutActuel =
+      heureEnMinutes(
+        entree.creneau
+      );
+
+
+    const memeAccompagnant =
+      precedent.cleAccompagnant ===
+      entree.cleAccompagnant;
+
+
+    const creneauxQuiSeSuivent =
+      finPrecedent ===
+      debutActuel;
+
+
+    if (
+      memeAccompagnant &&
+      creneauxQuiSeSuivent
+    ) {
+
+      precedent.duree +=
+        entree.duree;
+
+
+      precedent.enfants.push(
+        ...entree.enfants
+      );
+
+
+      precedent.autorisationsPlanning.push(
+        ...entree.autorisationsPlanning
+      );
+
+
+      return;
+    }
+
+  }
+
+
+  planningRegroupe.push(
+    entree
+  );
+
+});
     // ==========================================
     // RÉSERVATIONS
     // ==========================================
