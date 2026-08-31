@@ -294,7 +294,201 @@ if (boutonValider) {
 
         return;
       }
+// ==========================================
+// CRÉATION DU PDF SIGNÉ
+// ==========================================
 
+try {
+
+  const autorisation =
+    window.autorisationCourante;
+
+
+  // Récupération de l'inscription
+  const {
+    data: inscription,
+    error: erreurInscription
+  } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .select("*")
+      .eq(
+        "id",
+        autorisation.inscription_id
+      )
+      .single();
+
+
+  if (erreurInscription) {
+    throw erreurInscription;
+  }
+
+
+  // Récupération des paramètres du shooting
+  const {
+    data: parametres,
+    error: erreurParametres
+  } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("*")
+      .limit(1)
+      .single();
+
+
+  if (erreurParametres) {
+    throw erreurParametres;
+  }
+
+
+  // Enfants concernés par CETTE autorisation
+  const enfantsPDF =
+    Array.isArray(autorisation.enfants) &&
+    autorisation.enfants.length > 0
+
+      ? autorisation.enfants
+
+      : [
+          {
+            nom:
+              autorisation.nom_enfant,
+
+            prenom:
+              autorisation.prenom_enfant
+          }
+        ];
+
+
+  // Type de photo enregistré pour cette famille
+  const typePhotoPDF =
+    autorisation.type_photo ||
+    inscription.type_photo ||
+    "";
+
+
+  const { jsPDF } =
+    window.jspdf;
+
+
+  const pdf =
+    creerPDFShooting({
+
+      jsPDF:
+        jsPDF,
+
+      parametres:
+        parametres,
+
+      nomParent:
+        autorisation.nom_parent,
+
+      prenomParent:
+        autorisation.prenom_parent,
+
+      telephone:
+        autorisation.telephone_parent || "",
+
+      email:
+        autorisation.email_parent || "",
+
+      enfants:
+        enfantsPDF,
+
+      typePhoto:
+        typePhotoPDF,
+
+      creneau:
+        inscription.creneau,
+
+      duree:
+        inscription.duree,
+
+      signature:
+        signature
+
+    });
+
+
+  // PDF en Base64 pour l'envoi par email
+  const pdfBase64 =
+    pdf.output(
+      "datauristring"
+    ).split(",")[1];
+
+
+  // ==========================================
+  // ENVOI DU PDF AU PARENT
+  // ==========================================
+
+  const reponseEmail =
+    await fetch(
+      "/api/send-shooting-email",
+      {
+
+        method:
+          "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify({
+
+            email:
+              autorisation.email_parent,
+
+            nom:
+              autorisation.nom_parent,
+
+            prenom:
+              autorisation.prenom_parent,
+
+            enfants:
+              enfantsPDF,
+
+            date:
+              parametres.date_shooting,
+
+            creneau:
+              inscription.creneau,
+
+            typePhoto:
+              typePhotoPDF,
+
+            pdfBase64:
+              pdfBase64,
+
+            typeInscription:
+              "parent",
+
+            duree:
+              inscription.duree
+
+          })
+
+      }
+    );
+
+
+  if (!reponseEmail.ok) {
+
+    console.error(
+      "Le PDF a été créé mais l'email de confirmation n'a pas pu être envoyé."
+    );
+
+  }
+
+}
+catch (erreurPDF) {
+
+  console.error(
+    "Erreur création/envoi du PDF signé :",
+    erreurPDF
+  );
+
+}
 
       zoneAutorisation.style.display =
         "none";
