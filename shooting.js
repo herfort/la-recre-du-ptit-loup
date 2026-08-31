@@ -1118,9 +1118,9 @@ await fetch(
       date: document.getElementById("dateEvenement").textContent,
 
       creneau: creneau.value,
-
-      typePhoto: choixPhoto,
-pdfBase64: pdfBase64
+typePhoto: choixPhoto,
+pdfBase64: pdfBase64,
+typeInscription: "parent"
     })
 
   }
