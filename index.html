@@ -6,103 +6,209 @@
 <title>La Récré Du P'tit Loup</title>
 
 <style>
+*{
+  box-sizing:border-box;
+}
+
 body{
-font-family:Arial,sans-serif;
-max-width:900px;
-margin:auto;
-padding:20px;
-background:#f5f5f5;
+  font-family:Arial,sans-serif;
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+  background:#f4f7f5;
+  color:#2f3a32;
+}
+
+h1{
+  text-align:center;
+  color:#3d7653;
+  margin-bottom:25px;
+}
+
+h2{
+  margin-top:0;
+  color:#3d7653;
 }
 
 .card{
-background:white;
-padding:20px;
-border-radius:12px;
-margin-top:20px;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
+  background:white;
+  padding:25px;
+  border-radius:18px;
+  margin-top:20px;
+  box-shadow:0 5px 18px rgba(0,0,0,.08);
 }
 
-input,select,button{
-width:100%;
-padding:10px;
-margin-bottom:10px;
+input,
+select{
+  width:100%;
+  padding:13px 14px;
+  margin-bottom:12px;
+  border:1px solid #cfd8d1;
+  border-radius:10px;
+  font-size:16px;
+  background:white;
+}
+
+input:focus,
+select:focus{
+  outline:none;
+  border-color:#5c9c70;
+  box-shadow:0 0 0 3px rgba(92,156,112,.15);
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.2s;
+}
+
+#submitBtn{
+  background:#4f8b62;
+  color:white;
+  margin-top:10px;
+}
+
+#submitBtn:hover{
+  background:#3f7350;
+}
+
+#submitBtn:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
+
+button[type="button"]{
+  background:#eeeeee;
+  color:#444;
+}
+
+button[type="button"]:hover{
+  background:#e0e0e0;
+}
+
+#infoType{
+  padding:10px 12px;
+  border-radius:8px;
+  background:#f1f7f3;
+  color:#4f6657 !important;
+  margin-top:0 !important;
+  margin-bottom:15px !important;
+}
+
+#dates{
+  margin-top:15px;
 }
 
 .date-item{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:15px;
-padding:15px;
-margin-bottom:12px;
-border:1px solid #ddd;
-border-radius:12px;
-background:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  padding:15px;
+  margin-bottom:12px;
+  border:1px solid #d9dfda;
+  border-radius:12px;
+  background:white;
+  transition:.2s;
+}
+
+.date-item:hover{
+  border-color:#8ab496;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
 }
 
 .date-item > div{
-display:flex;
-align-items:center;
-gap:12px;
-flex:1;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex:1;
 }
 
 .date-item input[type="checkbox"]{
-width:22px;
-height:22px;
-flex-shrink:0;
+  width:22px;
+  height:22px;
+  margin:0;
+  accent-color:#4f8b62;
+  flex-shrink:0;
 }
 
 .date-texte{
-font-size:18px;
-font-weight:bold;
-line-height:1.3;
+  font-size:17px;
+  font-weight:bold;
+  line-height:1.3;
+  text-transform:capitalize;
 }
 
 .place{
-min-width:120px;
-text-align:right;
-font-size:18px;
-font-weight:bold;
-color:#2e7d32;
+  min-width:175px;
+  text-align:right;
+  font-size:15px;
+  font-weight:bold;
+  color:#2e7d32;
 }
-.place{
-font-weight:bold;
-color:green;
-}
-  .date-item.bloquee{
-background:#ffeaea;
-border:2px solid #d32f2f;
+
+.date-item.bloquee{
+  background:#fff1f1;
+  border:1px solid #e49b9b;
+  opacity:.8;
 }
 
 .date-item.bloquee input[type="checkbox"]{
-display:none;
+  display:none;
 }
 
 .date-item.bloquee .date-texte::before{
-content:"❌ ";
-color:red;
-font-size:20px;
-font-weight:bold;
-}
-  @media (max-width:600px){
-
-.date-item{
-padding:16px;
+  content:"🔒 ";
 }
 
-.date-item > div{
-align-items:flex-start;
+#message{
+  margin-top:15px;
+  font-size:16px;
+  font-weight:bold;
+  text-align:center;
 }
 
-.date-texte{
-font-size:20px;
-}
+@media (max-width:600px){
 
-.place{
-font-size:19px;
-min-width:110px;
-}
+  body{
+    padding:10px;
+  }
+
+  .card{
+    padding:17px;
+  }
+
+  h1{
+    font-size:25px;
+  }
+
+  .date-item{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+
+  .date-item > div{
+    width:100%;
+  }
+
+  .date-texte{
+    font-size:18px;
+  }
+
+  .place{
+    min-width:0;
+    width:100%;
+    text-align:left;
+    padding-left:34px;
+    font-size:15px;
+  }
 
 }
 </style>
