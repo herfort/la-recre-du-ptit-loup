@@ -63,7 +63,46 @@ async function chargerInscriptions(){
     );
 
   }
+// ===============================
+// COMPTEUR DES AUTORISATIONS
+// ===============================
 
+const listeAutorisations =
+  autorisations || [];
+
+const nombreSignees =
+  listeAutorisations.filter(
+    autorisation =>
+      autorisation.autorisation_signee === true
+  ).length;
+
+const nombreEnAttente =
+  listeAutorisations.filter(
+    autorisation =>
+      autorisation.autorisation_signee !== true
+  ).length;
+
+
+const compteurSignees =
+  document.getElementById(
+    "nbAutorisationsSignees"
+  );
+
+const compteurAttente =
+  document.getElementById(
+    "nbAutorisationsAttente"
+  );
+
+
+if (compteurSignees) {
+  compteurSignees.textContent =
+    nombreSignees;
+}
+
+if (compteurAttente) {
+  compteurAttente.textContent =
+    nombreEnAttente;
+}
 
   // ===============================
   // Ajout des autorisations
