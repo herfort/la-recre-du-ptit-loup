@@ -3954,3 +3954,433 @@ async function renvoyerConfirmationParent(
   }
 
 }
+// ======================================================
+// ANNULER UN ENFANT D'UNE ASSISTANTE MATERNELLE
+// ======================================================
+
+async function annulerEnfantAssistante(
+  inscriptionId,
+  autorisationId,
+  indexEnfant
+) {
+
+  try {
+
+    // ==========================================
+    // RÉCUPÉRER L'AUTORISATION / FAMILLE
+    // ==========================================
+
+    const {
+      data: autorisation,
+      error: erreurAutorisation
+    } =
+      await supabaseClient
+        .from("shooting_autorisations")
+        .select("*")
+        .eq("id", autorisationId)
+        .single();
+
+
+    if (
+      erreurAutorisation ||
+      !autorisation
+    ) {
+
+      console.error(erreurAutorisation);
+
+      alert(
+        "Impossible de retrouver cet enfant."
+      );
+
+      return;
+    }
+
+
+    const enfantsFamille =
+      Array.isArray(autorisation.enfants)
+        ? [...autorisation.enfants]
+        : [];
+
+
+    const enfant =
+      enfantsFamille[indexEnfant];
+
+
+    if (!enfant) {
+
+      alert(
+        "Impossible de retrouver cet enfant."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // CONFIRMATION
+    // ==========================================
+
+    const confirmation =
+      confirm(
+        "Annuler uniquement la réservation de " +
+        (enfant.prenom || "") +
+        " " +
+        (enfant.nom || "") +
+        " ?"
+      );
+
+
+    if (!confirmation) {
+      return;
+    }
+
+
+    // ==========================================
+    // RÉCUPÉRER L'INSCRIPTION COMPLÈTE
+    // ==========================================
+
+    const {
+      data: inscription,
+      error: erreurInscription
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .select("*")
+        .eq("id", inscriptionId)
+        .single();
+
+
+    if (
+      erreurInscription ||
+      !inscription
+    ) {
+
+      console.error(erreurInscription);
+
+      alert(
+        "Impossible de retrouver la réservation."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // RETIRER L'ENFANT DE SA FAMILLE
+    // ==========================================
+
+    enfantsFamille.splice(
+      indexEnfant,
+      1
+    );
+
+
+    // ==========================================
+    // RETIRER AUSSI L'ENFANT
+    // DE L'INSCRIPTION GÉNÉRALE
+    // ==========================================
+
+    const enfantsInscription =
+      Array.isArray(inscription.enfants)
+        ? [...inscription.enfants]
+        : [];
+
+
+    const positionEnfant =
+      enfantsInscription.findIndex(
+        enfantInscription =>
+          (
+            enfantInscription.prenom || ""
+          ).trim().toLowerCase() ===
+          (
+            enfant.prenom || ""
+          ).trim().toLowerCase()
+          &&
+          (
+            enfantInscription.nom || ""
+          ).trim().toLowerCase() ===
+          (
+            enfant.nom || ""
+          ).trim().toLowerCase()
+      );
+
+
+    if (positionEnfant !== -1) {
+
+      enfantsInscription.splice(
+        positionEnfant,
+        1
+      );
+
+    }
+
+
+    // ==========================================
+    // SI PLUS AUCUN ENFANT DANS CETTE FAMILLE
+    // ON SUPPRIME L'AUTORISATION
+    // ==========================================
+
+    if (enfantsFamille.length === 0) {
+
+      const {
+        error: erreurSuppression
+      } =
+        await supabaseClient
+          .from("shooting_autorisations")
+          .delete()
+          .eq("id", autorisationId);
+
+
+      if (erreurSuppression) {
+
+        console.error(
+          erreurSuppression
+        );
+
+        alert(
+          "Erreur lors de la suppression de la famille."
+        );
+
+        return;
+      }
+
+    }
+
+    else {
+
+      // ==========================================
+      // SINON ON MET À JOUR LA FAMILLE
+      // ==========================================
+
+      const {
+        error: erreurMiseAJour
+      } =
+        await supabaseClient
+          .from("shooting_autorisations")
+          .update({
+            enfants:
+              enfantsFamille
+          })
+          .eq(
+            "id",
+            autorisationId
+          );
+
+
+      if (erreurMiseAJour) {
+
+        console.error(
+          erreurMiseAJour
+        );
+
+        alert(
+          "Erreur lors de la mise à jour de la famille."
+        );
+
+        return;
+      }
+
+    }
+
+
+    // ==========================================
+    // RÉCUPÉRER LES FAMILLES RESTANTES
+    // ==========================================
+
+    const {
+      data: famillesRestantes,
+      error: erreurFamilles
+    } =
+      await supabaseClient
+        .from("shooting_autorisations")
+        .select("*")
+        .eq(
+          "inscription_id",
+          inscriptionId
+        );
+
+
+    if (erreurFamilles) {
+
+      console.error(
+        erreurFamilles
+      );
+
+      alert(
+        "Erreur lors du recalcul de la réservation."
+      );
+
+      return;
+    }
+
+
+    // ==========================================
+    // PLUS AUCUN ENFANT :
+    // SUPPRIMER LA RÉSERVATION COMPLÈTE
+    // ==========================================
+
+    if (enfantsInscription.length === 0) {
+
+      const {
+        error: erreurSuppressionInscription
+      } =
+        await supabaseClient
+          .from("shooting_inscriptions")
+          .delete()
+          .eq(
+            "id",
+            inscriptionId
+          );
+
+
+      if (
+        erreurSuppressionInscription
+      ) {
+
+        console.error(
+          erreurSuppressionInscription
+        );
+
+        alert(
+          "Erreur lors de la suppression de la réservation."
+        );
+
+        return;
+      }
+
+
+      alert(
+        "✅ Dernier enfant annulé : la réservation complète a été supprimée."
+      );
+
+      location.reload();
+
+      return;
+    }
+
+
+    // ==========================================
+    // RECALCUL DE LA DURÉE
+    // ==========================================
+
+    let nouvelleDuree = 0;
+
+
+    (famillesRestantes || [])
+      .forEach(
+        famille => {
+
+          const enfants =
+            Array.isArray(
+              famille.enfants
+            )
+              ? famille.enfants
+              : [];
+
+
+          const nombreEnfants =
+            enfants.length;
+
+
+          const typePhoto =
+            famille.type_photo ||
+            "individuel";
+
+
+          if (
+            typePhoto ===
+            "individuel"
+          ) {
+
+            nouvelleDuree +=
+              nombreEnfants * 5;
+
+          }
+
+          else if (
+            typePhoto ===
+            "fratrie"
+          ) {
+
+            nouvelleDuree += 5;
+
+          }
+
+          else if (
+            typePhoto ===
+            "les2"
+          ) {
+
+            nouvelleDuree +=
+              (nombreEnfants * 5) +
+              5;
+
+          }
+
+        }
+      );
+
+
+    // ==========================================
+    // METTRE À JOUR L'INSCRIPTION
+    // ==========================================
+
+    const {
+      error: erreurMajInscription
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .update({
+          enfants:
+            enfantsInscription,
+
+          duree:
+            nouvelleDuree
+        })
+        .eq(
+          "id",
+          inscriptionId
+        );
+
+
+    if (
+      erreurMajInscription
+    ) {
+
+      console.error(
+        erreurMajInscription
+      );
+
+      alert(
+        "Erreur lors de la mise à jour de la réservation."
+      );
+
+      return;
+    }
+
+
+    alert(
+      "✅ " +
+      (enfant.prenom || "L'enfant") +
+      " a bien été annulé."
+    );
+
+
+    location.reload();
+
+  }
+
+  catch (erreur) {
+
+    console.error(
+      "Erreur annulation enfant :",
+      erreur
+    );
+
+    alert(
+      "❌ Une erreur est survenue lors de l'annulation."
+    );
+
+  }
+
+}
