@@ -1120,7 +1120,10 @@ await fetch(
       creneau: creneau.value,
 typePhoto: choixPhoto,
 pdfBase64: pdfBase64,
-typeInscription: "parent"
+typeInscription:
+  document.querySelector(
+    'input[name="typeInscription"]:checked'
+  )?.value
     })
 
   }
