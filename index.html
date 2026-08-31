@@ -983,7 +983,11 @@ document
 )
 .forEach(x => x.checked = false);
 await afficherPlaces();
+submitBtn.disabled = false;
+submitBtn.textContent =
+"✅ Envoyer mon inscription";
 
+mettreAJourRecap();
 }
 
 async function genererPDF() {
