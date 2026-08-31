@@ -731,263 +731,358 @@ document.addEventListener(
   }
 );
 async function envoyerInscription(){
+
   const submitBtn =
-document.getElementById("submitBtn");
+  document.getElementById("submitBtn");
 
-submitBtn.disabled = true;
-submitBtn.textContent =
-"⏳ Inscription en cours...";
-const nom =
-document
-.getElementById("nom")
-.value
-.trim();
+  submitBtn.disabled = true;
+  submitBtn.textContent =
+  "⏳ Inscription en cours...";
 
-const prenom =
-document
-.getElementById("prenom")
-.value
-.trim();
+  const nom =
+  document
+  .getElementById("nom")
+  .value
+  .trim();
 
-const accompagnateur =
-nom + " " + prenom;
-const email =
-document
-.getElementById("email")
-.value
-.trim();
+  const prenom =
+  document
+  .getElementById("prenom")
+  .value
+  .trim();
 
-const typeParticipant =
-document
-.getElementById("typeParticipant")
-.value;
-const enfants = [
-kid1.value.trim(),
-kid2.value.trim(),
-kid3.value.trim(),
-kid4.value.trim()
-].filter(x=>x!=='');
+  const accompagnateur =
+  nom + " " + prenom;
 
-const dates =
-Array.from(
-document.querySelectorAll(
-"#dates input:checked"
-)
-).map(x=>x.value);
+  const email =
+  document
+  .getElementById("email")
+  .value
+  .trim();
 
-if(
-!nom ||
-!prenom ||
-enfants.length===0 ||
-dates.length===0
-){
-alert(
-"Veuillez saisir le nom et le prénom de l'accompagnateur"
-);
-return;
-}
-if(typeParticipant === "assistante_maternelle"){
+  const typeParticipant =
+  document
+  .getElementById("typeParticipant")
+  .value;
 
-  const getWeekNumber = (d) => {
+  const enfants = [
+    kid1.value.trim(),
+    kid2.value.trim(),
+    kid3.value.trim(),
+    kid4.value.trim()
+  ].filter(x => x !== "");
 
-    d = new Date(
-      Date.UTC(
-        d.getFullYear(),
-        d.getMonth(),
-        d.getDate()
-      )
-    );
+  const dates =
+  Array.from(
+    document.querySelectorAll(
+      "#dates input:checked"
+    )
+  ).map(x => x.value);
 
-    const dayNum =
-    d.getUTCDay() || 7;
+  function reactiverBouton(){
 
-    d.setUTCDate(
-      d.getUTCDate() + 4 - dayNum
-    );
+    submitBtn.disabled = false;
 
-    const yearStart =
-    new Date(
-      Date.UTC(
-        d.getUTCFullYear(),
-        0,
-        1
-      )
-    );
+    submitBtn.textContent =
+    "✅ Envoyer mon inscription";
 
-    return Math.ceil(
-      (((d - yearStart) / 86400000) + 1) / 7
-    );
-  };
-
-  // Vérifie les dates cochées
-
-  const semaines = new Set();
-
-  for(const date of dates){
-
-    const d = new Date(date);
-
-    const cle =
-    d.getFullYear() +
-    "-" +
-    getWeekNumber(d);
-
-    if(semaines.has(cle)){
-
-      document.getElementById(
-        "message"
-      ).innerHTML =
-      "❌ Une assistante maternelle ne peut réserver qu'une seule séance par semaine.";
-
-      return;
-    }
-
-    semaines.add(cle);
   }
 
-  // Vérifie les réservations déjà existantes
+  if(
+    !nom ||
+    !prenom ||
+    !email ||
+    enfants.length === 0 ||
+    dates.length === 0
+  ){
 
-  const { data } =
-  await client
-  .from("inscriptions")
-  .select("seance")
-  .eq("email", email);
+    document.getElementById(
+      "message"
+    ).innerHTML =
+    "❌ Merci de remplir les informations obligatoires et de sélectionner au moins une séance.";
 
-  for(const date of dates){
-
-    const dateChoisie =
-    new Date(date);
-
-    const semaineChoisie =
-    getWeekNumber(dateChoisie);
-
-    const anneeChoisie =
-    dateChoisie.getFullYear();
-
-    const dejaInscrit =
-    data?.some(inscription => {
-
-      const d =
-      new Date(
-        inscription.seance
-      );
-
-      return (
-        getWeekNumber(d)
-        === semaineChoisie
-        &&
-        d.getFullYear()
-        === anneeChoisie
-      );
-
-    });
-
-    if(dejaInscrit){
-
-      document.getElementById(
-        "message"
-      ).innerHTML =
-      "❌ Cette assistante maternelle est déjà inscrite cette semaine.";
-
-      return;
-    }
-  }
-
-}
-const inscriptions = [];
-
-for (const date of dates) {
-
-  const { count } = await client
-    .from("inscriptions")
-    .select("*", {
-      count: "exact",
-      head: true
-    })
-    .eq("seance", date);
-
-  const placesRestantes =
-    30 - (count || 0);
-
-  if (placesRestantes < enfants.length) {
-
-   document.getElementById(
-"message"
-).innerHTML =
-`❌ Plus assez de places pour la séance du ${date}.`;
+    reactiverBouton();
 
     return;
   }
 
-  enfants.forEach(enfant => {
-  inscriptions.push({
-  accompagnateur,
-  email,
-  type_participant: typeParticipant,
-  enfant,
-  seance: date,
-  statut: "Inscrit"
-});
+  if(typeParticipant === "assistante_maternelle"){
+
+    const getWeekNumber = (d) => {
+
+      d = new Date(
+        Date.UTC(
+          d.getFullYear(),
+          d.getMonth(),
+          d.getDate()
+        )
+      );
+
+      const dayNum =
+      d.getUTCDay() || 7;
+
+      d.setUTCDate(
+        d.getUTCDate() + 4 - dayNum
+      );
+
+      const yearStart =
+      new Date(
+        Date.UTC(
+          d.getUTCFullYear(),
+          0,
+          1
+        )
+      );
+
+      return Math.ceil(
+        (((d - yearStart) / 86400000) + 1) / 7
+      );
+    };
+
+    const semaines = new Set();
+
+    for(const date of dates){
+
+      const d = new Date(date);
+
+      const cle =
+      d.getFullYear() +
+      "-" +
+      getWeekNumber(d);
+
+      if(semaines.has(cle)){
+
+        document.getElementById(
+          "message"
+        ).innerHTML =
+        "❌ Une assistante maternelle ne peut réserver qu'une seule séance par semaine.";
+
+        reactiverBouton();
+
+        return;
+      }
+
+      semaines.add(cle);
+    }
+
+    const { data, error } =
+    await client
+    .from("inscriptions")
+    .select("seance")
+    .eq("email", email);
+
+    if(error){
+
+      console.error(error);
+
+      document.getElementById(
+        "message"
+      ).innerHTML =
+      "❌ Impossible de vérifier les inscriptions déjà existantes.";
+
+      reactiverBouton();
+
+      return;
+    }
+
+    for(const date of dates){
+
+      const dateChoisie =
+      new Date(date);
+
+      const semaineChoisie =
+      getWeekNumber(dateChoisie);
+
+      const anneeChoisie =
+      dateChoisie.getFullYear();
+
+      const dejaInscrit =
+      data?.some(inscription => {
+
+        const d =
+        new Date(
+          inscription.seance
+        );
+
+        return (
+          getWeekNumber(d) === semaineChoisie
+          &&
+          d.getFullYear() === anneeChoisie
+        );
+
+      });
+
+      if(dejaInscrit){
+
+        document.getElementById(
+          "message"
+        ).innerHTML =
+        "❌ Cette assistante maternelle est déjà inscrite cette semaine.";
+
+        reactiverBouton();
+
+        return;
+      }
+    }
+
+  }
+
+  const inscriptions = [];
+
+  for(const date of dates){
+
+    const { count, error } =
+    await client
+    .from("inscriptions")
+    .select("*",{
+      count:"exact",
+      head:true
+    })
+    .eq("seance",date);
+
+    if(error){
+
+      console.error(error);
+
+      document.getElementById(
+        "message"
+      ).innerHTML =
+      "❌ Impossible de vérifier les places disponibles.";
+
+      reactiverBouton();
+
+      return;
+    }
+
+    const placesRestantes =
+    30 - (count || 0);
+
+    if(placesRestantes < enfants.length){
+
+      const dateFR =
+      new Date(
+        date + "T12:00:00"
+      ).toLocaleDateString(
+        "fr-FR",
+        {
+          weekday:"long",
+          day:"numeric",
+          month:"long"
+        }
+      );
+
+      document.getElementById(
+        "message"
+      ).innerHTML =
+      `❌ Il ne reste pas assez de places pour la séance du ${dateFR}.`;
+
+      reactiverBouton();
+
+      return;
+    }
+
+    enfants.forEach(enfant => {
+
+      inscriptions.push({
+        accompagnateur,
+        email,
+        type_participant:
+        typeParticipant,
+        enfant,
+        seance:date,
+        statut:"Inscrit"
+      });
+
+    });
+
+  }
+
+  const { error } =
+  await client
+  .from("inscriptions")
+  .insert(inscriptions);
+
+  if(error){
+
+    console.error(error);
+
+    document.getElementById(
+      "message"
+    ).innerHTML =
+    "❌ Erreur lors de l'enregistrement : " +
+    error.message;
+
+    reactiverBouton();
+
+    return;
+  }
+
+  try{
+
+    await fetch(
+      "/api/send-email",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+          "application/json"
+        },
+
+        body:JSON.stringify({
+          email,
+          accompagnateur,
+          enfants,
+          dates
+        })
+      }
+    );
+
+  }
+  catch(error){
+
+    console.error(
+      "Erreur e-mail :",
+      error
+    );
+
+  }
+
+  document.getElementById(
+    "message"
+  ).innerHTML =
+  "✅ Inscription enregistrée avec succès ! Un e-mail de confirmation vous a été envoyé.";
+
+  document.getElementById("nom").value = "";
+  document.getElementById("prenom").value = "";
+  document.getElementById("email").value = "";
+
+  document.getElementById("kid1").value = "";
+  document.getElementById("kid2").value = "";
+  document.getElementById("kid3").value = "";
+  document.getElementById("kid4").value = "";
+
+  document
+  .querySelectorAll(
+    "#dates input:checked"
+  )
+  .forEach(x => {
+    x.checked = false;
   });
 
-}
+  await afficherPlaces();
 
-const { error } =
-await client
-.from("inscriptions")
-.insert(inscriptions);
+  gererBlocageAssistante();
 
-if(error){
-
-alert(error.message);
-return;
-
-}
-await fetch(
-  "/api/send-email",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type":
-      "application/json"
-    },
-    body: JSON.stringify({
-      email:
-      document.getElementById(
-        "email"
-      ).value,
-
-      accompagnateur,
-
-      enfants,
-
-      dates
-    })
+  if(
+    typeof mettreAJourRecap ===
+    "function"
+  ){
+    mettreAJourRecap();
   }
-);
-document
-.getElementById("message")
-.innerHTML =
-"✅ Inscription enregistrée";
-document.getElementById("nom").value = "";
-document.getElementById("prenom").value = "";
-document.getElementById("email").value = "";
-document.getElementById("kid1").value = "";
-document.getElementById("kid2").value = "";
-document.getElementById("kid3").value = "";
-document.getElementById("kid4").value = "";
 
-document
-.querySelectorAll(
-"#dates input:checked"
-)
-.forEach(x => x.checked = false);
-await afficherPlaces();
-submitBtn.disabled = false;
-submitBtn.textContent =
-"✅ Envoyer mon inscription";
+  reactiverBouton();
 
-mettreAJourRecap();
 }
 
 async function genererPDF() {
