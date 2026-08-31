@@ -1341,8 +1341,13 @@ doc.setFont(
 "bold"
 );
 
+const nomAffiche =
+g.statut === "Test"
+? nom + " - TEST"
+: nom;
+
 doc.text(
-nom,
+nomAffiche,
 25,
 y+5
 );
