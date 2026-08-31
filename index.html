@@ -266,7 +266,15 @@ required>
 </select>
 
 <div id="dates"></div>
-
+<div id="recap" style="
+  display:none;
+  margin-top:15px;
+  margin-bottom:15px;
+  padding:15px;
+  background:#f1f7f3;
+  border-radius:10px;
+  border:1px solid #cfe0d3;
+"></div>
 <button id="submitBtn">
   ✅ Envoyer mon inscription
 </button>
@@ -612,7 +620,123 @@ if(type === "parent"){
   });
 
 }
+  function mettreAJourRecap(){
+
+  const zone =
+  document.getElementById("recap");
+
+  const enfants = [
+    document.getElementById("kid1").value.trim(),
+    document.getElementById("kid2").value.trim(),
+    document.getElementById("kid3").value.trim(),
+    document.getElementById("kid4").value.trim()
+  ].filter(x => x !== "");
+
+  const dates =
+  [...document.querySelectorAll(
+    "#dates input[type='checkbox']:checked"
+  )];
+
+  if(
+    enfants.length === 0 &&
+    dates.length === 0
+  ){
+    zone.style.display = "none";
+    zone.innerHTML = "";
+    return;
+  }
+
+  let html =
+  "<strong>📋 Récapitulatif</strong><br><br>";
+
+  if(enfants.length > 0){
+
+    html +=
+    "👶 " +
+    enfants.length +
+    (enfants.length > 1
+      ? " enfants"
+      : " enfant") +
+    "<br>";
+
+  }
+
+  if(dates.length > 0){
+
+    html +=
+    "📅 " +
+    dates.length +
+    (dates.length > 1
+      ? " séances sélectionnées"
+      : " séance sélectionnée") +
+    "<br><br>";
+
+    dates.forEach(c => {
+
+      const texte =
+      c.closest(".date-item")
+      .querySelector(".date-texte")
+      .textContent;
+
+      html +=
+      "• " +
+      texte +
+      "<br>";
+
+    });
+
+  }
+
+  if(
+    enfants.length > 0 &&
+    dates.length > 0
+  ){
+
+    html +=
+    "<br><strong>" +
+    (enfants.length * dates.length) +
+    " place(s) au total</strong>";
+
+  }
+
+  zone.innerHTML = html;
+  zone.style.display = "block";
+
+}
+  document
+.querySelectorAll(
+  "#kid1,#kid2,#kid3,#kid4"
+)
+.forEach(input => {
+
+  input.addEventListener(
+    "input",
+    mettreAJourRecap
+  );
+
+});
+
+document.addEventListener(
+  "change",
+  function(e){
+
+    if(
+      e.target.matches(
+        "#dates input[type='checkbox']"
+      )
+    ){
+      mettreAJourRecap();
+    }
+
+  }
+);
 async function envoyerInscription(){
+  const submitBtn =
+document.getElementById("submitBtn");
+
+submitBtn.disabled = true;
+submitBtn.textContent =
+"⏳ Inscription en cours...";
 const nom =
 document
 .getElementById("nom")
