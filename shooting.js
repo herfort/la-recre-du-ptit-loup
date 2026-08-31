@@ -1124,7 +1124,7 @@ typeInscription:
   document.querySelector(
     'input[name="typeInscription"]:checked'
   )?.value
-     
+   duree: calculerDureeSeance()  
     })
 
   }
