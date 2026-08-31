@@ -237,14 +237,26 @@ function afficherInscriptions(data){
           `;
 
 
-        contenuAutorisation += `
+       contenuAutorisation += `
   <div class="famille-admin">
 
     ${
       autorisation.autorisation_signee
-        ? "✅ Autorisation signée"
+        ? `
+          ✅ Autorisation signée
+
+          <br><br>
+
+          <button
+            type="button"
+            onclick="renvoyerConfirmationParent(${autorisation.id})"
+          >
+            📩 Renvoyer la confirmation + PDF
+          </button>
+        `
         : `
           ⏳ En attente
+
           <br><br>
 
           <button
