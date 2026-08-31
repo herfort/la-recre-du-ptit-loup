@@ -190,7 +190,20 @@ export default async function handler(req, res) {
 
             <p>
               <b>Enfant(s) :</b><br>
-              ${enfants.join("<br>")}
+            ${
+  enfants
+    .map(enfant => {
+      if (typeof enfant === "string") {
+        return enfant;
+      }
+
+      return "👶 " +
+        (enfant.prenom || "") +
+        " " +
+        (enfant.nom || "");
+    })
+    .join("<br>")
+}
             </p>
 
             <p>
