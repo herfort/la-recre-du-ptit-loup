@@ -316,14 +316,33 @@ document
                 ];
 
 
-          const listeEnfants =
-            enfantsFamille
-              .map(enfant =>
-                enfant.prenom +
-                " " +
-                enfant.nom
-              )
-              .join("<br>");
+        const listeEnfants =
+  enfantsFamille
+    .map(
+      (enfant, indexEnfant) => `
+        <div class="enfant-admin-ligne">
+
+          <span>
+            👶 ${enfant.prenom || ""}
+            ${enfant.nom || ""}
+          </span>
+
+          <button
+            type="button"
+            class="bouton-annuler-enfant"
+            onclick="annulerEnfantAssistante(
+              ${inscription.id},
+              ${autorisation.id},
+              ${indexEnfant}
+            )"
+          >
+            ❌ Annuler
+          </button>
+
+        </div>
+      `
+    )
+    .join("");
 
 
           const typePhoto =
