@@ -1746,18 +1746,10 @@ function cleAccompagnant(inscription) {
 const planningRegroupe = [];
 
 
-inscriptions.forEach(inscription => {
+planningRegroupe.forEach(inscription => {
 
   const autorisationsInscription =
-    (autorisations || []).filter(
-      autorisation =>
-        Number(
-          autorisation.inscription_id
-        ) ===
-        Number(
-          inscription.id
-        )
-    );
+    inscription.autorisationsPlanning || [];
 
 
   const entree = {
