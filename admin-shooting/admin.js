@@ -4358,7 +4358,79 @@ async function annulerEnfantAssistante(
       return;
     }
 
+// ==========================================
+// ENVOI DU MAIL D'ANNULATION AU PARENT
+// ==========================================
 
+try {
+
+  const {
+    data: parametres
+  } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("date_shooting")
+      .single();
+
+
+  const reponseMail =
+    await fetch(
+      "/api/send-annulation-enfant",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify({
+
+            emailParent:
+              autorisation.email_parent,
+
+            prenomParent:
+              autorisation.prenom_parent,
+
+            nomParent:
+              autorisation.nom_parent,
+
+            prenomEnfant:
+              enfant.prenom,
+
+            nomEnfant:
+              enfant.nom,
+
+            date:
+              parametres?.date_shooting || "",
+
+            creneau:
+              inscription.creneau || ""
+
+          })
+      }
+    );
+
+
+  if (!reponseMail.ok) {
+
+    console.error(
+      "Le mail d'annulation n'a pas pu être envoyé."
+    );
+
+  }
+
+}
+
+catch (erreurMail) {
+
+  console.error(
+    "Erreur mail annulation enfant :",
+    erreurMail
+  );
+
+}
     alert(
       "✅ " +
       (enfant.prenom || "L'enfant") +
