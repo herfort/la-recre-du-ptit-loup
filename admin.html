@@ -586,7 +586,232 @@ chargerInscriptions();
   chargerBilanAnnuel();
 
 }
- 
+ async function ajouterSeanceTest(){
+
+  const zone =
+  document.getElementById("messageTest");
+
+  const nom =
+  document
+  .getElementById("testNom")
+  .value
+  .trim();
+
+  const prenom =
+  document
+  .getElementById("testPrenom")
+  .value
+  .trim();
+
+  const email =
+  document
+  .getElementById("testEmail")
+  .value
+  .trim();
+
+  const enfants = [
+    document.getElementById("testEnfant1").value.trim(),
+    document.getElementById("testEnfant2").value.trim(),
+    document.getElementById("testEnfant3").value.trim(),
+    document.getElementById("testEnfant4").value.trim()
+  ].filter(x => x !== "");
+
+  const date =
+  document
+  .getElementById("dateSelect")
+  .value;
+
+  // Vérification des champs
+
+  if(
+    !nom ||
+    !prenom ||
+    !email ||
+    enfants.length === 0 ||
+    !date
+  ){
+
+    zone.innerHTML =
+    "❌ Merci de remplir le nom, le prénom, l'e-mail et au moins un enfant.";
+
+    return;
+  }
+
+  // Vérification e-mail
+
+  const emailValide =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  if(!emailValide){
+
+    zone.innerHTML =
+    "❌ L'adresse e-mail n'est pas valide.";
+
+    return;
+  }
+
+  // Les parents ne peuvent pas venir le mardi
+
+  const jour =
+  new Date(
+    date + "T12:00:00"
+  ).getDay();
+
+  if(jour === 2){
+
+    zone.innerHTML =
+    "❌ Les séances du mardi sont réservées aux assistantes maternelles.";
+
+    return;
+  }
+
+  // Vérification séance annulée
+
+  const { data: annulation, error: erreurAnnulation } =
+  await client
+  .from("dates_annulees")
+  .select("date")
+  .eq("date", date);
+
+  if(erreurAnnulation){
+
+    console.error(erreurAnnulation);
+
+    zone.innerHTML =
+    "❌ Impossible de vérifier la séance.";
+
+    return;
+  }
+
+  if(
+    annulation &&
+    annulation.length > 0
+  ){
+
+    zone.innerHTML =
+    "❌ Cette séance est annulée.";
+
+    return;
+  }
+
+  // Vérification du nombre de places
+
+  const { count, error: erreurPlaces } =
+  await client
+  .from("inscriptions")
+  .select("*",{
+    count:"exact",
+    head:true
+  })
+  .eq("seance",date);
+
+  if(erreurPlaces){
+
+    console.error(erreurPlaces);
+
+    zone.innerHTML =
+    "❌ Impossible de vérifier les places restantes.";
+
+    return;
+  }
+
+  const placesRestantes =
+  30 - (count || 0);
+
+  if(placesRestantes < enfants.length){
+
+    zone.innerHTML =
+    "❌ Il ne reste que " +
+    placesRestantes +
+    " place(s) pour cette séance.";
+
+    return;
+  }
+
+  // Confirmation
+
+  const dateFR =
+  new Date(
+    date + "T12:00:00"
+  ).toLocaleDateString(
+    "fr-FR",
+    {
+      weekday:"long",
+      day:"numeric",
+      month:"long",
+      year:"numeric"
+    }
+  );
+
+  const confirmation =
+  confirm(
+    "Ajouter " +
+    prenom +
+    " " +
+    nom +
+    " en séance d'essai le " +
+    dateFR +
+    " avec " +
+    enfants.length +
+    " enfant(s) ?"
+  );
+
+  if(!confirmation){
+    return;
+  }
+
+  const accompagnateur =
+  nom + " " + prenom;
+
+  const inscriptions =
+  enfants.map(enfant => ({
+    accompagnateur,
+    email,
+    type_participant:"parent",
+    enfant,
+    seance:date,
+    statut:"Test"
+  }));
+
+  const { error } =
+  await client
+  .from("inscriptions")
+  .insert(inscriptions);
+
+  if(error){
+
+    console.error(error);
+
+    zone.innerHTML =
+    "❌ Erreur : " +
+    error.message;
+
+    return;
+  }
+
+  zone.innerHTML =
+  "✅ Séance d'essai ajoutée pour " +
+  accompagnateur +
+  ".";
+
+  // Vider le formulaire
+
+  document.getElementById("testNom").value = "";
+  document.getElementById("testPrenom").value = "";
+  document.getElementById("testEmail").value = "";
+
+  document.getElementById("testEnfant1").value = "";
+  document.getElementById("testEnfant2").value = "";
+  document.getElementById("testEnfant3").value = "";
+  document.getElementById("testEnfant4").value = "";
+
+  // Actualiser tableau et statistiques
+
+  await chargerInscriptions();
+
+  await chargerBilanAnnuel();
+
+}
 async function annulerSeanceSelectionnee(){
 
   const date =
