@@ -855,21 +855,50 @@ async function supprimerInscription(id) {
         .single();
 
 
-    // ==========================================
-    // SUPPRIMER LA RÉSERVATION
-    // ==========================================
+// ==========================================
+// SUPPRIMER LES AUTORISATIONS LIÉES
+// ==========================================
 
-    const {
-      error: erreurSuppression
-    } =
-      await supabaseClient
-        .from("shooting_inscriptions")
-        .delete()
-        .eq(
-          "id",
-          id
-        );
+const {
+  error: erreurSuppressionAutorisations
+} =
+  await supabaseClient
+    .from("shooting_autorisations")
+    .delete()
+    .eq(
+      "inscription_id",
+      id
+    );
 
+
+if (erreurSuppressionAutorisations) {
+
+  console.error(
+    erreurSuppressionAutorisations
+  );
+
+  alert(
+    "❌ Erreur lors de la suppression des autorisations."
+  );
+
+  return;
+}
+
+
+// ==========================================
+// SUPPRIMER LA RÉSERVATION
+// ==========================================
+
+const {
+  error: erreurSuppression
+} =
+  await supabaseClient
+    .from("shooting_inscriptions")
+    .delete()
+    .eq(
+      "id",
+      id
+    );
 
     if (erreurSuppression) {
 
