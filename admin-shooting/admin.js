@@ -237,17 +237,27 @@ function afficherInscriptions(data){
           `;
 
 
-          contenuAutorisation += `
-            <div class="famille-admin">
+        contenuAutorisation += `
+  <div class="famille-admin">
 
-              ${
-                autorisation.autorisation_signee
-                  ? "✅ Autorisation signée"
-                  : "⏳ En attente"
-              }
+    ${
+      autorisation.autorisation_signee
+        ? "✅ Autorisation signée"
+        : `
+          ⏳ En attente
+          <br><br>
 
-            </div>
-          `;
+          <button
+            type="button"
+            onclick="renvoyerMailSignature(${autorisation.id})"
+          >
+            📧 Renvoyer le mail de signature
+          </button>
+        `
+    }
+
+  </div>
+`;
 
 
           const nomBouton =
