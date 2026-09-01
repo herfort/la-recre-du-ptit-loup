@@ -4774,3 +4774,277 @@ catch (erreurMail) {
   }
 
 }
+async function deplacerReservation(inscriptionId) {
+
+  // ==========================================
+  // RÉCUPÉRER LA RÉSERVATION
+  // ==========================================
+
+  const {
+    data: inscription,
+    error: erreurInscription
+  } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .select("*")
+      .eq("id", inscriptionId)
+      .single();
+
+  if (erreurInscription || !inscription) {
+    console.error(erreurInscription);
+    alert("Impossible de retrouver la réservation.");
+    return;
+  }
+
+
+  // ==========================================
+  // RÉCUPÉRER LES PARAMÈTRES
+  // ==========================================
+
+  const {
+    data: parametres,
+    error: erreurParametres
+  } =
+    await supabaseClient
+      .from("shooting_parametres")
+      .select("*")
+      .single();
+
+  if (erreurParametres || !parametres) {
+    console.error(erreurParametres);
+    alert("Impossible de récupérer les horaires du shooting.");
+    return;
+  }
+
+
+  // ==========================================
+  // RÉCUPÉRER LES AUTRES RÉSERVATIONS
+  // ==========================================
+
+  const {
+    data: autresReservations,
+    error: erreurReservations
+  } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .select("id,creneau,duree")
+      .neq("id", inscriptionId);
+
+  if (erreurReservations) {
+    console.error(erreurReservations);
+    alert("Impossible de vérifier les créneaux disponibles.");
+    return;
+  }
+
+
+  // ==========================================
+  // CALCULER LES CRÉNEAUX DISPONIBLES
+  // ==========================================
+
+  const dateBase =
+    parametres.date_shooting;
+
+  const debutJournee =
+    new Date(
+      `${dateBase}T${parametres.heure_debut}`
+    );
+
+  const finJournee =
+    new Date(
+      `${dateBase}T${parametres.heure_fin}`
+    );
+
+  const pauseDebut =
+    parametres.pause_debut
+      ? new Date(
+          `${dateBase}T${parametres.pause_debut}`
+        )
+      : null;
+
+  const pauseFin =
+    parametres.pause_fin
+      ? new Date(
+          `${dateBase}T${parametres.pause_fin}`
+        )
+      : null;
+
+  const dureeReservation =
+    inscription.duree || 5;
+
+  const creneauxDisponibles = [];
+
+  let heureCourante =
+    new Date(debutJournee);
+
+  while (heureCourante < finJournee) {
+
+    const finReservation =
+      new Date(heureCourante);
+
+    finReservation.setMinutes(
+      finReservation.getMinutes() +
+      dureeReservation
+    );
+
+
+    // Dépasse la fin de journée
+    if (finReservation > finJournee) {
+      break;
+    }
+
+
+    // Traverse la pause
+    if (
+      pauseDebut &&
+      pauseFin &&
+      heureCourante < pauseFin &&
+      finReservation > pauseDebut
+    ) {
+
+      heureCourante.setMinutes(
+        heureCourante.getMinutes() + 5
+      );
+
+      continue;
+    }
+
+
+    let disponible = true;
+
+    for (
+      const reservation
+      of autresReservations
+    ) {
+
+      const debutOccupe =
+        new Date(
+          `${dateBase}T${reservation.creneau}`
+        );
+
+      const finOccupe =
+        new Date(debutOccupe);
+
+      finOccupe.setMinutes(
+        finOccupe.getMinutes() +
+        (reservation.duree || 5)
+      );
+
+
+      if (
+        heureCourante < finOccupe &&
+        finReservation > debutOccupe
+      ) {
+
+        disponible = false;
+        break;
+
+      }
+
+    }
+
+
+    if (disponible) {
+
+      const heure =
+        heureCourante.toLocaleTimeString(
+          "fr-FR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
+      creneauxDisponibles.push(heure);
+
+    }
+
+
+    heureCourante.setMinutes(
+      heureCourante.getMinutes() + 5
+    );
+
+  }
+
+
+  // ==========================================
+  // CHOISIR LE NOUVEAU CRÉNEAU
+  // ==========================================
+
+  if (creneauxDisponibles.length === 0) {
+
+    alert(
+      "Aucun autre créneau disponible."
+    );
+
+    return;
+  }
+
+
+  const liste =
+    creneauxDisponibles
+      .map((heure, index) =>
+        `${index + 1} - ${heure}`
+      )
+      .join("\n");
+
+
+  const choix =
+    prompt(
+      "Créneau actuel : " +
+      inscription.creneau +
+      "\n\n" +
+      "Choisissez le numéro du nouveau créneau :\n\n" +
+      liste
+    );
+
+
+  if (!choix) {
+    return;
+  }
+
+
+  const indexChoisi =
+    parseInt(choix, 10) - 1;
+
+
+  if (
+    isNaN(indexChoisi) ||
+    !creneauxDisponibles[indexChoisi]
+  ) {
+
+    alert(
+      "Choix invalide."
+    );
+
+    return;
+  }
+
+
+  const nouveauCreneau =
+    creneauxDisponibles[indexChoisi];
+
+
+  if (
+    nouveauCreneau ===
+    inscription.creneau
+  ) {
+
+    alert(
+      "Le rendez-vous est déjà sur ce créneau."
+    );
+
+    return;
+  }
+
+
+  // POUR L'INSTANT :
+  // ON NE MODIFIE RIEN EN BASE
+
+  alert(
+    "Créneau choisi : " +
+    nouveauCreneau +
+    "\n\n" +
+    "La modification en base sera faite à l'étape suivante."
+  );
+
+}
