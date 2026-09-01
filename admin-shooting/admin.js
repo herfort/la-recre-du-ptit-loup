@@ -4966,85 +4966,200 @@ async function deplacerReservation(inscriptionId) {
   }
 
 
-  // ==========================================
-  // CHOISIR LE NOUVEAU CRÉNEAU
-  // ==========================================
+ // ==========================================
+// CHOISIR LE NOUVEAU CRÉNEAU
+// ==========================================
 
-  if (creneauxDisponibles.length === 0) {
+if (creneauxDisponibles.length === 0) {
+  alert("Aucun autre créneau disponible.");
+  return;
+}
 
-    alert(
-      "Aucun autre créneau disponible."
+// Supprimer une ancienne fenêtre si elle existe
+const ancienneFenetre =
+  document.getElementById("fenetreDeplacement");
+
+if (ancienneFenetre) {
+  ancienneFenetre.remove();
+}
+
+
+// ==========================================
+// CRÉER LA FENÊTRE
+// ==========================================
+
+const overlay =
+  document.createElement("div");
+
+overlay.id = "fenetreDeplacement";
+
+overlay.style.position = "fixed";
+overlay.style.top = "0";
+overlay.style.left = "0";
+overlay.style.width = "100%";
+overlay.style.height = "100%";
+overlay.style.background =
+  "rgba(0,0,0,0.55)";
+overlay.style.zIndex = "9999";
+overlay.style.display = "flex";
+overlay.style.alignItems = "center";
+overlay.style.justifyContent = "center";
+overlay.style.padding = "15px";
+overlay.style.boxSizing = "border-box";
+
+
+const fenetre =
+  document.createElement("div");
+
+fenetre.style.background = "white";
+fenetre.style.borderRadius = "14px";
+fenetre.style.padding = "20px";
+fenetre.style.width = "100%";
+fenetre.style.maxWidth = "550px";
+fenetre.style.maxHeight = "85vh";
+fenetre.style.overflowY = "auto";
+fenetre.style.boxSizing = "border-box";
+
+
+// ==========================================
+// TITRE
+// ==========================================
+
+const titre =
+  document.createElement("h2");
+
+titre.textContent =
+  "🕒 Déplacer le rendez-vous";
+
+titre.style.marginTop = "0";
+
+fenetre.appendChild(titre);
+
+
+const info =
+  document.createElement("p");
+
+info.innerHTML =
+  `Créneau actuel : <strong>${inscription.creneau}</strong><br>
+   Durée : <strong>${dureeReservation} min</strong>`;
+
+fenetre.appendChild(info);
+
+
+// ==========================================
+// BOUTONS DES CRÉNEAUX
+// ==========================================
+
+const grille =
+  document.createElement("div");
+
+grille.style.display = "grid";
+grille.style.gridTemplateColumns =
+  "repeat(auto-fit, minmax(90px, 1fr))";
+grille.style.gap = "10px";
+grille.style.marginTop = "20px";
+
+
+creneauxDisponibles.forEach(
+  nouveauCreneau => {
+
+    // On ne propose pas le créneau actuel
+    if (
+      nouveauCreneau ===
+      inscription.creneau
+    ) {
+      return;
+    }
+
+    const bouton =
+      document.createElement("button");
+
+    bouton.type = "button";
+
+    bouton.textContent =
+      nouveauCreneau;
+
+    bouton.style.padding =
+      "14px 10px";
+
+    bouton.style.fontSize =
+      "16px";
+
+    bouton.style.cursor =
+      "pointer";
+
+    bouton.style.borderRadius =
+      "8px";
+
+    bouton.addEventListener(
+      "click",
+      function() {
+
+        overlay.remove();
+
+        alert(
+          "Créneau choisi : " +
+          nouveauCreneau +
+          "\n\n" +
+          "La modification en base sera faite à l'étape suivante."
+        );
+
+      }
     );
 
-    return;
-  }
-
-
-  const liste =
-    creneauxDisponibles
-      .map((heure, index) =>
-        `${index + 1} - ${heure}`
-      )
-      .join("\n");
-
-
-  const choix =
-    prompt(
-      "Créneau actuel : " +
-      inscription.creneau +
-      "\n\n" +
-      "Choisissez le numéro du nouveau créneau :\n\n" +
-      liste
+    grille.appendChild(
+      bouton
     );
 
-
-  if (!choix) {
-    return;
   }
+);
 
 
-  const indexChoisi =
-    parseInt(choix, 10) - 1;
+fenetre.appendChild(
+  grille
+);
 
 
-  if (
-    isNaN(indexChoisi) ||
-    !creneauxDisponibles[indexChoisi]
-  ) {
+// ==========================================
+// BOUTON ANNULER
+// ==========================================
 
-    alert(
-      "Choix invalide."
-    );
+const boutonFermer =
+  document.createElement("button");
 
-    return;
+boutonFermer.type = "button";
+boutonFermer.textContent =
+  "❌ Annuler";
+
+boutonFermer.style.marginTop =
+  "20px";
+
+boutonFermer.style.width =
+  "100%";
+
+boutonFermer.style.padding =
+  "12px";
+
+boutonFermer.addEventListener(
+  "click",
+  function() {
+
+    overlay.remove();
+
   }
+);
 
 
-  const nouveauCreneau =
-    creneauxDisponibles[indexChoisi];
+fenetre.appendChild(
+  boutonFermer
+);
 
+overlay.appendChild(
+  fenetre
+);
 
-  if (
-    nouveauCreneau ===
-    inscription.creneau
-  ) {
-
-    alert(
-      "Le rendez-vous est déjà sur ce créneau."
-    );
-
-    return;
-  }
-
-
-  // POUR L'INSTANT :
-  // ON NE MODIFIE RIEN EN BASE
-
-  alert(
-    "Créneau choisi : " +
-    nouveauCreneau +
-    "\n\n" +
-    "La modification en base sera faite à l'étape suivante."
-  );
+document.body.appendChild(
+  overlay
+);
 
 }
