@@ -5091,21 +5091,72 @@ creneauxDisponibles.forEach(
     bouton.style.borderRadius =
       "8px";
 
-    bouton.addEventListener(
-      "click",
-      function() {
+bouton.addEventListener(
+  "click",
+  async function() {
 
-        overlay.remove();
+    const ancienCreneau =
+      inscription.creneau;
 
-        alert(
-          "Créneau choisi : " +
-          nouveauCreneau +
-          "\n\n" +
-          "La modification en base sera faite à l'étape suivante."
+    const confirmation =
+      confirm(
+        "Déplacer le rendez-vous de " +
+        ancienCreneau +
+        " à " +
+        nouveauCreneau +
+        " ?"
+      );
+
+    if (!confirmation) {
+      return;
+    }
+
+
+    const {
+      error: erreurModification
+    } =
+      await supabaseClient
+        .from("shooting_inscriptions")
+        .update({
+          creneau: nouveauCreneau
+        })
+        .eq(
+          "id",
+          inscriptionId
         );
 
-      }
+
+    if (erreurModification) {
+
+      console.error(
+        erreurModification
+      );
+
+      alert(
+        "❌ Impossible de déplacer le rendez-vous."
+      );
+
+      return;
+    }
+
+
+    overlay.remove();
+
+
+    alert(
+      "✅ Rendez-vous déplacé\n\n" +
+      ancienCreneau +
+      " → " +
+      nouveauCreneau +
+      "\n\n" +
+      "L'autorisation et la signature sont conservées."
     );
+
+
+    location.reload();
+
+  }
+);
 
     grille.appendChild(
       bouton
