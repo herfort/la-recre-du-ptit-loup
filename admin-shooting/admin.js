@@ -5126,21 +5126,96 @@ bouton.addEventListener(
         );
 
 
-    if (erreurModification) {
+if (erreurModification) {
 
-      console.error(
-        erreurModification
-      );
+  console.error(
+    erreurModification
+  );
 
-      alert(
-        "❌ Impossible de déplacer le rendez-vous."
-      );
+  alert(
+    "❌ Impossible de déplacer le rendez-vous."
+  );
 
-      return;
-    }
+  return;
+}
 
 
-    overlay.remove();
+// ==========================================
+// ENVOI DU MAIL DE CONFIRMATION
+// ==========================================
+
+try {
+
+  const reponseMail =
+    await fetch(
+      "/api/send-deplacement-rdv",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
+
+        body: JSON.stringify({
+
+          email:
+            inscription.email,
+
+          nom:
+            inscription.nom_parent,
+
+          prenom:
+            inscription.prenom_parent,
+
+          date:
+            parametres.date_shooting,
+
+          ancienCreneau:
+            ancienCreneau,
+
+          nouveauCreneau:
+            nouveauCreneau
+
+        })
+
+      }
+    );
+
+
+  const resultatMail =
+    await reponseMail.json();
+
+
+  if (!reponseMail.ok) {
+
+    console.error(
+      "Erreur mail déplacement :",
+      resultatMail
+    );
+
+    alert(
+      "⚠️ Le rendez-vous a bien été déplacé, mais le mail n'a pas pu être envoyé."
+    );
+
+  }
+
+}
+catch (erreurMail) {
+
+  console.error(
+    "Erreur envoi mail déplacement :",
+    erreurMail
+  );
+
+  alert(
+    "⚠️ Le rendez-vous a bien été déplacé, mais le mail n'a pas pu être envoyé."
+  );
+
+}
+
+
+overlay.remove();
 
 
     alert(
