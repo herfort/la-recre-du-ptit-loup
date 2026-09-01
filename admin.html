@@ -1691,10 +1691,21 @@ doc.setFont(
 "bold"
 );
 
-const nomAffiche =
-g.statut === "Test"
-? nom + " - TEST"
-: nom;
+let nomAffiche = nom;
+
+if(g.statut === "Test"){
+
+  nomAffiche =
+  nom + " - TEST";
+
+}
+
+if(g.statut === "Occasionnel"){
+
+  nomAffiche =
+  nom + " - OCCASIONNEL 2 EUR";
+
+}
 
 doc.text(
 nomAffiche,
