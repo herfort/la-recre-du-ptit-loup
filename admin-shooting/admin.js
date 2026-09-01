@@ -539,16 +539,27 @@ document
 
         <td>
 
-          ${boutonsPDF}
+        ${boutonsPDF}
 
-          <button
-            onclick="supprimerInscription(
-              ${inscription.id}
-            )"
-          >
-            ❌
-          </button>
+<button
+  type="button"
+  onclick="deplacerReservation(
+    ${inscription.id}
+  )"
+  title="Déplacer le rendez-vous"
+>
+  🕒 Déplacer
+</button>
 
+<button
+  type="button"
+  onclick="supprimerInscription(
+    ${inscription.id}
+  )"
+  title="Supprimer la réservation"
+>
+  ❌
+</button>
         </td>
 
       </tr>
