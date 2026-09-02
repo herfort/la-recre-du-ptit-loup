@@ -705,7 +705,14 @@ if (formulaire) {
 
   boutonValidation.innerHTML =
     "⏳ Inscription en cours...";
+  function reactiverBoutonValidation() {
 
+    boutonValidation.disabled = false;
+
+    boutonValidation.innerHTML =
+      texteBoutonOriginal;
+
+  }
     const nom = document.getElementById("nom").value.trim();
     const prenom = document.getElementById("prenom").value.trim();
     const telephone = document.getElementById("telephone").value.trim();
