@@ -888,7 +888,7 @@ if (creneauOccupe) {
   if (parametresShooting) {
     genererCreneaux(parametresShooting);
   }
-
+reactiverBoutonValidation();
   return;
 }
   // ===============================
@@ -905,7 +905,7 @@ if (
 ) {
 
   alert("Merci de signer l'autorisation.");
-
+reactiverBoutonValidation();
   return;
 }
  const {
@@ -945,7 +945,7 @@ if (
 
       console.error("❌ Erreur inscription :", error);
       alert("Erreur lors de l'enregistrement.");
-
+reactiverBoutonValidation();
       return;
     }
 // ===============================
@@ -1048,7 +1048,7 @@ if (erreurAutorisations) {
   alert(
     "L'inscription a été enregistrée, mais les autorisations des parents n'ont pas pu être créées."
   );
-
+reactiverBoutonValidation();
   return;
 }
 
@@ -1170,7 +1170,7 @@ typeInscription:
     formulaire.reset();
 
     document.getElementById("listeEnfants").innerHTML = "";
-
+reactiverBoutonValidation();
   });
 
 }
