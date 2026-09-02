@@ -685,7 +685,26 @@ if (formulaire) {
   formulaire.addEventListener("submit", async function (e) {
 
     e.preventDefault();
+  // ==========================================
+  // BLOQUER LE BOUTON PENDANT L'INSCRIPTION
+  // ==========================================
 
+  const boutonValidation =
+    formulaire.querySelector(
+      'button[type="submit"]'
+    );
+
+  if (boutonValidation.disabled) {
+    return;
+  }
+
+  boutonValidation.disabled = true;
+
+  const texteBoutonOriginal =
+    boutonValidation.innerHTML;
+
+  boutonValidation.innerHTML =
+    "⏳ Inscription en cours...";
 
     const nom = document.getElementById("nom").value.trim();
     const prenom = document.getElementById("prenom").value.trim();
