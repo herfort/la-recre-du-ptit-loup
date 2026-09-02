@@ -792,6 +792,7 @@ if (typeInscription === "assistante") {
   if (enfants.length === 0) {
 
     alert("Merci d'ajouter au moins un enfant.");
+    reactiverBoutonValidation();
     return;
 
   }
@@ -810,7 +811,7 @@ if (typeInscription === "assistante") {
       alert(
         "Merci de renseigner toutes les informations de l'enfant et de son parent employeur."
       );
-
+reactiverBoutonValidation();
       return;
     }
 
@@ -828,6 +829,7 @@ if (typeInscription === "assistante") {
 
     if (!creneau) {
       alert("Veuillez sélectionner un créneau.");
+      reactiverBoutonValidation();
       return;
     }
 
@@ -845,6 +847,7 @@ const { data: reservationsExistantes, error: erreurControle } =
 if (erreurControle) {
   console.error(erreurControle);
   alert("Impossible de vérifier les disponibilités.");
+  reactiverBoutonValidation();
   return;
 }
 
