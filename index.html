@@ -927,37 +927,154 @@ async function envoyerInscription(){
 
   }
 
-  const inscriptions = [];
+ const inscriptions = [];
 
-  for(const date of dates){
+for(const date of dates){
 
-    const { count, error } =
+  // =========================================
+  // 1. Vérification de la capacité totale
+  // Maximum 30 enfants par séance
+  // =========================================
+
+  const { count, error } =
+  await client
+  .from("inscriptions")
+  .select("*",{
+    count:"exact",
+    head:true
+  })
+  .eq("seance",date);
+
+  if(error){
+
+    console.error(error);
+
+    document.getElementById(
+      "message"
+    ).innerHTML =
+    "❌ Impossible de vérifier les places disponibles.";
+
+    reactiverBouton();
+
+    return;
+  }
+
+  const placesRestantes =
+  30 - (count || 0);
+
+  if(
+    placesRestantes <
+    enfants.length
+  ){
+
+    const dateFR =
+    new Date(
+      date + "T12:00:00"
+    ).toLocaleDateString(
+      "fr-FR",
+      {
+        weekday:"long",
+        day:"numeric",
+        month:"long"
+      }
+    );
+
+    document.getElementById(
+      "message"
+    ).innerHTML =
+    `❌ Il ne reste que ${placesRestantes} place(s) pour la séance du ${dateFR}.`;
+
+    reactiverBouton();
+
+    return;
+  }
+
+
+  // =========================================
+  // 2. Jour de la séance
+  // 1 = lundi
+  // 2 = mardi
+  // 4 = jeudi
+  // =========================================
+
+  const jourSeance =
+  new Date(
+    date + "T12:00:00"
+  ).getDay();
+
+
+  // =========================================
+  // 3. LIMITE ASSISTANTES MATERNELLES
+  //
+  // LUNDI  : maximum 20 enfants AM
+  // MARDI  : pas de quota AM spécifique
+  // JEUDI  : maximum 20 enfants AM
+  //
+  // La capacité générale reste 30.
+  // =========================================
+
+  if(
+    typeParticipant ===
+    "assistante_maternelle"
+    &&
+    (
+      jourSeance === 1 ||
+      jourSeance === 4
+    )
+  ){
+
+    const {
+      count: countAssistantes,
+      error: erreurAssistantes
+    } =
     await client
     .from("inscriptions")
     .select("*",{
       count:"exact",
       head:true
     })
-    .eq("seance",date);
+    .eq(
+      "seance",
+      date
+    )
+    .eq(
+      "type_participant",
+      "assistante_maternelle"
+    );
 
-    if(error){
+    if(erreurAssistantes){
 
-      console.error(error);
+      console.error(
+        erreurAssistantes
+      );
 
       document.getElementById(
         "message"
       ).innerHTML =
-      "❌ Impossible de vérifier les places disponibles.";
+      "❌ Impossible de vérifier les places des assistantes maternelles.";
 
       reactiverBouton();
 
       return;
     }
 
-    const placesRestantes =
-    30 - (count || 0);
 
-    if(placesRestantes < enfants.length){
+    // Nombre de places AM encore disponibles
+
+    const placesAssistantesRestantes =
+    Math.max(
+      0,
+      20 - (countAssistantes || 0)
+    );
+
+
+    // Pas assez de places AM
+    // pour tous les enfants saisis
+
+    if(
+      placesAssistantesRestantes <
+      enfants.length
+    ){
 
       const dateFR =
       new Date(
@@ -971,31 +1088,69 @@ async function envoyerInscription(){
         }
       );
 
-      document.getElementById(
-        "message"
-      ).innerHTML =
-      `❌ Il ne reste pas assez de places pour la séance du ${dateFR}.`;
+
+      // Quota complètement atteint
+
+      if(
+        placesAssistantesRestantes === 0
+      ){
+
+        document.getElementById(
+          "message"
+        ).innerHTML =
+        `❌ Les 20 places réservées aux enfants des assistantes maternelles sont déjà prises pour le ${dateFR}.`;
+
+      }
+
+      // Il reste quelques places
+      // mais pas assez pour tous les enfants
+
+      else{
+
+        document.getElementById(
+          "message"
+        ).innerHTML =
+        `❌ Il ne reste que ${placesAssistantesRestantes} place(s) pour les enfants des assistantes maternelles le ${dateFR}.`;
+
+      }
 
       reactiverBouton();
 
       return;
     }
 
-    enfants.forEach(enfant => {
+  }
 
-      inscriptions.push({
-        accompagnateur,
-        email,
-        type_participant:
-        typeParticipant,
-        enfant,
-        seance:date,
-        statut:"Inscrit"
-      });
+
+  // =========================================
+  // 4. Préparation des inscriptions
+  // Une ligne Supabase par enfant
+  // =========================================
+
+  enfants.forEach(enfant => {
+
+    inscriptions.push({
+
+      accompagnateur,
+
+      email,
+
+      type_participant:
+      typeParticipant,
+
+      enfant,
+
+      seance:
+      date,
+
+      statut:
+      "Inscrit"
 
     });
 
-  }
+  });
+
+}
 
   const { error } =
   await client
