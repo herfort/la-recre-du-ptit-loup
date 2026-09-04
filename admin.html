@@ -555,6 +555,37 @@ ${listeEnfants}
 
 <td>
 
+${
+groupe.statut === "En attente"
+?
+`
+<button
+onclick='accepterDemande(${JSON.stringify(groupe.ids)})'
+style="
+background:#4CAF50;
+color:white;
+border:none;
+padding:8px;
+border-radius:6px;
+cursor:pointer;
+margin-right:5px;">
+✅ Accepter
+</button>
+
+<button
+onclick='refuserDemande(${JSON.stringify(groupe.ids)})'
+style="
+background:#f44336;
+color:white;
+border:none;
+padding:8px;
+border-radius:6px;
+cursor:pointer;">
+❌ Refuser
+</button>
+`
+:
+`
 <button
 onclick='supprimerFamille(${JSON.stringify(groupe.ids)})'
 style="
@@ -566,9 +597,10 @@ border-radius:6px;
 cursor:pointer;">
 🗑️ Famille
 </button>
+`
+}
 
 </td>
-
 </tr>
 
 `;
