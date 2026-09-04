@@ -8,6 +8,7 @@ export default async function handler(req, res) {
 
   }
 
+
   const {
     email,
     accompagnateur,
@@ -16,142 +17,266 @@ export default async function handler(req, res) {
     statut
   } = req.body;
 
+
+  // ==========================================
+  // FORMATAGE DES ENFANTS
+  // ==========================================
+
+  const listeEnfants =
+  (enfants || [])
+  .map(enfant => `• ${enfant}`)
+  .join("<br>");
+
+
+  // ==========================================
+  // FORMATAGE DES DATES
+  // ==========================================
+
+  const listeDates =
+  (dates || [])
+  .map(date => {
+
+    return new Date(
+      date + "T12:00:00"
+    ).toLocaleDateString(
+      "fr-FR",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }
+    );
+
+  })
+  .join("<br>");
+
+
+  let sujet = "";
+
+  let contenu = "";
+
+
+  // ==========================================
+  // DEMANDE EN ATTENTE
+  // ==========================================
+
+  if (statut === "En attente") {
+
+    sujet =
+    "Demande d'inscription en attente";
+
+    contenu = `
+      <h2>
+        🕐 Demande en attente
+      </h2>
+
+      <p>
+        Bonjour ${accompagnateur},
+      </p>
+
+      <p>
+        Votre demande d'inscription aux ateliers
+        de <strong>La Récré Du P'tit Loup</strong>
+        a bien été enregistrée.
+      </p>
+
+      <p>
+        Vous avez bénéficié d'une séance
+        la semaine précédente.
+      </p>
+
+      <p>
+        Afin de permettre un roulement équitable
+        entre les assistantes maternelles,
+        votre nouvelle demande est
+        <strong>en attente de validation
+        par l'association</strong>.
+      </p>
+
+      <p>
+        <strong>Cette demande n'est donc pas encore
+        une confirmation d'inscription.</strong>
+      </p>
+
+      <h3>👶 Enfant(s)</h3>
+
+      <p>
+        ${listeEnfants}
+      </p>
+
+      <h3>📅 Séance(s) demandée(s)</h3>
+
+      <p>
+        ${listeDates}
+      </p>
+
+      <p>
+        Vous recevrez un nouvel e-mail
+        dès que votre demande aura été
+        acceptée ou refusée.
+      </p>
+
+      <p>
+        À bientôt,<br>
+        <strong>
+          La Récré Du P'tit Loup
+        </strong>
+      </p>
+    `;
+
+  }
+
+
+  // ==========================================
+  // DEMANDE REFUSÉE
+  // ==========================================
+
+  else if (statut === "Refusé") {
+
+    sujet =
+    "Réponse à votre demande d'inscription";
+
+    contenu = `
+      <h2>
+        ❌ Demande non retenue
+      </h2>
+
+      <p>
+        Bonjour ${accompagnateur},
+      </p>
+
+      <p>
+        Nous revenons vers vous concernant
+        votre demande d'inscription aux ateliers
+        de <strong>La Récré Du P'tit Loup</strong>.
+      </p>
+
+      <p>
+        Afin de permettre à un maximum
+        d'assistantes maternelles de bénéficier
+        des ateliers et de respecter le système
+        de roulement,
+        <strong>nous ne pouvons malheureusement
+        pas valider cette demande.</strong>
+      </p>
+
+      <h3>👶 Enfant(s)</h3>
+
+      <p>
+        ${listeEnfants}
+      </p>
+
+      <h3>📅 Séance concernée</h3>
+
+      <p>
+        ${listeDates}
+      </p>
+
+      <p>
+        Vous pourrez bien entendu effectuer
+        une nouvelle demande pour une prochaine
+        semaine.
+      </p>
+
+      <p>
+        Merci de votre compréhension.
+      </p>
+
+      <p>
+        À bientôt,<br>
+        <strong>
+          La Récré Du P'tit Loup
+        </strong>
+      </p>
+    `;
+
+  }
+
+
+  // ==========================================
+  // INSCRIPTION CONFIRMÉE
+  // ==========================================
+
+  else {
+
+    sujet =
+    "Confirmation d'inscription";
+
+    contenu = `
+      <h2>
+        ✅ Inscription confirmée
+      </h2>
+
+      <p>
+        Bonjour ${accompagnateur},
+      </p>
+
+      <p>
+        Votre inscription aux ateliers
+        de <strong>La Récré Du P'tit Loup</strong>
+        est bien confirmée.
+      </p>
+
+      <h3>👶 Enfant(s)</h3>
+
+      <p>
+        ${listeEnfants}
+      </p>
+
+      <h3>📅 Séance(s)</h3>
+
+      <p>
+        ${listeDates}
+      </p>
+
+      <p>
+        Nous avons hâte de vous retrouver
+        avec les enfants !
+      </p>
+
+      <p>
+        À bientôt,<br>
+        <strong>
+          La Récré Du P'tit Loup
+        </strong>
+      </p>
+    `;
+
+  }
+
+
+  // ==========================================
+  // ENVOI AVEC BREVO
+  // ==========================================
+
   try {
 
-    // ==========================================
-    // TYPE D'E-MAIL
-    // ==========================================
-
-    const enAttente =
-      statut === "En attente";
-
-    let sujet = "";
-    let contenu = "";
-
-
-    // ==========================================
-    // DEMANDE EN ATTENTE
-    // ==========================================
-
-    if (enAttente) {
-
-      sujet =
-      "Demande d'inscription en attente";
-
-      contenu = `
-        <h2>Demande d'inscription en attente</h2>
-
-        <p>Bonjour,</p>
-
-        <p>
-          Votre demande d'inscription à
-          <b>La Récré Du P'tit Loup</b>
-          a bien été enregistrée.
-        </p>
-
-        <p>
-          Vous avez déjà bénéficié d'une séance
-          la semaine précédente.
-        </p>
-
-        <p>
-          Afin de permettre un roulement équitable
-          entre les assistantes maternelles,
-          votre nouvelle demande est donc
-          <b>en attente de validation</b>.
-        </p>
-
-        <p>
-          Vous recevrez un nouvel e-mail
-          lorsque votre demande aura été
-          acceptée ou refusée.
-        </p>
-
-        <p>
-          <b>Accompagnateur :</b><br>
-          ${accompagnateur}
-        </p>
-
-        <p>
-          <b>Enfants :</b><br>
-          ${enfants.join(", ")}
-        </p>
-
-        <p>
-          <b>Date(s) demandée(s) :</b><br>
-          ${dates.join("<br>")}
-        </p>
-
-        <p>
-          ⚠️ Cette demande ne vaut pas encore
-          confirmation de participation.
-        </p>
-
-        <p>À bientôt ! 🐺</p>
-      `;
-
-    }
-
-    // ==========================================
-    // INSCRIPTION NORMALE
-    // ==========================================
-
-    else {
-
-      sujet =
-      "Confirmation d'inscription";
-
-      contenu = `
-        <h2>Inscription confirmée</h2>
-
-        <p>Bonjour,</p>
-
-        <p>
-          Votre inscription à
-          <b>La Récré Du P'tit Loup</b>
-          a bien été enregistrée.
-        </p>
-
-        <p>
-          <b>Accompagnateur :</b><br>
-          ${accompagnateur}
-        </p>
-
-        <p>
-          <b>Enfants :</b><br>
-          ${enfants.join(", ")}
-        </p>
-
-        <p>
-          <b>Dates sélectionnées :</b><br>
-          ${dates.join("<br>")}
-        </p>
-
-        <p>À bientôt ! 🐺</p>
-      `;
-
-    }
-
-
-    // ==========================================
-    // ENVOI BREVO
-    // ==========================================
-
-    const response = await fetch(
+    const response =
+    await fetch(
       "https://api.brevo.com/v3/smtp/email",
       {
+
         method: "POST",
 
         headers: {
-          "Content-Type": "application/json",
-          "api-key": process.env.BREVO_API_KEY
+
+          "Content-Type":
+          "application/json",
+
+          "api-key":
+          process.env.BREVO_API_KEY
+
         },
 
         body: JSON.stringify({
 
           sender: {
-            name: "La Récré Du P'tit Loup",
-            email: "larecreduptitloup@gmail.com"
+            name:
+            "La Récré Du P'tit Loup",
+
+            email:
+            "larecreduptitloup@gmail.com"
           },
 
           to: [
@@ -162,15 +287,19 @@ export default async function handler(req, res) {
 
           bcc: [
             {
-              email: "larecreduptitloup@gmail.com"
+              email:
+              "larecreduptitloup@gmail.com"
             }
           ],
 
-          subject: sujet,
+          subject:
+          sujet,
 
-          htmlContent: contenu
+          htmlContent:
+          contenu
 
         })
+
       }
     );
 
@@ -197,12 +326,18 @@ export default async function handler(req, res) {
 
   }
 
-  catch (err) {
+  catch (error) {
 
-    console.error(err);
+    console.error(
+      "Erreur envoi email :",
+      error
+    );
 
     return res.status(500).json({
-      error: err.message
+
+      error:
+      error.message
+
     });
 
   }
