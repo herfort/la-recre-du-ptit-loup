@@ -1255,6 +1255,289 @@ async function annulerSeanceSelectionnee(){
   "✅ Séance annulée : " + date;
 
 }
+  async function accepterDemande(ids){
+
+  if(
+    !ids ||
+    ids.length === 0
+  ){
+    return;
+  }
+
+  if(!confirm(
+    "Accepter cette demande d'inscription ?"
+  )){
+    return;
+  }
+
+
+  // =====================================
+  // Récupération de la demande
+  // =====================================
+
+  const {
+    data,
+    error: erreurLecture
+  } =
+  await client
+  .from("inscriptions")
+  .select("*")
+  .in("id",ids);
+
+
+  if(erreurLecture){
+
+    alert(
+      "Erreur : " +
+      erreurLecture.message
+    );
+
+    return;
+  }
+
+
+  if(
+    !data ||
+    data.length === 0
+  ){
+
+    alert(
+      "Demande introuvable."
+    );
+
+    return;
+  }
+
+
+  const demande =
+  data[0];
+
+  const date =
+  demande.seance;
+
+
+  // =====================================
+  // Vérification des 30 places
+  // Les demandes en attente ne comptent pas
+  // =====================================
+
+  const {
+    data: inscriptionsDate,
+    error: erreurPlaces
+  } =
+  await client
+  .from("inscriptions")
+  .select("statut")
+  .eq("seance",date);
+
+
+  if(erreurPlaces){
+
+    alert(
+      "Impossible de vérifier les places."
+    );
+
+    return;
+  }
+
+
+  const placesOccupees =
+  (inscriptionsDate || [])
+  .filter(
+    x =>
+    x.statut !==
+    "En attente"
+  )
+  .length;
+
+
+  const placesRestantes =
+  30 - placesOccupees;
+
+
+  if(
+    placesRestantes <
+    data.length
+  ){
+
+    alert(
+      "❌ Impossible d'accepter cette demande.\n\n" +
+      "Il ne reste que " +
+      placesRestantes +
+      " place(s)."
+    );
+
+    return;
+  }
+
+
+  // =====================================
+  // Vérification quota AM 20
+  // lundi et jeudi seulement
+  // =====================================
+
+  const jour =
+  new Date(
+    date + "T12:00:00"
+  ).getDay();
+
+
+  if(
+    demande.type_participant ===
+    "assistante_maternelle"
+    &&
+    (
+      jour === 1 ||
+      jour === 4
+    )
+  ){
+
+    const {
+      data: inscriptionsAM,
+      error: erreurAM
+    } =
+    await client
+    .from("inscriptions")
+    .select("statut")
+    .eq("seance",date)
+    .eq(
+      "type_participant",
+      "assistante_maternelle"
+    );
+
+
+    if(erreurAM){
+
+      alert(
+        "Impossible de vérifier les places des assistantes maternelles."
+      );
+
+      return;
+    }
+
+
+    const enfantsAMConfirmes =
+    (inscriptionsAM || [])
+    .filter(
+      x =>
+      x.statut !==
+      "En attente"
+    )
+    .length;
+
+
+    const placesAM =
+    20 -
+    enfantsAMConfirmes;
+
+
+    if(
+      placesAM <
+      data.length
+    ){
+
+      alert(
+        "❌ Impossible d'accepter cette demande.\n\n" +
+        "Il ne reste que " +
+        Math.max(0,placesAM) +
+        " place(s) dans le quota des 20 enfants d'assistantes maternelles."
+      );
+
+      return;
+    }
+
+  }
+
+
+  // =====================================
+  // Passage en INSCRIT
+  // =====================================
+
+  const { error } =
+  await client
+  .from("inscriptions")
+  .update({
+    statut:"Inscrit"
+  })
+  .in("id",ids);
+
+
+  if(error){
+
+    alert(
+      "Erreur : " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  // =====================================
+  // Email
+  // =====================================
+
+  const enfants =
+  data.map(
+    x => x.enfant
+  );
+
+
+  try{
+
+    await fetch(
+      "/api/send-email",
+      {
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+          "application/json"
+        },
+
+        body:JSON.stringify({
+
+          email:
+          demande.email,
+
+          accompagnateur:
+          demande.accompagnateur,
+
+          enfants,
+
+          dates:[
+            date
+          ],
+
+          statut:
+          "Inscrit"
+
+        })
+
+      }
+    );
+
+  }
+  catch(error){
+
+    console.error(
+      "Erreur e-mail :",
+      error
+    );
+
+  }
+
+
+  alert(
+    "✅ Demande acceptée."
+  );
+
+
+  await chargerInscriptions();
+
+  await chargerBilanAnnuel();
+
+}
  async function reactiverSeanceSelectionnee(){
 
   const date =
