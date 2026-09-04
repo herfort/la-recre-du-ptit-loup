@@ -435,80 +435,115 @@ document.addEventListener(
 );
 async function afficherPlaces(){
 
-const cases =
-document.querySelectorAll(
-"#dates input[type='checkbox']"
-);
+  const cases =
+  document.querySelectorAll(
+    "#dates input[type='checkbox']"
+  );
 
-for(const c of cases){
+  for(const c of cases){
 
-const date = c.value;
+    const date = c.value;
 
-const { count } =
-await client
-.from("inscriptions")
-.select("*",{
-count:"exact",
-head:true
-})
-.eq("seance",date);
+    // ==========================================
+    // Récupérer les inscriptions de la séance
+    // Les "En attente" ne doivent pas compter
+    // dans les 30 places.
+    // ==========================================
 
-const restant =
-Math.max(
-0,
-30-(count||0)
-);
+    const {
+      data,
+      error
+    } =
+    await client
+    .from("inscriptions")
+    .select("statut")
+    .eq("seance",date);
 
-const zone =
-document.getElementById(
-`places-${date}`
-);
 
-if(zone){
+    if(error){
 
-  if(restant <= 0){
+      console.error(
+        "Erreur affichage des places :",
+        error
+      );
 
-    c.disabled = true;
-    c.dataset.complet = "oui";
+      continue;
+    }
 
-    zone.innerHTML =
-    "❌ Complet";
 
-  }
-  else if(restant <= 5){
-
-    c.dataset.complet = "non";
+    // Inscrit / Test / Occasionnel comptent.
+    // En attente ne compte pas.
 
     const inscrits =
-    count || 0;
+    (data || [])
+    .filter(
+      inscription =>
+      inscription.statut !== "En attente"
+    )
+    .length;
 
-    zone.innerHTML =
-    "⚠️ " +
-    inscrits +
-    "/30 inscrits (" +
-    restant +
-    " places)";
+
+    const restant =
+    Math.max(
+      0,
+      30 - inscrits
+    );
+
+
+    const zone =
+    document.getElementById(
+      `places-${date}`
+    );
+
+
+    if(zone){
+
+      if(restant <= 0){
+
+        c.disabled = true;
+
+        c.dataset.complet =
+        "oui";
+
+        zone.innerHTML =
+        "❌ Complet";
+
+      }
+
+      else if(restant <= 5){
+
+        c.dataset.complet =
+        "non";
+
+        zone.innerHTML =
+        "⚠️ " +
+        inscrits +
+        "/30 inscrits (" +
+        restant +
+        " places)";
+
+      }
+
+      else{
+
+        c.dataset.complet =
+        "non";
+
+        zone.innerHTML =
+        inscrits +
+        "/30 inscrits (" +
+        restant +
+        " places)";
+
+      }
+
+    }
 
   }
-  else{
 
-    c.dataset.complet = "non";
-
-    const inscrits =
-    count || 0;
-
-    zone.innerHTML =
-    inscrits +
-    "/30 inscrits (" +
-    restant +
-    " places)";
-
-  }
+  gererBlocageAssistante();
 
 }
-
-}
-
 gererBlocageAssistante();
 
 }
