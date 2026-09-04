@@ -648,10 +648,21 @@ enfantsDifferents;
 
 document.getElementById("statParents").textContent =
 nbParents;
-
+const nbEnAttente =
+new Set(
+  data
+  .filter(
+    i =>
+    i.type_participant === "assistante_maternelle"
+    &&
+    i.statut === "En attente"
+  )
+  .map(i => i.email)
+).size;
 document.getElementById("statAssistantes").textContent =
 nbAssistantes;
-
+document.getElementById("statAttente").textContent =
+nbEnAttente;
 document.getElementById("stats").innerHTML =
 "📍 Places restantes : " + placesRestantes;
 }
