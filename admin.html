@@ -1274,6 +1274,219 @@ async function annulerSeanceSelectionnee(){
   "✅ Séance annulée : " + date;
 
 }
+  async function envoyerMailsAttente(){
+
+  const date =
+  document.getElementById("dateSelect").value;
+
+  if(!date){
+
+    alert("Veuillez sélectionner une date.");
+
+    return;
+  }
+
+
+  const confirmation =
+  confirm(
+    "Envoyer un e-mail à toutes les assistantes maternelles en attente pour cette séance ?"
+  );
+
+  if(!confirmation){
+    return;
+  }
+
+
+  // ==========================================
+  // RÉCUPÉRER LES DEMANDES EN ATTENTE
+  // ==========================================
+
+  const {
+    data,
+    error
+  } =
+  await client
+  .from("inscriptions")
+  .select("*")
+  .eq("seance",date)
+  .eq(
+    "type_participant",
+    "assistante_maternelle"
+  )
+  .eq(
+    "statut",
+    "En attente"
+  );
+
+
+  if(error){
+
+    console.error(error);
+
+    alert(
+      "❌ Impossible de récupérer les demandes en attente."
+    );
+
+    return;
+  }
+
+
+  if(
+    !data ||
+    data.length === 0
+  ){
+
+    alert(
+      "Aucune assistante maternelle en attente pour cette séance."
+    );
+
+    return;
+  }
+
+
+  // ==========================================
+  // REGROUPER PAR ASSISTANTE
+  // 1 SEUL MAIL PAR ADRESSE
+  // ==========================================
+
+  const groupes = {};
+
+  data.forEach(inscription => {
+
+    const cle =
+    inscription.email;
+
+    if(!groupes[cle]){
+
+      groupes[cle] = {
+
+        email:
+        inscription.email,
+
+        accompagnateur:
+        inscription.accompagnateur,
+
+        enfants: []
+
+      };
+
+    }
+
+    groupes[cle]
+    .enfants
+    .push(
+      inscription.enfant
+    );
+
+  });
+
+
+  // ==========================================
+  // ENVOI DES MAILS
+  // ==========================================
+
+  let envoyes = 0;
+
+  let erreurs = 0;
+
+
+  for(
+    const groupe of
+    Object.values(groupes)
+  ){
+
+    try{
+
+      const response =
+      await fetch(
+        "/api/send-email",
+        {
+
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+            "application/json"
+          },
+
+          body:JSON.stringify({
+
+            email:
+            groupe.email,
+
+            accompagnateur:
+            groupe.accompagnateur,
+
+            enfants:
+            groupe.enfants,
+
+            dates:[
+              date
+            ],
+
+            statut:
+            "En attente"
+
+          })
+
+        }
+      );
+
+
+      if(response.ok){
+
+        envoyes++;
+
+      }
+      else{
+
+        erreurs++;
+
+        console.error(
+          "Erreur e-mail pour",
+          groupe.email
+        );
+
+      }
+
+    }
+    catch(error){
+
+      erreurs++;
+
+      console.error(
+        "Erreur e-mail :",
+        error
+      );
+
+    }
+
+  }
+
+
+  // ==========================================
+  // RÉSULTAT
+  // ==========================================
+
+  let message =
+  "📧 " +
+  envoyes +
+  " e-mail(s) envoyé(s).";
+
+
+  if(erreurs > 0){
+
+    message +=
+    "\n⚠️ " +
+    erreurs +
+    " e-mail(s) n'ont pas pu être envoyés.";
+
+  }
+
+
+  alert(message);
+
+}
   async function accepterDemande(ids){
 
   if(
