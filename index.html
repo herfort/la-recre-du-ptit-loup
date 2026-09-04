@@ -444,26 +444,27 @@ async function afficherPlaces(){
 
     const date = c.value;
 
-    // ==========================================
-    // Récupérer les inscriptions de la séance
-    // Les "En attente" ne doivent pas compter
-    // dans les 30 places.
-    // ==========================================
+    // Compte uniquement les places réellement occupées.
+    // Les demandes "En attente" ne comptent pas.
 
     const {
-      data,
+      count,
       error
     } =
     await client
     .from("inscriptions")
-    .select("statut")
-    .eq("seance",date);
+    .select("*",{
+      count:"exact",
+      head:true
+    })
+    .eq("seance",date)
+    .neq("statut","En attente");
 
 
     if(error){
 
       console.error(
-        "Erreur affichage des places :",
+        "Erreur places :",
         error
       );
 
@@ -471,16 +472,8 @@ async function afficherPlaces(){
     }
 
 
-    // Inscrit / Test / Occasionnel comptent.
-    // En attente ne compte pas.
-
     const inscrits =
-    (data || [])
-    .filter(
-      inscription =>
-      inscription.statut !== "En attente"
-    )
-    .length;
+    count || 0;
 
 
     const restant =
@@ -501,9 +494,7 @@ async function afficherPlaces(){
       if(restant <= 0){
 
         c.disabled = true;
-
-        c.dataset.complet =
-        "oui";
+        c.dataset.complet = "oui";
 
         zone.innerHTML =
         "❌ Complet";
@@ -512,8 +503,12 @@ async function afficherPlaces(){
 
       else if(restant <= 5){
 
-        c.dataset.complet =
-        "non";
+        // Important :
+        // réactive la case si elle
+        // était auparavant complète.
+
+        c.disabled = false;
+        c.dataset.complet = "non";
 
         zone.innerHTML =
         "⚠️ " +
@@ -526,8 +521,8 @@ async function afficherPlaces(){
 
       else{
 
-        c.dataset.complet =
-        "non";
+        c.disabled = false;
+        c.dataset.complet = "non";
 
         zone.innerHTML =
         inscrits +
@@ -542,9 +537,6 @@ async function afficherPlaces(){
   }
 
   gererBlocageAssistante();
-
-}
-gererBlocageAssistante();
 
 }
 function gererBlocageAssistante(){
