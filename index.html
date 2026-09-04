@@ -739,6 +739,11 @@ async function envoyerInscription(){
   submitBtn.textContent =
   "⏳ Inscription en cours...";
 
+
+  // ==========================================
+  // INFORMATIONS DU FORMULAIRE
+  // ==========================================
+
   const nom =
   document
   .getElementById("nom")
@@ -779,6 +784,11 @@ async function envoyerInscription(){
     )
   ).map(x => x.value);
 
+
+  // ==========================================
+  // RÉACTIVER LE BOUTON
+  // ==========================================
+
   function reactiverBouton(){
 
     submitBtn.disabled = false;
@@ -787,6 +797,11 @@ async function envoyerInscription(){
     "✅ Envoyer mon inscription";
 
   }
+
+
+  // ==========================================
+  // VÉRIFICATION DU FORMULAIRE
+  // ==========================================
 
   if(
     !nom ||
@@ -806,70 +821,66 @@ async function envoyerInscription(){
     return;
   }
 
-  if(typeParticipant === "assistante_maternelle"){
 
-    const getWeekNumber = (d) => {
+  // ==========================================
+  // FONCTION : LUNDI DE LA SEMAINE
+  // ==========================================
 
-      d = new Date(
-        Date.UTC(
-          d.getFullYear(),
-          d.getMonth(),
-          d.getDate()
-        )
-      );
+  function obtenirLundi(dateISO){
 
-      const dayNum =
-      d.getUTCDay() || 7;
+    const d =
+    new Date(
+      dateISO + "T12:00:00"
+    );
 
-      d.setUTCDate(
-        d.getUTCDate() + 4 - dayNum
-      );
+    const jour =
+    d.getDay();
 
-      const yearStart =
-      new Date(
-        Date.UTC(
-          d.getUTCFullYear(),
-          0,
-          1
-        )
-      );
+    const decalage =
+    jour === 0
+    ? -6
+    : 1 - jour;
 
-      return Math.ceil(
-        (((d - yearStart) / 86400000) + 1) / 7
-      );
-    };
+    d.setDate(
+      d.getDate() + decalage
+    );
 
-    const semaines = new Set();
+    d.setHours(
+      12,0,0,0
+    );
 
-    for(const date of dates){
+    return d;
+  }
 
-      const d = new Date(date);
 
-      const cle =
-      d.getFullYear() +
-      "-" +
-      getWeekNumber(d);
+  // ==========================================
+  // DONNÉES EXISTANTES DE L'ASSISTANTE
+  // ==========================================
 
-      if(semaines.has(cle)){
+  let inscriptionsAssistante = [];
 
-        document.getElementById(
-          "message"
-        ).innerHTML =
-        "❌ Une assistante maternelle ne peut réserver qu'une seule séance par semaine.";
+  if(
+    typeParticipant ===
+    "assistante_maternelle"
+  ){
 
-        reactiverBouton();
-
-        return;
-      }
-
-      semaines.add(cle);
-    }
-
-    const { data, error } =
+    const {
+      data,
+      error
+    } =
     await client
     .from("inscriptions")
-    .select("seance")
-    .eq("email", email);
+    .select(
+      "seance, statut, type_participant"
+    )
+    .eq(
+      "email",
+      email
+    )
+    .eq(
+      "type_participant",
+      "assistante_maternelle"
+    );
 
     if(error){
 
@@ -885,173 +896,206 @@ async function envoyerInscription(){
       return;
     }
 
+    inscriptionsAssistante =
+    data || [];
+
+  }
+
+
+  // ==========================================
+  // UNE SEULE SÉANCE PAR SEMAINE
+  // PARMI LES DATES COCHÉES
+  // ==========================================
+
+  if(
+    typeParticipant ===
+    "assistante_maternelle"
+  ){
+
+    const semainesChoisies =
+    new Set();
+
     for(const date of dates){
 
-      const dateChoisie =
-      new Date(date);
+      const lundi =
+      obtenirLundi(date);
 
-      const semaineChoisie =
-      getWeekNumber(dateChoisie);
+      const cle =
+      lundi
+      .toISOString()
+      .split("T")[0];
 
-      const anneeChoisie =
-      dateChoisie.getFullYear();
-
-      const dejaInscrit =
-      data?.some(inscription => {
-
-        const d =
-        new Date(
-          inscription.seance
-        );
-
-        return (
-          getWeekNumber(d) === semaineChoisie
-          &&
-          d.getFullYear() === anneeChoisie
-        );
-
-      });
-
-      if(dejaInscrit){
+      if(
+        semainesChoisies.has(cle)
+      ){
 
         document.getElementById(
           "message"
         ).innerHTML =
-        "❌ Cette assistante maternelle est déjà inscrite cette semaine.";
+        "❌ Une assistante maternelle ne peut réserver qu'une seule séance par semaine.";
 
         reactiverBouton();
 
         return;
       }
+
+      semainesChoisies.add(cle);
+
+    }
+
+
+    // ========================================
+    // Vérifie qu'elle n'a pas déjà
+    // une inscription ou une demande
+    // cette même semaine
+    // ========================================
+
+    for(const date of dates){
+
+      const lundiChoisi =
+      obtenirLundi(date);
+
+      const dejaCetteSemaine =
+      inscriptionsAssistante.some(
+        inscription => {
+
+          const lundiExistant =
+          obtenirLundi(
+            inscription.seance
+          );
+
+          return (
+            lundiExistant.getTime() ===
+            lundiChoisi.getTime()
+          );
+
+        }
+      );
+
+      if(dejaCetteSemaine){
+
+        document.getElementById(
+          "message"
+        ).innerHTML =
+        "❌ Cette assistante maternelle possède déjà une inscription ou une demande pour cette semaine.";
+
+        reactiverBouton();
+
+        return;
+      }
+
     }
 
   }
 
- const inscriptions = [];
 
-for(const date of dates){
+  // ==========================================
+  // PRÉPARATION
+  // ==========================================
 
-  // =========================================
-  // 1. Vérification de la capacité totale
-  // Maximum 30 enfants par séance
-  // =========================================
+  const inscriptions = [];
 
-  const { count, error } =
-  await client
-  .from("inscriptions")
-  .select("*",{
-    count:"exact",
-    head:true
-  })
-  .eq("seance",date);
+  const datesConfirmees = [];
+  const datesEnAttente = [];
 
-  if(error){
 
-    console.error(error);
+  // ==========================================
+  // TRAITEMENT DE CHAQUE DATE
+  // ==========================================
 
-    document.getElementById(
-      "message"
-    ).innerHTML =
-    "❌ Impossible de vérifier les places disponibles.";
+  for(const date of dates){
 
-    reactiverBouton();
+    let statutInscription =
+    "Inscrit";
 
-    return;
-  }
 
-  const placesRestantes =
-  30 - (count || 0);
+    // ========================================
+    // DÉTECTION DE LA SEMAINE PRÉCÉDENTE
+    // ========================================
 
-  if(
-    placesRestantes <
-    enfants.length
-  ){
+    if(
+      typeParticipant ===
+      "assistante_maternelle"
+    ){
 
-    const dateFR =
-    new Date(
-      date + "T12:00:00"
-    ).toLocaleDateString(
-      "fr-FR",
-      {
-        weekday:"long",
-        day:"numeric",
-        month:"long"
+      const lundiChoisi =
+      obtenirLundi(date);
+
+      const lundiPrecedent =
+      new Date(lundiChoisi);
+
+      lundiPrecedent.setDate(
+        lundiPrecedent.getDate() - 7
+      );
+
+
+      const aBeneficieSemainePrecedente =
+      inscriptionsAssistante.some(
+        inscription => {
+
+          // Une demande "En attente"
+          // ne compte pas comme séance bénéficiée
+
+          if(
+            inscription.statut ===
+            "En attente"
+          ){
+            return false;
+          }
+
+          const lundiInscription =
+          obtenirLundi(
+            inscription.seance
+          );
+
+          return (
+            lundiInscription.getTime() ===
+            lundiPrecedent.getTime()
+          );
+
+        }
+      );
+
+
+      if(
+        aBeneficieSemainePrecedente
+      ){
+
+        statutInscription =
+        "En attente";
+
       }
-    );
 
-    document.getElementById(
-      "message"
-    ).innerHTML =
-    `❌ Il ne reste que ${placesRestantes} place(s) pour la séance du ${dateFR}.`;
-
-    reactiverBouton();
-
-    return;
-  }
+    }
 
 
-  // =========================================
-  // 2. Jour de la séance
-  // 1 = lundi
-  // 2 = mardi
-  // 4 = jeudi
-  // =========================================
-
-  const jourSeance =
-  new Date(
-    date + "T12:00:00"
-  ).getDay();
-
-
-  // =========================================
-  // 3. LIMITE ASSISTANTES MATERNELLES
-  //
-  // LUNDI  : maximum 20 enfants AM
-  // MARDI  : pas de quota AM spécifique
-  // JEUDI  : maximum 20 enfants AM
-  //
-  // La capacité générale reste 30.
-  // =========================================
-
-  if(
-    typeParticipant ===
-    "assistante_maternelle"
-    &&
-    (
-      jourSeance === 1 ||
-      jourSeance === 4
-    )
-  ){
+    // ========================================
+    // CAPACITÉ TOTALE
+    // Les "En attente" ne comptent pas
+    // ========================================
 
     const {
-      count: countAssistantes,
-      error: erreurAssistantes
+      data: inscriptionsDate,
+      error: erreurPlaces
     } =
     await client
     .from("inscriptions")
-    .select("*",{
-      count:"exact",
-      head:true
-    })
+    .select("statut")
     .eq(
       "seance",
       date
-    )
-    .eq(
-      "type_participant",
-      "assistante_maternelle"
     );
 
-    if(erreurAssistantes){
+    if(erreurPlaces){
 
       console.error(
-        erreurAssistantes
+        erreurPlaces
       );
 
       document.getElementById(
         "message"
       ).innerHTML =
-      "❌ Impossible de vérifier les places des assistantes maternelles.";
+      "❌ Impossible de vérifier les places disponibles.";
 
       reactiverBouton();
 
@@ -1059,20 +1103,30 @@ for(const date of dates){
     }
 
 
-    // Nombre de places AM encore disponibles
+    const nombrePlacesOccupees =
+    (inscriptionsDate || [])
+    .filter(
+      ligne =>
+      ligne.statut !==
+      "En attente"
+    )
+    .length;
 
-    const placesAssistantesRestantes =
+
+    const placesRestantes =
     Math.max(
       0,
-      20 - (countAssistantes || 0)
+      30 -
+      nombrePlacesOccupees
     );
 
 
-    // Pas assez de places AM
-    // pour tous les enfants saisis
+    // Même une demande en attente
+    // n'est pas enregistrée si
+    // la séance est déjà totalement pleine
 
     if(
-      placesAssistantesRestantes <
+      placesRestantes <
       enfants.length
     ){
 
@@ -1088,69 +1142,194 @@ for(const date of dates){
         }
       );
 
-
-      // Quota complètement atteint
-
-      if(
-        placesAssistantesRestantes === 0
-      ){
-
-        document.getElementById(
-          "message"
-        ).innerHTML =
-        `❌ Les 20 places réservées aux enfants des assistantes maternelles sont déjà prises pour le ${dateFR}.`;
-
-      }
-
-      // Il reste quelques places
-      // mais pas assez pour tous les enfants
-
-      else{
-
-        document.getElementById(
-          "message"
-        ).innerHTML =
-        `❌ Il ne reste que ${placesAssistantesRestantes} place(s) pour les enfants des assistantes maternelles le ${dateFR}.`;
-
-      }
+      document.getElementById(
+        "message"
+      ).innerHTML =
+      `❌ Il ne reste que ${placesRestantes} place(s) pour la séance du ${dateFR}.`;
 
       reactiverBouton();
 
       return;
     }
 
-  }
+
+    // ========================================
+    // JOUR DE LA SÉANCE
+    // ========================================
+
+    const jourSeance =
+    new Date(
+      date + "T12:00:00"
+    ).getDay();
 
 
-  // =========================================
-  // 4. Préparation des inscriptions
-  // Une ligne Supabase par enfant
-  // =========================================
+    // ========================================
+    // QUOTA 20 ENFANTS AM
+    // uniquement lundi et jeudi
+    //
+    // Les demandes en attente
+    // ne comptent PAS dans les 20.
+    // ========================================
 
-  enfants.forEach(enfant => {
+    if(
+      typeParticipant ===
+      "assistante_maternelle"
+      &&
+      (
+        jourSeance === 1 ||
+        jourSeance === 4
+      )
+    ){
 
-    inscriptions.push({
+      const {
+        data: inscriptionsAM,
+        error: erreurAssistantes
+      } =
+      await client
+      .from("inscriptions")
+      .select("statut")
+      .eq(
+        "seance",
+        date
+      )
+      .eq(
+        "type_participant",
+        "assistante_maternelle"
+      );
 
-      accompagnateur,
+      if(erreurAssistantes){
 
-      email,
+        console.error(
+          erreurAssistantes
+        );
 
-      type_participant:
-      typeParticipant,
+        document.getElementById(
+          "message"
+        ).innerHTML =
+        "❌ Impossible de vérifier les places des assistantes maternelles.";
 
-      enfant,
+        reactiverBouton();
 
-      seance:
-      date,
+        return;
+      }
 
-      statut:
-      "Inscrit"
+
+      const nombreEnfantsAMConfirmes =
+      (inscriptionsAM || [])
+      .filter(
+        ligne =>
+        ligne.statut !==
+        "En attente"
+      )
+      .length;
+
+
+      const placesAssistantesRestantes =
+      Math.max(
+        0,
+        20 -
+        nombreEnfantsAMConfirmes
+      );
+
+
+      if(
+        placesAssistantesRestantes <
+        enfants.length
+      ){
+
+        const dateFR =
+        new Date(
+          date + "T12:00:00"
+        ).toLocaleDateString(
+          "fr-FR",
+          {
+            weekday:"long",
+            day:"numeric",
+            month:"long"
+          }
+        );
+
+
+        if(
+          placesAssistantesRestantes ===
+          0
+        ){
+
+          document.getElementById(
+            "message"
+          ).innerHTML =
+          `❌ Les 20 places pour les enfants des assistantes maternelles sont déjà prises pour le ${dateFR}.`;
+
+        }
+        else{
+
+          document.getElementById(
+            "message"
+          ).innerHTML =
+          `❌ Il ne reste que ${placesAssistantesRestantes} place(s) pour les enfants des assistantes maternelles le ${dateFR}.`;
+
+        }
+
+        reactiverBouton();
+
+        return;
+      }
+
+    }
+
+
+    // ========================================
+    // MÉMORISER LE TYPE D'INSCRIPTION
+    // ========================================
+
+    if(
+      statutInscription ===
+      "En attente"
+    ){
+
+      datesEnAttente.push(date);
+
+    }
+    else{
+
+      datesConfirmees.push(date);
+
+    }
+
+
+    // ========================================
+    // CRÉER UNE LIGNE PAR ENFANT
+    // ========================================
+
+    enfants.forEach(enfant => {
+
+      inscriptions.push({
+
+        accompagnateur,
+
+        email,
+
+        type_participant:
+        typeParticipant,
+
+        enfant,
+
+        seance:
+        date,
+
+        statut:
+        statutInscription
+
+      });
 
     });
 
-  });
+  }
 
-}
+
+  // ==========================================
+  // ENREGISTREMENT SUPABASE
+  // ==========================================
 
   const { error } =
   await client
@@ -1172,69 +1351,237 @@ for(const date of dates){
     return;
   }
 
-  try{
 
-    await fetch(
-      "/api/send-email",
-      {
-        method:"POST",
+  // ==========================================
+  // EMAIL DES INSCRIPTIONS CONFIRMÉES
+  // ==========================================
 
-        headers:{
-          "Content-Type":
-          "application/json"
-        },
+  if(
+    datesConfirmees.length > 0
+  ){
 
-        body:JSON.stringify({
-          email,
-          accompagnateur,
-          enfants,
-          dates
-        })
+    try{
+
+      const response =
+      await fetch(
+        "/api/send-email",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+            "application/json"
+          },
+
+          body:JSON.stringify({
+
+            email,
+
+            accompagnateur,
+
+            enfants,
+
+            dates:
+            datesConfirmees,
+
+            statut:
+            "Inscrit"
+
+          })
+
+        }
+      );
+
+      if(!response.ok){
+
+        console.error(
+          "Erreur e-mail confirmation"
+        );
+
       }
-    );
+
+    }
+    catch(error){
+
+      console.error(
+        "Erreur e-mail confirmation :",
+        error
+      );
+
+    }
 
   }
-  catch(error){
 
-    console.error(
-      "Erreur e-mail :",
-      error
-    );
+
+  // ==========================================
+  // EMAIL DES DEMANDES EN ATTENTE
+  // ==========================================
+
+  if(
+    datesEnAttente.length > 0
+  ){
+
+    try{
+
+      const response =
+      await fetch(
+        "/api/send-email",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+            "application/json"
+          },
+
+          body:JSON.stringify({
+
+            email,
+
+            accompagnateur,
+
+            enfants,
+
+            dates:
+            datesEnAttente,
+
+            statut:
+            "En attente"
+
+          })
+
+        }
+      );
+
+      if(!response.ok){
+
+        console.error(
+          "Erreur e-mail attente"
+        );
+
+      }
+
+    }
+    catch(error){
+
+      console.error(
+        "Erreur e-mail attente :",
+        error
+      );
+
+    }
 
   }
+
+
+  // ==========================================
+  // MESSAGE AFFICHÉ SUR LE SITE
+  // ==========================================
+
+  if(
+    datesEnAttente.length > 0
+    &&
+    datesConfirmees.length === 0
+  ){
+
+    document.getElementById(
+      "message"
+    ).innerHTML =
+    "🕐 Votre demande a bien été enregistrée.<br><br>" +
+    "Vous avez bénéficié d'une séance la semaine précédente. " +
+    "Afin de permettre le roulement entre les assistantes maternelles, " +
+    "<b>votre demande est en attente de validation par l'association.</b><br><br>" +
+    "Vous recevrez un e-mail après validation.";
+
+  }
+
+  else if(
+    datesEnAttente.length > 0
+    &&
+    datesConfirmees.length > 0
+  ){
+
+    document.getElementById(
+      "message"
+    ).innerHTML =
+    "✅ Certaines séances sont confirmées.<br>" +
+    "🕐 Certaines demandes sont en attente de validation.<br><br>" +
+    "Consultez les e-mails reçus pour connaître le détail.";
+
+  }
+
+  else{
+
+    document.getElementById(
+      "message"
+    ).innerHTML =
+    "✅ Inscription enregistrée avec succès ! Un e-mail de confirmation vous a été envoyé.";
+
+  }
+
+
+  // ==========================================
+  // VIDER LE FORMULAIRE
+  // ==========================================
 
   document.getElementById(
-    "message"
-  ).innerHTML =
-  "✅ Inscription enregistrée avec succès ! Un e-mail de confirmation vous a été envoyé.";
+    "nom"
+  ).value = "";
 
-  document.getElementById("nom").value = "";
-  document.getElementById("prenom").value = "";
-  document.getElementById("email").value = "";
+  document.getElementById(
+    "prenom"
+  ).value = "";
 
-  document.getElementById("kid1").value = "";
-  document.getElementById("kid2").value = "";
-  document.getElementById("kid3").value = "";
-  document.getElementById("kid4").value = "";
+  document.getElementById(
+    "email"
+  ).value = "";
+
+  document.getElementById(
+    "kid1"
+  ).value = "";
+
+  document.getElementById(
+    "kid2"
+  ).value = "";
+
+  document.getElementById(
+    "kid3"
+  ).value = "";
+
+  document.getElementById(
+    "kid4"
+  ).value = "";
+
 
   document
   .querySelectorAll(
     "#dates input:checked"
   )
   .forEach(x => {
+
     x.checked = false;
+
   });
+
+
+  // ==========================================
+  // ACTUALISER LE SITE
+  // ==========================================
 
   await afficherPlaces();
 
   gererBlocageAssistante();
 
+
   if(
     typeof mettreAJourRecap ===
     "function"
   ){
+
     mettreAJourRecap();
+
   }
+
 
   reactiverBouton();
 
