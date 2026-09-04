@@ -1715,103 +1715,190 @@ async function annulerSeanceSelectionnee(){
 } 
 async function chargerBilanAnnuel(){
 
-const { data: inscriptions } =
-await client
-.from("inscriptions")
-.select("*");
+  const { data: inscriptions } =
+  await client
+  .from("inscriptions")
+  .select("*");
 
-const { data: seances } =
-await client
-.from("seances")
-.select("date");
+  const { data: seances } =
+  await client
+  .from("seances")
+  .select("date");
 
-const { data: annulees } =
-await client
-.from("dates_annulees")
-.select("date");
+  const { data: annulees } =
+  await client
+  .from("dates_annulees")
+  .select("date");
 
-const nbInscriptions =
-(inscriptions || []).length;
 
-const nbEnfants =
-new Set(
-(inscriptions || []).map(i =>
-i.enfant.trim().toLowerCase()
-)
-).size;
+  const listeInscriptions =
+  inscriptions || [];
 
-const nbParents =
-new Set(
-inscriptions
-.filter(i=>i.type_participant==="parent")
-.map(i=>i.email)
-).size;
 
-const nbAssistantes =
-new Set(
-inscriptions
-.filter(i=>i.type_participant==="assistante_maternelle")
-.map(i=>i.email)
-).size;
+  const nbInscriptions =
+  listeInscriptions.length;
 
-const compteur = {};
 
-inscriptions.forEach(i=>{
+  const nbEnfants =
+  new Set(
+    listeInscriptions.map(i =>
+      i.enfant
+      .trim()
+      .toLowerCase()
+    )
+  ).size;
 
-compteur[i.seance] =
-(compteur[i.seance]||0)+1;
 
-});
+  const nbParents =
+  new Set(
+    listeInscriptions
+    .filter(
+      i =>
+      i.type_participant ===
+      "parent"
+    )
+    .map(i => i.email)
+  ).size;
 
-const valeurs =
-Object.values(compteur);
 
-const moyenne =
-valeurs.length
-?
-(valeurs.reduce((a,b)=>a+b,0)/valeurs.length).toFixed(1)
-:0;
+  const nbAssistantes =
+  new Set(
+    listeInscriptions
+    .filter(
+      i =>
+      i.type_participant ===
+      "assistante_maternelle"
+    )
+    .map(i => i.email)
+  ).size;
 
-const max =
-valeurs.length
-?
-Math.max(...valeurs)
-:0;
 
-const min =
-valeurs.length
-?
-Math.min(...valeurs)
-:0;
+  // ==========================================
+  // SÉANCES OCCASIONNELLES À 2 €
+  //
+  // 1 famille = 2 € par séance,
+  // quel que soit le nombre d'enfants.
+  // ==========================================
 
-const taux =
-((moyenne/30)*100).toFixed(1);
+  const inscriptionsOccasionnelles =
+  listeInscriptions.filter(
+    i => i.statut === "Occasionnel"
+  );
 
-document.getElementById(
-"bilanAnnuel"
-).innerHTML =
 
-`
-<b>👶 Inscriptions :</b> ${nbInscriptions}<br>
+  const famillesOccasionnelles =
+  new Set(
+    inscriptionsOccasionnelles.map(i => {
 
-<b>🧒 Enfants différents :</b> ${nbEnfants}<br>
+      // Une même famille peut venir
+      // sur plusieurs dates.
+      // On compte donc :
+      // email + date de séance.
 
-<b>👨‍👩‍👧 Familles :</b> ${nbParents}<br>
+      return (
+        (i.email || i.accompagnateur) +
+        "|" +
+        i.seance
+      );
 
-<b>👩‍🍼 Assistantes maternelles :</b> ${nbAssistantes}<br>
+    })
+  );
 
-<b>📅 Séances programmées :</b> ${seances.length}<br>
 
-<b>❌ Séances annulées :</b> ${annulees.length}<br>
+  const nbSeancesDeuxEuros =
+  famillesOccasionnelles.size;
 
-<b>📈 Moyenne par séance :</b> ${moyenne}<br>
 
-<b>🏆 Séance la plus remplie :</b> ${max} enfants<br>
+  const totalDeuxEuros =
+  nbSeancesDeuxEuros * 2;
 
-<b>📉 Séance la moins remplie :</b> ${min} enfants<br>
 
-<b>💺 Taux de remplissage moyen :</b> ${taux} %
-`;
+  // ==========================================
+  // STATISTIQUES PAR SÉANCE
+  // ==========================================
+
+  const compteur = {};
+
+  listeInscriptions.forEach(i => {
+
+    compteur[i.seance] =
+    (compteur[i.seance] || 0) + 1;
+
+  });
+
+
+  const valeurs =
+  Object.values(compteur);
+
+
+  const moyenne =
+  valeurs.length
+  ?
+  (
+    valeurs.reduce(
+      (a,b) => a+b,
+      0
+    ) / valeurs.length
+  ).toFixed(1)
+  :
+  0;
+
+
+  const max =
+  valeurs.length
+  ?
+  Math.max(...valeurs)
+  :
+  0;
+
+
+  const min =
+  valeurs.length
+  ?
+  Math.min(...valeurs)
+  :
+  0;
+
+
+  const taux =
+  (
+    (moyenne / 30) * 100
+  ).toFixed(1);
+
+
+  // ==========================================
+  // AFFICHAGE DU BILAN
+  // ==========================================
+
+  document.getElementById(
+    "bilanAnnuel"
+  ).innerHTML =
+
+  `
+  <b>👶 Inscriptions :</b> ${nbInscriptions}<br>
+
+  <b>🧒 Enfants différents :</b> ${nbEnfants}<br>
+
+  <b>👨‍👩‍👧 Familles :</b> ${nbParents}<br>
+
+  <b>👩‍🍼 Assistantes maternelles :</b> ${nbAssistantes}<br>
+
+  <b>💶 Séances à 2 € :</b> ${nbSeancesDeuxEuros}<br>
+
+  <b>💰 Total séances à 2 € :</b> ${totalDeuxEuros} €<br>
+
+  <b>📅 Séances programmées :</b> ${(seances || []).length}<br>
+
+  <b>❌ Séances annulées :</b> ${(annulees || []).length}<br>
+
+  <b>📈 Moyenne par séance :</b> ${moyenne}<br>
+
+  <b>🏆 Séance la plus remplie :</b> ${max} enfants<br>
+
+  <b>📉 Séance la moins remplie :</b> ${min} enfants<br>
+
+  <b>💺 Taux de remplissage moyen :</b> ${taux} %
+  `;
 
 }
 async function genererPDF(){
