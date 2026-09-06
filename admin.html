@@ -945,7 +945,60 @@ chargerInscriptions();
 
     return;
   }
+// ==========================================
+// EMAIL DE CONFIRMATION SÉANCE D'ESSAI
+// ==========================================
 
+try{
+
+  const response =
+  await fetch(
+    "/api/send-email",
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+        "application/json"
+      },
+
+      body:JSON.stringify({
+
+        email,
+
+        accompagnateur,
+
+        enfants,
+
+        dates:[
+          date
+        ],
+
+        statut:
+        "Inscrit"
+
+      })
+    }
+  );
+
+
+  if(!response.ok){
+
+    console.error(
+      "Erreur lors de l'envoi du mail de confirmation."
+    );
+
+  }
+
+}
+catch(error){
+
+  console.error(
+    "Erreur e-mail séance d'essai :",
+    error
+  );
+
+}
   zone.innerHTML =
   "✅ Séance d'essai ajoutée pour " +
   accompagnateur +
