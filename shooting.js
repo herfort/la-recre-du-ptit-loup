@@ -1050,7 +1050,29 @@ for (let i = 0; i < enfants.length; i++) {
   // ===============================
   // Nouvelle famille
   // ===============================
+// ==========================================
+// PARENT EMPLOYEUR OBLIGATOIRE
+// ==========================================
 
+if(
+  !enfant.nom_parent ||
+  !enfant.nom_parent.trim() ||
+  !enfant.prenom_parent ||
+  !enfant.prenom_parent.trim() ||
+  !enfant.telephone_parent ||
+  !enfant.telephone_parent.trim() ||
+  !enfant.email_parent ||
+  !enfant.email_parent.trim()
+){
+
+  alert(
+    "❌ Merci de renseigner le nom, le prénom, le téléphone et l'e-mail du parent employeur pour chaque famille."
+  );
+
+  reactiverBoutonValidation();
+
+  return;
+}
   autorisations.push({
 
     inscription_id:
