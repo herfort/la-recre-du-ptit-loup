@@ -908,6 +908,68 @@ if (
 reactiverBoutonValidation();
   return;
 }
+    // ==========================================
+// CHAMPS OBLIGATOIRES
+// Responsable légal + enfant(s)
+// ==========================================
+
+// Responsable légal
+if(
+  !nom ||
+  !prenom ||
+  !telephone ||
+  !email
+){
+
+  alert(
+    "❌ Merci de renseigner toutes les informations du responsable légal."
+  );
+
+  reactiverBoutonValidation();
+
+  return;
+}
+
+
+// Au moins un enfant obligatoire
+if(
+  !enfants ||
+  enfants.length === 0
+){
+
+  alert(
+    "❌ Merci d'ajouter au moins un enfant."
+  );
+
+  reactiverBoutonValidation();
+
+  return;
+}
+
+
+// Vérifier que chaque enfant ajouté
+// possède bien un nom et un prénom
+const enfantIncomplet =
+enfants.some(enfant =>
+
+  !enfant.nom ||
+  !enfant.nom.trim() ||
+  !enfant.prenom ||
+  !enfant.prenom.trim()
+
+);
+
+
+if(enfantIncomplet){
+
+  alert(
+    "❌ Merci de renseigner le nom et le prénom de chaque enfant ajouté."
+  );
+
+  reactiverBoutonValidation();
+
+  return;
+}
  const {
   data: inscriptionCreee,
   error
