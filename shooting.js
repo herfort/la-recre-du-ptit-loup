@@ -45,7 +45,7 @@ if (boutonAjouterEnfant && listeEnfants) {
     name="nom_enfant_${compteurEnfant}"
   >
 
-  <label>Prénom de l'enfant</label>
+  <label>Prénom de l'enfant <span style="color:red;">*</span></label>
   <input
     type="text"
     name="prenom_enfant_${compteurEnfant}"
