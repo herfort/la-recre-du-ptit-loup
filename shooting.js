@@ -39,7 +39,7 @@ if (boutonAjouterEnfant && listeEnfants) {
    bloc.innerHTML = `
   <h3>👶 Enfant ${compteurEnfant}</h3>
 
-  <label>Nom de l'enfant</label>
+  <label>Nom de l'enfant <span style="color:red;">*</span></label>
   <input
     type="text"
     name="nom_enfant_${compteurEnfant}"
