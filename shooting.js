@@ -54,6 +54,9 @@ if (boutonAjouterEnfant && listeEnfants) {
   <div class="infosParentEmployeur" style="display:none;">
 
     <h4>👨‍👩‍👧 Parent employeur / responsable légal</h4>
+    <small>
+  <span style="color:red;">*</span> Champs obligatoires
+</small>
 <label
   class="optionMemeFamille"
   style="${compteurEnfant === 1 ? "display:none;" : "display:block;"}"
@@ -66,23 +69,23 @@ if (boutonAjouterEnfant && listeEnfants) {
 </label>
 
 <br>
-    <label>Nom du parent</label>
+    <label>Nom du parent <span style="color:red;">*</span></label>
     <input
       type="text"
       name="nom_parent_enfant_${compteurEnfant}"
     >
 
-    <label>Prénom du parent</label>
+   <label>Prénom du parent <span style="color:red;">*</span></label>
     <input
       type="text"
       name="prenom_parent_enfant_${compteurEnfant}"
     >
-<label>Téléphone du parent</label>
+<label>Téléphone du parent <span style="color:red;">*</span></label>
 <input
   type="tel"
   name="telephone_parent_enfant_${compteurEnfant}"
 >
-    <label>Email du parent</label>
+  <label>Email du parent <span style="color:red;">*</span></label>
     <input
       type="email"
       name="email_parent_enfant_${compteurEnfant}"
