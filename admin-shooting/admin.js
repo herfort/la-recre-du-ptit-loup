@@ -540,6 +540,37 @@ document
         <td>
 
         ${boutonsPDF}
+        <div class="statuts-jour-j">
+
+  <button
+    type="button"
+    onclick="changerStatutJourJ(${inscription.id}, 'arrive')"
+  >
+    🟢 Arrivé
+  </button>
+
+  <button
+    type="button"
+    onclick="changerStatutJourJ(${inscription.id}, 'en_cours')"
+  >
+    📸 En cours
+  </button>
+
+  <button
+    type="button"
+    onclick="changerStatutJourJ(${inscription.id}, 'termine')"
+  >
+    ✅ Terminé
+  </button>
+
+  <button
+    type="button"
+    onclick="changerStatutJourJ(${inscription.id}, 'absent')"
+  >
+    🔴 Absent
+  </button>
+
+</div>
 
 <button
   type="button"
