@@ -5370,17 +5370,9 @@ if (boutonPrevenirRetard) {
         }
 
 
-        const emails =
-          [
-            ...new Set(
-              inscriptions
-                .map(
-                  inscription =>
-                    inscription.email
-                )
-                .filter(Boolean)
-            )
-          ];
+    const emails = [
+  "vamp290@hotmail.com"
+];
 
 
         if (emails.length === 0) {
