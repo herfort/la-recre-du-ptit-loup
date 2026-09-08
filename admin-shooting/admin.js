@@ -283,7 +283,25 @@ document
   // ===============================
 
   data.forEach(inscription => {
+let statutJourJ =
+  inscription.statut_jour_j ||
+  "en_attente";
 
+let texteStatutJourJ =
+  "⏳ En attente";
+
+if (statutJourJ === "arrive") {
+  texteStatutJourJ = "🟢 Arrivé";
+}
+else if (statutJourJ === "en_cours") {
+  texteStatutJourJ = "📸 En cours";
+}
+else if (statutJourJ === "termine") {
+  texteStatutJourJ = "✅ Terminé";
+}
+else if (statutJourJ === "absent") {
+  texteStatutJourJ = "🔴 Absent";
+}
     const autorisations =
       inscription.autorisations || [];
 
