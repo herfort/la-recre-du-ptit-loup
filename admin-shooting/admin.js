@@ -5293,6 +5293,10 @@ document.body.appendChild(
 // PRÉVENIR D'UN RETARD
 // ==========================================
 
+// ==========================================
+// PRÉVENIR D'UN RETARD
+// ==========================================
+
 const boutonPrevenirRetard =
   document.getElementById("prevenirRetard");
 
@@ -5300,7 +5304,7 @@ if (boutonPrevenirRetard) {
 
   boutonPrevenirRetard.addEventListener(
     "click",
-    function () {
+    async function () {
 
       const retard = prompt(
         "Combien de minutes de retard souhaitez-vous annoncer ?\n\nExemple : 15, 20, 30..."
@@ -5325,11 +5329,137 @@ if (boutonPrevenirRetard) {
         return;
       }
 
-      alert(
-        "Retard sélectionné : " +
-        minutes +
-        " minutes"
-      );
+
+      const confirmation =
+        confirm(
+          "Envoyer une information de retard de " +
+          minutes +
+          " minutes à tous les accompagnants inscrits ?"
+        );
+
+      if (!confirmation) {
+        return;
+      }
+
+
+      boutonPrevenirRetard.disabled = true;
+      boutonPrevenirRetard.textContent =
+        "⏳ Envoi en cours...";
+
+
+      try {
+
+        const {
+          data: inscriptions,
+          error
+        } =
+          await supabaseClient
+            .from("shooting_inscriptions")
+            .select("email");
+
+
+        if (error) {
+
+          console.error(error);
+
+          alert(
+            "Impossible de récupérer les adresses mail."
+          );
+
+          return;
+        }
+
+
+        const emails =
+          [
+            ...new Set(
+              inscriptions
+                .map(
+                  inscription =>
+                    inscription.email
+                )
+                .filter(Boolean)
+            )
+          ];
+
+
+        if (emails.length === 0) {
+
+          alert(
+            "Aucune adresse mail trouvée."
+          );
+
+          return;
+        }
+
+
+        const reponse =
+          await fetch(
+            "/api/send-retard-shooting",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify({
+                emails: emails,
+                minutes: minutes
+              })
+            }
+          );
+
+
+        const resultat =
+          await reponse.json();
+
+
+        if (!reponse.ok) {
+
+          console.error(
+            "Erreur mail retard :",
+            resultat
+          );
+
+          alert(
+            "❌ Le mail de retard n'a pas pu être envoyé."
+          );
+
+          return;
+        }
+
+
+        alert(
+          "✅ Information envoyée à " +
+          emails.length +
+          " accompagnant(s)."
+        );
+
+      }
+
+      catch (erreur) {
+
+        console.error(
+          "Erreur envoi retard :",
+          erreur
+        );
+
+        alert(
+          "❌ Une erreur est survenue pendant l'envoi."
+        );
+
+      }
+
+      finally {
+
+        boutonPrevenirRetard.disabled = false;
+
+        boutonPrevenirRetard.textContent =
+          "📢 Prévenir d'un retard";
+
+      }
 
     }
   );
