@@ -5496,3 +5496,45 @@ if (boutonPrevenirRetard) {
   );
 
 }
+// ==========================================
+// STATUT JOUR J
+// ==========================================
+
+async function changerStatutJourJ(
+  inscriptionId,
+  nouveauStatut
+) {
+
+  const {
+    error
+  } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .update({
+        statut_jour_j:
+          nouveauStatut
+      })
+      .eq(
+        "id",
+        inscriptionId
+      );
+
+
+  if (error) {
+
+    console.error(
+      "Erreur changement statut :",
+      error
+    );
+
+    alert(
+      "❌ Impossible de modifier le statut."
+    );
+
+    return;
+  }
+
+
+  location.reload();
+
+}
