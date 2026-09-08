@@ -532,10 +532,14 @@ else if (statutJourJ === "absent") {
           ${inscription.creneau}
         </td>
 
-        <td>
-          ${inscription.prenom_parent}
-          ${inscription.nom_parent}
-        </td>
+       <td>
+  ${inscription.prenom_parent}
+  ${inscription.nom_parent}
+
+  <div class="statut-jour-j">
+    ${texteStatutJourJ}
+  </div>
+</td>
 
         <td>
           ${contenuEnfants}
