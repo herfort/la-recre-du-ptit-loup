@@ -5289,3 +5289,49 @@ document.body.appendChild(
 );
 
 }
+// ==========================================
+// PRÉVENIR D'UN RETARD
+// ==========================================
+
+const boutonPrevenirRetard =
+  document.getElementById("prevenirRetard");
+
+if (boutonPrevenirRetard) {
+
+  boutonPrevenirRetard.addEventListener(
+    "click",
+    function () {
+
+      const retard = prompt(
+        "Combien de minutes de retard souhaitez-vous annoncer ?\n\nExemple : 15, 20, 30..."
+      );
+
+      if (retard === null) {
+        return;
+      }
+
+      const minutes =
+        parseInt(retard, 10);
+
+      if (
+        isNaN(minutes) ||
+        minutes <= 0
+      ) {
+
+        alert(
+          "Merci d'indiquer un nombre de minutes valide."
+        );
+
+        return;
+      }
+
+      alert(
+        "Retard sélectionné : " +
+        minutes +
+        " minutes"
+      );
+
+    }
+  );
+
+}
