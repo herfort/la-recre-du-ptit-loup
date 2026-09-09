@@ -5901,29 +5901,104 @@ setInterval(() => {
 // MODE JOUR J
 // ==========================================
 
+// ==========================================
+// MODE JOUR J
+// ==========================================
+
 const boutonModeJourJ =
   document.getElementById("modeJourJ");
 
 if (boutonModeJourJ) {
 
+  let modeJourJActif = false;
+
   boutonModeJourJ.addEventListener(
     "click",
     function() {
 
-      document.body.classList.toggle(
-        "mode-jour-j"
-      );
+      modeJourJActif =
+        !modeJourJActif;
 
-      if (
-        document.body.classList.contains(
-          "mode-jour-j"
-        )
-      ) {
+
+      const cartes =
+        document.querySelector(
+          ".cartes"
+        );
+
+      const boutonAutorisations =
+        document.getElementById(
+          "imprimerToutesAutorisations"
+        );
+
+      const boutonPlanning =
+        document.getElementById(
+          "telechargerPlanningPhotographe"
+        );
+
+      const boutonAjout =
+        document.getElementById(
+          "ajouterReservationAdmin"
+        );
+
+      const formulaireAjout =
+        document.getElementById(
+          "formulaireReservationAdmin"
+        );
+
+
+      if (modeJourJActif) {
+
+        if (cartes) {
+          cartes.style.display =
+            "none";
+        }
+
+        if (boutonAutorisations) {
+          boutonAutorisations.style.display =
+            "none";
+        }
+
+        if (boutonPlanning) {
+          boutonPlanning.style.display =
+            "none";
+        }
+
+        if (boutonAjout) {
+          boutonAjout.style.display =
+            "none";
+        }
+
+        if (formulaireAjout) {
+          formulaireAjout.style.display =
+            "none";
+        }
 
         boutonModeJourJ.textContent =
           "↩️ Quitter le Mode Jour J";
 
-      } else {
+      }
+
+      else {
+
+        if (cartes) {
+          cartes.style.display =
+            "";
+        }
+
+        if (boutonAutorisations) {
+          boutonAutorisations.style.display =
+            "";
+        }
+
+        if (boutonPlanning) {
+          boutonPlanning.style.display =
+            "";
+        }
+
+        if (boutonAjout) {
+          boutonAjout.style.display =
+            "";
+        }
 
         boutonModeJourJ.textContent =
           "📱 Mode Jour J";
