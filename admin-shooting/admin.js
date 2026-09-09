@@ -675,6 +675,70 @@ if (zoneEnCours) {
   }
 
 }
+  // ==========================================
+// RETARD ACTUEL
+// ==========================================
+
+const zoneRetard =
+  document.getElementById(
+    "jourJRetard"
+  );
+
+if (zoneRetard) {
+
+  if (reservationEnCours) {
+
+    const maintenant = new Date();
+
+    const [
+      heuresPrevues,
+      minutesPrevues
+    ] =
+      reservationEnCours.creneau
+        .split(":")
+        .map(Number);
+
+    const heurePrevue =
+      new Date();
+
+    heurePrevue.setHours(
+      heuresPrevues,
+      minutesPrevues,
+      0,
+      0
+    );
+
+    const differenceMinutes =
+      Math.floor(
+        (
+          maintenant -
+          heurePrevue
+        ) /
+        60000
+      );
+
+    if (differenceMinutes > 0) {
+
+      zoneRetard.innerHTML =
+        `<strong>+${differenceMinutes} min</strong>`;
+
+    }
+    else {
+
+      zoneRetard.innerHTML =
+        "0 min";
+
+    }
+
+  }
+  else {
+
+    zoneRetard.innerHTML =
+      "0 min";
+
+  }
+
+}
 
 
 // ==========================================
