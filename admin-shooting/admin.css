@@ -268,3 +268,13 @@ body.mode-jour-j #modeJourJ {
   font-size: 1rem !important;
   padding: 12px 15px !important;
 }
+/* ==========================================
+   GROS BOUTONS - MODE JOUR J
+   ========================================== */
+
+body.mode-jour-j .statuts-jour-j button {
+    min-height: 55px !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    padding: 10px 15px !important;
+}
