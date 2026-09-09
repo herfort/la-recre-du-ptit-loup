@@ -619,6 +619,60 @@ else if (statutJourJ === "absent") {
     `;
 
   });
+  // ==========================================
+// COULEURS DES STATUTS JOUR J
+// ==========================================
+
+document
+  .querySelectorAll(
+    "tr[class*='statut-']"
+  )
+  .forEach(ligne => {
+
+    let couleur = "#ffffff";
+
+    if (
+      ligne.classList.contains(
+        "statut-arrive"
+      )
+    ) {
+      couleur = "#e8f8e8";
+    }
+
+    else if (
+      ligne.classList.contains(
+        "statut-en_cours"
+      )
+    ) {
+      couleur = "#fff3cd";
+    }
+
+    else if (
+      ligne.classList.contains(
+        "statut-termine"
+      )
+    ) {
+      couleur = "#e2f0e8";
+    }
+
+    else if (
+      ligne.classList.contains(
+        "statut-absent"
+      )
+    ) {
+      couleur = "#fde2e2";
+    }
+
+    ligne
+      .querySelectorAll("td")
+      .forEach(cellule => {
+
+        cellule.style.backgroundColor =
+          couleur;
+
+      });
+
+  });
 // ==========================================
 // TABLEAU DE BORD JOUR J
 // ==========================================
