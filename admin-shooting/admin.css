@@ -209,24 +209,24 @@ tbody tr:hover {
    COULEURS STATUT JOUR J
 ========================================== */
 
-tr.statut-attente {
-  background-color: #ffffff;
+tr.statut-attente > td,
+tr.statut-en_attente > td {
+  background-color: #ffffff !important;
 }
 
-tr.statut-arrive {
-  background-color: #e8f8e8;
+tr.statut-arrive > td {
+  background-color: #e8f8e8 !important;
 }
 
-tr.statut-en_cours {
-  background-color: #fff3cd;
+tr.statut-en_cours > td {
+  background-color: #fff3cd !important;
 }
 
-tr.statut-termine {
-  background-color: #e2f0e8;
+tr.statut-termine > td {
+  background-color: #e2f0e8 !important;
   opacity: 0.75;
 }
 
-tr.statut-absent {
-  background-color: #fde2e2;
-}
+tr.statut-absent > td {
+  background-color: #fde2e2 !important;
 }
