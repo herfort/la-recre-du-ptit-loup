@@ -5721,3 +5721,12 @@ async function changerStatutJourJ(
   location.reload();
 
 }
+// ==========================================
+// ACTUALISATION AUTOMATIQUE JOUR J
+// ==========================================
+
+setInterval(() => {
+
+  chargerInscriptions();
+
+}, 60000);
