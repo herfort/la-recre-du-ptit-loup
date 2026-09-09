@@ -619,7 +619,104 @@ else if (statutJourJ === "absent") {
     `;
 
   });
+// ==========================================
+// TABLEAU DE BORD JOUR J
+// ==========================================
 
+const reservationEnCours =
+  data.find(
+    inscription =>
+      inscription.statut_jour_j ===
+      "en_cours"
+  );
+
+
+// Trier les réservations par heure
+const reservationsTriees =
+  [...data].sort(
+    (a, b) =>
+      a.creneau.localeCompare(
+        b.creneau
+      )
+  );
+
+
+// ==========================================
+// EN COURS
+// ==========================================
+
+const zoneEnCours =
+  document.getElementById(
+    "jourJEnCours"
+  );
+
+if (zoneEnCours) {
+
+  if (reservationEnCours) {
+
+    zoneEnCours.innerHTML = `
+      <strong>
+        ${reservationEnCours.prenom_parent || ""}
+        ${reservationEnCours.nom_parent || ""}
+      </strong>
+      <br>
+      Prévu à
+      <strong>
+        ${reservationEnCours.creneau}
+      </strong>
+    `;
+
+  }
+  else {
+
+    zoneEnCours.innerHTML =
+      "Aucun shooting en cours";
+
+  }
+
+}
+
+
+// ==========================================
+// SUIVANT
+// ==========================================
+
+const reservationSuivante =
+  reservationsTriees.find(
+    inscription =>
+      inscription.statut_jour_j !== "termine" &&
+      inscription.statut_jour_j !== "absent" &&
+      inscription.statut_jour_j !== "en_cours"
+  );
+
+
+const zoneSuivant =
+  document.getElementById(
+    "jourJSuivant"
+  );
+
+if (zoneSuivant) {
+
+  if (reservationSuivante) {
+
+    zoneSuivant.innerHTML = `
+      <strong>
+        ${reservationSuivante.creneau}
+      </strong>
+      —
+      ${reservationSuivante.prenom_parent || ""}
+      ${reservationSuivante.nom_parent || ""}
+    `;
+
+  }
+  else {
+
+    zoneSuivant.innerHTML =
+      "Plus aucun rendez-vous";
+
+  }
+
+}
 }
 // ===============================
 // Calcul des vrais créneaux libres
