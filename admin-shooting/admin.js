@@ -5817,7 +5817,44 @@ async function changerStatutJourJ(
   inscriptionId,
   nouveauStatut
 ) {
+// ==========================================
+// UN SEUL SHOOTING EN COURS À LA FOIS
+// ==========================================
 
+if (nouveauStatut === "en_cours") {
+
+  const {
+    error: erreurAncienEnCours
+  } =
+    await supabaseClient
+      .from("shooting_inscriptions")
+      .update({
+        statut_jour_j: "termine"
+      })
+      .eq(
+        "statut_jour_j",
+        "en_cours"
+      )
+      .neq(
+        "id",
+        inscriptionId
+      );
+
+  if (erreurAncienEnCours) {
+
+    console.error(
+      "Erreur ancien shooting en cours :",
+      erreurAncienEnCours
+    );
+
+    alert(
+      "❌ Impossible de mettre à jour le shooting précédent."
+    );
+
+    return;
+  }
+
+}
   const {
     error
   } =
