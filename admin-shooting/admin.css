@@ -230,3 +230,41 @@ tr.statut-termine > td {
 tr.statut-absent > td {
   background-color: #fde2e2 !important;
 }
+/* ==========================================
+   MODE JOUR J
+========================================== */
+
+body.mode-jour-j .cartes {
+  display: none;
+}
+
+body.mode-jour-j #imprimerToutesAutorisations,
+body.mode-jour-j #telechargerPlanningPhotographe,
+body.mode-jour-j #ajouterReservationAdmin {
+  display: none;
+}
+
+body.mode-jour-j #formulaireReservationAdmin {
+  display: none !important;
+}
+
+body.mode-jour-j #tableauJourJ {
+  display: block;
+  margin-bottom: 15px;
+}
+
+body.mode-jour-j #listeInscriptions {
+  font-size: 1.05rem;
+}
+
+body.mode-jour-j .statuts-jour-j button {
+  font-size: 1rem;
+  padding: 10px 12px;
+  margin: 3px 0;
+}
+
+body.mode-jour-j #prevenirRetard,
+body.mode-jour-j #modeJourJ {
+  font-size: 1rem;
+  padding: 10px 14px;
+}
