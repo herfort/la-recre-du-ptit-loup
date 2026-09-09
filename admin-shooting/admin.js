@@ -526,7 +526,7 @@ else if (statutJourJ === "absent") {
 
     tbody.innerHTML += `
 
-      <tr>
+      <tr class="statut-${inscription.statut_jour_j || 'attente'}">
 
         <td>
           ${inscription.creneau}
