@@ -761,18 +761,94 @@ const zoneSuivant =
 
 if (zoneSuivant) {
 
-  if (reservationSuivante) {
+if (reservationSuivante) {
 
-    zoneSuivant.innerHTML = `
-      <strong>
-        ${reservationSuivante.creneau}
-      </strong>
-      —
+  let passageEstime =
+    reservationSuivante.creneau;
+
+  if (reservationEnCours) {
+
+    const maintenant = new Date();
+
+    const [
+      heuresPrevues,
+      minutesPrevues
+    ] =
+      reservationEnCours.creneau
+        .split(":")
+        .map(Number);
+
+    const heurePrevue =
+      new Date();
+
+    heurePrevue.setHours(
+      heuresPrevues,
+      minutesPrevues,
+      0,
+      0
+    );
+
+    const differenceMinutes =
+      Math.max(
+        0,
+        Math.floor(
+          (
+            maintenant -
+            heurePrevue
+          ) / 60000
+        )
+      );
+
+    const [
+      heureSuivante,
+      minuteSuivante
+    ] =
+      reservationSuivante.creneau
+        .split(":")
+        .map(Number);
+
+    const heureEstimee =
+      new Date();
+
+    heureEstimee.setHours(
+      heureSuivante,
+      minuteSuivante + differenceMinutes,
+      0,
+      0
+    );
+
+    passageEstime =
+      heureEstimee
+        .toLocaleTimeString(
+          "fr-FR",
+          {
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+  }
+
+  zoneSuivant.innerHTML = `
+    <strong>
       ${reservationSuivante.prenom_parent || ""}
       ${reservationSuivante.nom_parent || ""}
-    `;
+    </strong>
+    <br>
 
-  }
+    Prévu :
+    <strong>
+      ${reservationSuivante.creneau}
+    </strong>
+
+    <br>
+
+    Passage estimé :
+    <strong>
+      ${passageEstime}
+    </strong>
+  `;
+
+}
   else {
 
     zoneSuivant.innerHTML =
