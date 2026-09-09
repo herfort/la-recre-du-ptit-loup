@@ -205,5 +205,28 @@ tbody tr:hover {
   .famille-admin {
     padding: 8px;
   }
+/* ==========================================
+   COULEURS STATUT JOUR J
+========================================== */
 
+tr.statut-attente {
+  background-color: #ffffff;
+}
+
+tr.statut-arrive {
+  background-color: #e8f8e8;
+}
+
+tr.statut-en_cours {
+  background-color: #fff3cd;
+}
+
+tr.statut-termine {
+  background-color: #e2f0e8;
+  opacity: 0.75;
+}
+
+tr.statut-absent {
+  background-color: #fde2e2;
+}
 }
