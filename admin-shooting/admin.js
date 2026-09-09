@@ -5897,3 +5897,40 @@ setInterval(() => {
   chargerInscriptions();
 
 }, 60000);
+// ==========================================
+// MODE JOUR J
+// ==========================================
+
+const boutonModeJourJ =
+  document.getElementById("modeJourJ");
+
+if (boutonModeJourJ) {
+
+  boutonModeJourJ.addEventListener(
+    "click",
+    function() {
+
+      document.body.classList.toggle(
+        "mode-jour-j"
+      );
+
+      if (
+        document.body.classList.contains(
+          "mode-jour-j"
+        )
+      ) {
+
+        boutonModeJourJ.textContent =
+          "↩️ Quitter le Mode Jour J";
+
+      } else {
+
+        boutonModeJourJ.textContent =
+          "📱 Mode Jour J";
+
+      }
+
+    }
+  );
+
+}
