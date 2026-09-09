@@ -235,13 +235,13 @@ tr.statut-absent > td {
 ========================================== */
 
 body.mode-jour-j .cartes {
-  display: none;
+  display: none !important;
 }
 
 body.mode-jour-j #imprimerToutesAutorisations,
 body.mode-jour-j #telechargerPlanningPhotographe,
 body.mode-jour-j #ajouterReservationAdmin {
-  display: none;
+  display: none !important;
 }
 
 body.mode-jour-j #formulaireReservationAdmin {
@@ -249,22 +249,22 @@ body.mode-jour-j #formulaireReservationAdmin {
 }
 
 body.mode-jour-j #tableauJourJ {
-  display: block;
-  margin-bottom: 15px;
+  display: block !important;
+  margin-bottom: 20px !important;
 }
 
 body.mode-jour-j #listeInscriptions {
-  font-size: 1.05rem;
+  font-size: 1.05rem !important;
 }
 
 body.mode-jour-j .statuts-jour-j button {
-  font-size: 1rem;
-  padding: 10px 12px;
-  margin: 3px 0;
+  font-size: 1rem !important;
+  padding: 12px 14px !important;
+  margin: 4px 0 !important;
 }
 
 body.mode-jour-j #prevenirRetard,
 body.mode-jour-j #modeJourJ {
-  font-size: 1rem;
-  padding: 10px 14px;
+  font-size: 1rem !important;
+  padding: 12px 15px !important;
 }
