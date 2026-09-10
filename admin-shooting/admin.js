@@ -450,6 +450,7 @@ else if (statutJourJ === "absent") {
 
           boutonsPDF += `
             <button
+            class="bouton-pdf-jour-j"
               onclick="voirAutorisationEnfant(
                 ${autorisation.id},
                 ${inscription.id}
