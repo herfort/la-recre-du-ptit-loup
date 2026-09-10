@@ -6008,6 +6008,14 @@ if (tableauJourJ) {
 
     });
 }
+        document
+  .querySelectorAll(".statuts-jour-j button")
+  .forEach(bouton => {
+    bouton.style.fontSize = "16px";
+    bouton.style.padding = "12px 14px";
+    bouton.style.margin = "4px";
+    bouton.style.minHeight = "45px";
+  });
         if (cartes) {
           cartes.style.display =
             "none";
@@ -6056,6 +6064,14 @@ document.body.classList.remove("mode-jour-j");
   .querySelectorAll(".bouton-annuler-enfant")
   .forEach(bouton => {
     bouton.style.display = "";
+  });
+        document
+  .querySelectorAll(".statuts-jour-j button")
+  .forEach(bouton => {
+    bouton.style.fontSize = "";
+    bouton.style.padding = "";
+    bouton.style.margin = "";
+    bouton.style.minHeight = "";
   });
         const tableauJourJ =
   document
