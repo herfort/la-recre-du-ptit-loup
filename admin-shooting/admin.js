@@ -5967,6 +5967,47 @@ document.body.classList.add("mode-jour-j");
   .forEach(bouton => {
     bouton.style.display = "none";
   });
+        const tableauJourJ =
+  document
+    .querySelector("#listeInscriptions")
+    ?.closest("table");
+
+if (tableauJourJ) {
+
+  const titresAMasquer = [
+    "Type",
+    "Autorisation",
+    "Durée"
+  ];
+
+  tableauJourJ
+    .querySelectorAll("thead th")
+    .forEach((titre, index) => {
+
+      if (
+        titresAMasquer.includes(
+          titre.textContent.trim()
+        )
+      ) {
+
+        titre.style.display = "none";
+
+        tableauJourJ
+          .querySelectorAll("tbody tr")
+          .forEach(ligne => {
+
+            const cellule =
+              ligne.children[index];
+
+            if (cellule) {
+              cellule.style.display = "none";
+            }
+
+          });
+      }
+
+    });
+}
         if (cartes) {
           cartes.style.display =
             "none";
@@ -6016,6 +6057,47 @@ document.body.classList.remove("mode-jour-j");
   .forEach(bouton => {
     bouton.style.display = "";
   });
+        const tableauJourJ =
+  document
+    .querySelector("#listeInscriptions")
+    ?.closest("table");
+
+if (tableauJourJ) {
+
+  const titresAReafficher = [
+    "Type",
+    "Autorisation",
+    "Durée"
+  ];
+
+  tableauJourJ
+    .querySelectorAll("thead th")
+    .forEach((titre, index) => {
+
+      if (
+        titresAReafficher.includes(
+          titre.textContent.trim()
+        )
+      ) {
+
+        titre.style.display = "";
+
+        tableauJourJ
+          .querySelectorAll("tbody tr")
+          .forEach(ligne => {
+
+            const cellule =
+              ligne.children[index];
+
+            if (cellule) {
+              cellule.style.display = "";
+            }
+
+          });
+      }
+
+    });
+}
         if (cartes) {
           cartes.style.display =
             "";
