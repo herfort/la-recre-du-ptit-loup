@@ -508,15 +508,16 @@ else if (statutJourJ === "absent") {
           : "—";
 
 
-      boutonsPDF = `
-        <button
-          onclick="voirAutorisation(
-            ${inscription.id}
-          )"
-        >
-          📄 PDF
-        </button>
-      `;
+     boutonsPDF = `
+  <button
+    class="bouton-pdf-jour-j"
+    onclick="voirAutorisation(
+      ${inscription.id}
+    )"
+  >
+    📄 PDF
+  </button>
+`;
 
     }
 
