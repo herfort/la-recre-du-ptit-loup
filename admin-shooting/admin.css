@@ -290,3 +290,7 @@ body.mode-jour-j button[title="Supprimer la réservation"] {
 body.mode-jour-j .bouton-annuler-enfant {
   display: none !important;
 }
+/* Masquer les PDF en Mode Jour J */
+body.mode-jour-j .bouton-pdf-jour-j {
+  display: none !important;
+}
