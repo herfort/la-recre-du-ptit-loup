@@ -5947,7 +5947,7 @@ if (boutonModeJourJ) {
 
 
       if (modeJourJActif) {
-
+document.body.classList.add("mode-jour-j");
         if (cartes) {
           cartes.style.display =
             "none";
@@ -5979,7 +5979,7 @@ if (boutonModeJourJ) {
       }
 
       else {
-
+document.body.classList.remove("mode-jour-j");
         if (cartes) {
           cartes.style.display =
             "";
