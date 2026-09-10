@@ -278,3 +278,15 @@ body.mode-jour-j .statuts-jour-j button {
     font-weight: bold !important;
     padding: 10px 15px !important;
 }
+/* ==========================================
+   MASQUER LES ACTIONS INUTILES EN MODE JOUR J
+========================================== */
+
+body.mode-jour-j button[title="Déplacer le rendez-vous"],
+body.mode-jour-j button[title="Supprimer la réservation"] {
+  display: none !important;
+}
+
+body.mode-jour-j .bouton-annuler-enfant {
+  display: none !important;
+}
