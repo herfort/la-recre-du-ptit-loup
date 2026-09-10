@@ -5955,6 +5955,13 @@ document.body.classList.add("mode-jour-j");
   .forEach(bouton => {
     bouton.style.display = "none";
   });
+        document
+  .querySelectorAll(
+    'button[title="Déplacer le rendez-vous"], button[title="Supprimer la réservation"]'
+  )
+  .forEach(bouton => {
+    bouton.style.display = "none";
+  });
         if (cartes) {
           cartes.style.display =
             "none";
@@ -5989,6 +5996,13 @@ document.body.classList.add("mode-jour-j");
 document.body.classList.remove("mode-jour-j");
         document
   .querySelectorAll(".bouton-pdf-jour-j")
+  .forEach(bouton => {
+    bouton.style.display = "";
+  });
+        document
+  .querySelectorAll(
+    'button[title="Déplacer le rendez-vous"], button[title="Supprimer la réservation"]'
+  )
   .forEach(bouton => {
     bouton.style.display = "";
   });
