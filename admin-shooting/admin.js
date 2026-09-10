@@ -5950,6 +5950,11 @@ if (boutonModeJourJ) {
 
       if (modeJourJActif) {
 document.body.classList.add("mode-jour-j");
+        document
+  .querySelectorAll(".bouton-pdf-jour-j")
+  .forEach(bouton => {
+    bouton.style.display = "none";
+  });
         if (cartes) {
           cartes.style.display =
             "none";
@@ -5982,6 +5987,11 @@ document.body.classList.add("mode-jour-j");
 
       else {
 document.body.classList.remove("mode-jour-j");
+        document
+  .querySelectorAll(".bouton-pdf-jour-j")
+  .forEach(bouton => {
+    bouton.style.display = "";
+  });
         if (cartes) {
           cartes.style.display =
             "";
