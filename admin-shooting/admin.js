@@ -5887,7 +5887,7 @@ if (nouveauStatut === "en_cours") {
   }
 
 
-  location.reload();
+ await chargerInscriptions();
 
 }
 // ==========================================
