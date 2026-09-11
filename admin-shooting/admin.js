@@ -5887,8 +5887,7 @@ if (nouveauStatut === "en_cours") {
   }
 
 
- await chargerInscriptions();
-
+location.reload();
 }
 // ==========================================
 // ACTUALISATION AUTOMATIQUE JOUR J
