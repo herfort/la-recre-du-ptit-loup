@@ -786,11 +786,12 @@ async function envoyerInscription(){
   const accompagnateur =
   nom + " " + prenom;
 
-  const email =
-  document
-  .getElementById("email")
-  .value
-  .trim();
+const email =
+document
+.getElementById("email")
+.value
+.trim()
+.toLowerCase();
 
   const typeParticipant =
   document
@@ -900,10 +901,10 @@ async function envoyerInscription(){
     .select(
       "seance, statut, type_participant"
     )
-    .eq(
-      "email",
-      email
-    )
+   .ilike(
+  "email",
+  email
+)
     .eq(
       "type_participant",
       "assistante_maternelle"
