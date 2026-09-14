@@ -764,7 +764,59 @@ export default async function handler(req, res) {
       erreur
     );
 
+// ==========================================
+// ENVOI DU MAIL DE CONFIRMATION
+// ==========================================
 
+try {
+
+  const enfants =
+  demande.map(
+    ligne => ligne.enfant
+  );
+
+  await fetch(
+    "https://la-recre-du-ptit-loup-git-main-larecreduptitloup.vercel.app/api/send-email",
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+        "application/json"
+      },
+
+      body:
+      JSON.stringify({
+
+        email:
+        premiereLigne.email,
+
+        accompagnateur:
+        premiereLigne.accompagnateur,
+
+        enfants,
+
+        dates: [
+          dateProposee
+        ],
+
+        statut:
+        "Inscrit"
+
+      })
+
+    }
+  );
+
+}
+catch (erreurMail) {
+
+  console.error(
+    "Erreur mail confirmation :",
+    erreurMail
+  );
+
+}
     return res.status(500).json({
 
       error:
