@@ -775,9 +775,34 @@ try {
     ligne => ligne.enfant
   );
 
+
+  const protocole =
+  req.headers["x-forwarded-proto"]
+  || "https";
+
+
+  const domaine =
+  req.headers.host;
+
+
+  const urlMail =
+  protocole +
+  "://" +
+  domaine +
+  "/api/send-email";
+
+
+  console.log(
+    "Envoi confirmation vers :",
+    urlMail
+  );
+
+
+  const reponseMail =
   await fetch(
-    "https://la-recre-du-ptit-loup-git-main-larecreduptitloup.vercel.app/api/send-email",
+    urlMail,
     {
+
       method: "POST",
 
       headers: {
@@ -807,6 +832,29 @@ try {
 
     }
   );
+
+
+  const texteMail =
+  await reponseMail.text();
+
+
+  console.log(
+    "Réponse send-email :",
+    reponseMail.status,
+    texteMail
+  );
+
+
+  if (!reponseMail.ok) {
+
+    throw new Error(
+      "send-email a répondu " +
+      reponseMail.status +
+      " : " +
+      texteMail
+    );
+
+  }
 
 }
 catch (erreurMail) {
