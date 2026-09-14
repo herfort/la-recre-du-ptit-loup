@@ -805,12 +805,18 @@ document
     kid4.value.trim()
   ].filter(x => x !== "");
 
-  const dates =
-  Array.from(
-    document.querySelectorAll(
-      "#dates input:checked"
-    )
-  ).map(x => x.value);
+const dates =
+Array.from(
+  document.querySelectorAll(
+    "#dates input:checked"
+  )
+)
+.map(x => x.value)
+.sort(
+  (a,b) =>
+  new Date(a + "T12:00:00") -
+  new Date(b + "T12:00:00")
+);
 
 
   // ==========================================
