@@ -646,35 +646,129 @@ x => x.accompagnateur
 )
 ).size;
 
-const placesRestantes = 30 - data.length;
+// ==========================================
+// SÉPARER CONFIRMÉS ET EN ATTENTE
+// ==========================================
 
-document.getElementById("statInscriptions").textContent =
-data.length;
+const inscriptionsConfirmees =
+data.filter(
+  i => i.statut !== "En attente"
+);
 
-document.getElementById("statEnfants").textContent =
-enfantsDifferents;
+const inscriptionsEnAttente =
+data.filter(
+  i => i.statut === "En attente"
+);
 
-document.getElementById("statParents").textContent =
-nbParents;
-const nbEnAttente =
+
+// ==========================================
+// NOMBRE D'INSCRIPTIONS CONFIRMÉES
+// ==========================================
+
+const nbInscriptionsConfirmees =
+inscriptionsConfirmees.length;
+
+
+// ==========================================
+// ENFANTS CONFIRMÉS
+// ==========================================
+
+const enfantsConfirmes =
 new Set(
-  data
+  inscriptionsConfirmees.map(
+    i =>
+    i.enfant
+    .trim()
+    .toLowerCase()
+  )
+).size;
+
+
+// ==========================================
+// PARENTS CONFIRMÉS
+// ==========================================
+
+const parentsConfirmes =
+new Set(
+  inscriptionsConfirmees
   .filter(
     i =>
-    i.type_participant === "assistante_maternelle"
-    &&
-    i.statut === "En attente"
+    i.type_participant === "parent"
   )
   .map(i => i.email)
 ).size;
-document.getElementById("statAssistantes").textContent =
-nbAssistantes;
-document.getElementById("statAttente").textContent =
-nbEnAttente;
-document.getElementById("stats").innerHTML =
-"📍 Places restantes : " + placesRestantes;
-}
 
+
+// ==========================================
+// ASSISTANTES CONFIRMÉES
+// ==========================================
+
+const assistantesConfirmees =
+new Set(
+  inscriptionsConfirmees
+  .filter(
+    i =>
+    i.type_participant ===
+    "assistante_maternelle"
+  )
+  .map(i => i.email)
+).size;
+
+
+// ==========================================
+// ENFANTS EN ATTENTE
+// ==========================================
+
+const nbEnfantsEnAttente =
+inscriptionsEnAttente.length;
+
+
+// ==========================================
+// PLACES RÉELLEMENT RESTANTES
+// Les enfants en attente ne comptent pas
+// ==========================================
+
+const placesRestantes =
+Math.max(
+  0,
+  30 - nbInscriptionsConfirmees
+);
+
+
+// ==========================================
+// AFFICHAGE
+// ==========================================
+
+document.getElementById(
+  "statInscriptions"
+).textContent =
+nbInscriptionsConfirmees;
+
+document.getElementById(
+  "statEnfants"
+).textContent =
+enfantsConfirmes;
+
+document.getElementById(
+  "statParents"
+).textContent =
+parentsConfirmes;
+
+document.getElementById(
+  "statAssistantes"
+).textContent =
+assistantesConfirmees;
+
+document.getElementById(
+  "statAttente"
+).textContent =
+nbEnfantsEnAttente;
+
+document.getElementById(
+  "stats"
+).innerHTML =
+"📍 Places restantes : " +
+placesRestantes;
 async function supprimer(id){
 
 if(
