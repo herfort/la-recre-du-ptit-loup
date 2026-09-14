@@ -1,3 +1,4 @@
+import crypto from "crypto";
 export default async function handler(req, res) {
 
   if (req.method !== "POST") {
@@ -16,7 +17,8 @@ const {
   dates,
   statut,
   dateInitiale,
-  dateProposee
+  dateProposee,
+  ids
 } = req.body;
 
   // ==========================================
@@ -133,7 +135,44 @@ const {
   // DEMANDE REFUSÉE
   // ==========================================
 else if (statut === "Proposition autre date") {
+const expiration =
+Date.now() + (7 * 24 * 60 * 60 * 1000);
 
+const payload = {
+  ids,
+  dateInitiale,
+  dateProposee,
+  expiration
+};
+
+const payloadBase64 =
+Buffer.from(
+  JSON.stringify(payload)
+).toString("base64url");
+
+const signature =
+crypto
+.createHmac(
+  "sha256",
+  process.env.SUPABASE_SECRET_KEY
+)
+.update(payloadBase64)
+.digest("base64url");
+
+const token =
+payloadBase64 +
+"." +
+signature;
+
+const baseUrl =
+"https://la-recre-du-ptit-loup-git-main-larecreduptitloup.vercel.app";
+
+const lienReponse =
+baseUrl +
+"/reponse-proposition.html?token=" +
+encodeURIComponent(token) +
+"&date=" +
+encodeURIComponent(dateProposee);
   sujet =
   "Proposition d'une autre séance";
 
@@ -213,10 +252,37 @@ else if (statut === "Proposition autre date") {
       reste en attente.
     </p>
 
-    <p>
-      Merci de nous indiquer si cette nouvelle
-      date vous convient.
-    </p>
+   <p>
+  Merci de nous indiquer si cette nouvelle
+  date vous convient.
+</p>
+
+<p style="margin-top:25px;">
+
+  <a
+    href="${lienReponse}"
+    style="
+      display:inline-block;
+      background:#4CAF50;
+      color:white;
+      text-decoration:none;
+      padding:12px 18px;
+      border-radius:7px;
+      margin-right:10px;
+      font-weight:bold;
+    "
+  >
+    ✅ Répondre à la proposition
+  </a>
+
+</p>
+
+<p style="
+  font-size:13px;
+  color:#777;
+">
+  Ce lien est valable pendant 7 jours.
+</p>
 
     <p>
       À bientôt,<br>
