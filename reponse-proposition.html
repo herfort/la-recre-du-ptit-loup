@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+Réponse à une proposition de séance
+</title>
+
+<style>
+
+body{
+  margin:0;
+  padding:20px;
+  font-family:Arial, sans-serif;
+  background:#f4f7f5;
+  color:#333;
+}
+
+.container{
+  max-width:600px;
+  margin:40px auto;
+  background:white;
+  padding:30px;
+  border-radius:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.10);
+  text-align:center;
+}
+
+h1{
+  color:#46825a;
+  margin-bottom:10px;
+}
+
+.logo{
+  font-size:55px;
+  margin-bottom:10px;
+}
+
+.message{
+  font-size:17px;
+  line-height:1.6;
+  margin:25px 0;
+}
+
+.date{
+  background:#eef7f0;
+  border-radius:10px;
+  padding:15px;
+  margin:20px 0;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.boutons{
+  display:flex;
+  gap:15px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:30px;
+}
+
+button{
+  border:none;
+  border-radius:8px;
+  padding:14px 22px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.accepter{
+  background:#4CAF50;
+  color:white;
+}
+
+.refuser{
+  background:#d9534f;
+  color:white;
+}
+
+button:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+#chargement{
+  display:none;
+  margin-top:25px;
+  font-weight:bold;
+}
+
+#resultat{
+  display:none;
+  margin-top:25px;
+  padding:18px;
+  border-radius:10px;
+  line-height:1.5;
+}
+
+.succes{
+  background:#eaf7ed;
+  color:#2d6a3f;
+}
+
+.erreur{
+  background:#fdeaea;
+  color:#9d2929;
+}
+
+.info{
+  background:#fff3cd;
+  color:#856404;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+  <div class="logo">
+    🐺
+  </div>
+
+  <h1>
+    La Récré Du P'tit Loup
+  </h1>
+
+  <div id="contenu">
+
+    <div class="message">
+
+      Une autre date vous a été proposée
+      pour votre inscription aux ateliers.
+
+      <br><br>
+
+      Merci d'indiquer si cette nouvelle
+      séance vous convient.
+
+    </div>
+
+    <div
+      id="dateProposee"
+      class="date"
+    >
+      Chargement de la séance...
+    </div>
+
+
+    <div class="boutons">
+
+      <button
+        id="boutonAccepter"
+        class="accepter"
+        onclick="repondre('accepter')"
+      >
+        ✅ Accepter cette date
+      </button>
+
+
+      <button
+        id="boutonRefuser"
+        class="refuser"
+        onclick="repondre('refuser')"
+      >
+        ❌ Refuser cette date
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div id="chargement">
+
+    ⏳ Traitement de votre réponse...
+
+  </div>
+
+
+  <div id="resultat"></div>
+
+</div>
+
+
+<script>
+
+// ==========================================
+// RÉCUPÉRATION DU LIEN
+// ==========================================
+
+const params =
+new URLSearchParams(
+  window.location.search
+);
+
+const token =
+params.get("token");
+
+const date =
+params.get("date");
+
+
+// ==========================================
+// AFFICHAGE DE LA DATE
+// ==========================================
+
+const zoneDate =
+document.getElementById(
+  "dateProposee"
+);
+
+
+if(date){
+
+  const dateObjet =
+  new Date(
+    date + "T12:00:00"
+  );
+
+  zoneDate.textContent =
+  dateObjet.toLocaleDateString(
+    "fr-FR",
+    {
+      weekday:"long",
+      day:"numeric",
+      month:"long",
+      year:"numeric"
+    }
+  );
+
+}
+else{
+
+  zoneDate.textContent =
+  "Date proposée";
+
+}
+
+
+// ==========================================
+// VÉRIFICATION DU LIEN
+// ==========================================
+
+if(!token){
+
+  afficherResultat(
+    "❌ Ce lien est incomplet ou invalide.",
+    "erreur"
+  );
+
+  document.getElementById(
+    "contenu"
+  ).style.display =
+  "none";
+
+}
+
+
+// ==========================================
+// ENVOI DE LA RÉPONSE
+// ==========================================
+
+async function repondre(action){
+
+  if(!token){
+    return;
+  }
+
+
+  const texteConfirmation =
+  action === "accepter"
+  ?
+  "Confirmez-vous que vous acceptez cette nouvelle date ?"
+  :
+  "Confirmez-vous que vous refusez cette nouvelle date ?";
+
+
+  if(
+    !confirm(
+      texteConfirmation
+    )
+  ){
+    return;
+  }
+
+
+  document.getElementById(
+    "boutonAccepter"
+  ).disabled =
+  true;
+
+  document.getElementById(
+    "boutonRefuser"
+  ).disabled =
+  true;
+
+
+  document.getElementById(
+    "chargement"
+  ).style.display =
+  "block";
+
+
+  try{
+
+    const reponse =
+    await fetch(
+      "/api/reponse-proposition",
+      {
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+          "application/json"
+        },
+
+        body:
+        JSON.stringify({
+
+          token,
+          action
+
+        })
+
+      }
+    );
+
+
+    const resultat =
+    await reponse.json();
+
+
+    document.getElementById(
+      "chargement"
+    ).style.display =
+    "none";
+
+
+    if(!reponse.ok){
+
+      throw new Error(
+        resultat.error ||
+        "Une erreur est survenue."
+      );
+
+    }
+
+
+    document.getElementById(
+      "contenu"
+    ).style.display =
+    "none";
+
+
+    if(
+      action === "accepter"
+    ){
+
+      afficherResultat(
+
+        "✅ Votre nouvelle séance est confirmée.<br><br>" +
+        "Votre inscription a bien été déplacée vers la date proposée.",
+
+        "succes"
+
+      );
+
+    }
+    else{
+
+      afficherResultat(
+
+        "Votre refus a bien été enregistré.<br><br>" +
+        "Votre demande initiale reste en attente.",
+
+        "info"
+
+      );
+
+    }
+
+  }
+  catch(erreur){
+
+    console.error(
+      erreur
+    );
+
+
+    document.getElementById(
+      "chargement"
+    ).style.display =
+    "none";
+
+
+    afficherResultat(
+
+      "❌ " +
+      erreur.message,
+
+      "erreur"
+
+    );
+
+
+    document.getElementById(
+      "boutonAccepter"
+    ).disabled =
+    false;
+
+    document.getElementById(
+      "boutonRefuser"
+    ).disabled =
+    false;
+
+  }
+
+}
+
+
+// ==========================================
+// AFFICHAGE DES MESSAGES
+// ==========================================
+
+function afficherResultat(
+  message,
+  type
+){
+
+  const resultat =
+  document.getElementById(
+    "resultat"
+  );
+
+  resultat.className =
+  type;
+
+  resultat.innerHTML =
+  message;
+
+  resultat.style.display =
+  "block";
+
+}
+
+</script>
+
+</body>
+
+</html>
