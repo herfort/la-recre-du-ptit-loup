@@ -9,14 +9,15 @@ export default async function handler(req, res) {
   }
 
 
-  const {
-    email,
-    accompagnateur,
-    enfants,
-    dates,
-    statut
-  } = req.body;
-
+const {
+  email,
+  accompagnateur,
+  enfants,
+  dates,
+  statut,
+  dateInitiale,
+  dateProposee
+} = req.body;
 
   // ==========================================
   // FORMATAGE DES ENFANTS
@@ -131,7 +132,98 @@ export default async function handler(req, res) {
   // ==========================================
   // DEMANDE REFUSÉE
   // ==========================================
+else if (statut === "Proposition autre date") {
 
+  sujet =
+  "Proposition d'une autre séance";
+
+  const dateInitialeFR =
+  new Date(
+    dateInitiale + "T12:00:00"
+  ).toLocaleDateString(
+    "fr-FR",
+    {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }
+  );
+
+  const dateProposeeFR =
+  new Date(
+    dateProposee + "T12:00:00"
+  ).toLocaleDateString(
+    "fr-FR",
+    {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }
+  );
+
+  contenu = `
+    <h2>
+      🔄 Proposition d'une autre séance
+    </h2>
+
+    <p>
+      Bonjour ${accompagnateur},
+    </p>
+
+    <p>
+      Nous revenons vers vous concernant
+      votre demande d'inscription aux ateliers
+      de <strong>La Récré Du P'tit Loup</strong>.
+    </p>
+
+    <p>
+      La séance que vous aviez demandée :
+    </p>
+
+    <p>
+      ❌ <strong>${dateInitialeFR}</strong>
+    </p>
+
+    <p>
+      ne peut malheureusement pas être validée
+      en raison du nombre de places disponibles.
+    </p>
+
+    <p>
+      Nous pouvons cependant vous proposer :
+    </p>
+
+    <p style="
+      font-size:18px;
+      font-weight:bold;
+    ">
+      ✅ ${dateProposeeFR}
+    </p>
+
+    <h3>👶 Enfant(s)</h3>
+
+    <p>
+      ${listeEnfants}
+    </p>
+
+    <p>
+      Pour le moment, votre inscription initiale
+      reste en attente.
+    </p>
+
+    <p>
+      Merci de nous indiquer si cette nouvelle
+      date vous convient.
+    </p>
+
+    <p>
+      À bientôt,<br>
+      <strong>La Récré Du P'tit Loup</strong>
+    </p>
+  `;
+}
   else if (statut === "Refusé") {
 
     sujet =
