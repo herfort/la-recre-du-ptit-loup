@@ -2604,13 +2604,82 @@ async function annulerSeanceSelectionnee(){
   // L'INSCRIPTION AUTOMATIQUEMENT
   // ==========================================
 
+  try{
+
+  const enfants =
+  demandeData.map(
+    x => x.enfant
+  );
+
+  const reponse =
+  await fetch(
+    "/api/send-email",
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+        "application/json"
+      },
+
+      body:JSON.stringify({
+
+        email:
+        demande.email,
+
+        accompagnateur:
+        demande.accompagnateur,
+
+        enfants,
+
+        dates:[
+          dateChoisie
+        ],
+
+        statut:
+        "Proposition autre date",
+
+        dateInitiale:
+        dateActuelle,
+
+        dateProposee:
+        dateChoisie
+
+      })
+
+    }
+  );
+
+
+  if(
+    !reponse.ok
+  ){
+
+    throw new Error(
+      "Erreur lors de l'envoi du mail."
+    );
+
+  }
+
+
   alert(
-    "✅ Date sélectionnée :\n\n" +
+    "✅ Proposition envoyée par e-mail.\n\n" +
+    "Nouvelle date proposée : " +
     dateChoisieFR +
     "\n\n" +
-    "La demande actuelle reste En attente.\n" +
-    "Nous allons maintenant ajouter l'envoi de la proposition par e-mail."
+    "La demande actuelle reste En attente."
   );
+
+}
+catch(erreur){
+
+  console.error(erreur);
+
+  alert(
+    "❌ La date a bien été sélectionnée mais le mail n'a pas pu être envoyé."
+  );
+
+}
 
 }
   async function refuserDemande(ids){
