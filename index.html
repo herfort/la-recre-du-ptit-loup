@@ -1057,32 +1057,57 @@ document
       );
 
 
-      const aBeneficieSemainePrecedente =
-      inscriptionsAssistante.some(
-        inscription => {
+   const aBeneficieDansAnciennesInscriptions =
+inscriptionsAssistante.some(
+  inscription => {
 
-          // Une demande "En attente"
-          // ne compte pas comme séance bénéficiée
+    if(
+      inscription.statut ===
+      "En attente"
+    ){
+      return false;
+    }
 
-          if(
-            inscription.statut ===
-            "En attente"
-          ){
-            return false;
-          }
+    const lundiInscription =
+    obtenirLundi(
+      inscription.seance
+    );
 
-          const lundiInscription =
-          obtenirLundi(
-            inscription.seance
-          );
+    return (
+      lundiInscription.getTime() ===
+      lundiPrecedent.getTime()
+    );
 
-          return (
-            lundiInscription.getTime() ===
-            lundiPrecedent.getTime()
-          );
+  }
+);
 
-        }
-      );
+
+// Vérifie aussi les séances déjà confirmées
+// pendant CETTE inscription.
+// Important si l'assistante coche plusieurs semaines d'un coup.
+
+const aBeneficieDansInscriptionActuelle =
+datesConfirmees.some(
+  dateConfirmee => {
+
+    const lundiDateConfirmee =
+    obtenirLundi(
+      dateConfirmee
+    );
+
+    return (
+      lundiDateConfirmee.getTime() ===
+      lundiPrecedent.getTime()
+    );
+
+  }
+);
+
+
+const aBeneficieSemainePrecedente =
+aBeneficieDansAnciennesInscriptions
+||
+aBeneficieDansInscriptionActuelle;
 
 
       if(
