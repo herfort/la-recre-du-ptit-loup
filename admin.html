@@ -582,7 +582,18 @@ cursor:pointer;
 margin-right:5px;">
 ✅ Accepter
 </button>
-
+<button
+onclick='proposerAutreDate(${JSON.stringify(groupe.ids)})'
+style="
+background:#f0ad4e;
+color:white;
+border:none;
+padding:8px;
+border-radius:6px;
+cursor:pointer;
+margin-right:5px;">
+🔄 Autre date
+</button>
 <button
 onclick='refuserDemande(${JSON.stringify(groupe.ids)})'
 style="
@@ -2122,6 +2133,484 @@ async function annulerSeanceSelectionnee(){
   await chargerInscriptions();
 
   await chargerBilanAnnuel();
+
+}
+  async function proposerAutreDate(ids){
+
+  if(
+    !ids ||
+    ids.length === 0
+  ){
+    return;
+  }
+
+
+  // ==========================================
+  // RÉCUPÉRER LA DEMANDE EN ATTENTE
+  // ==========================================
+
+  const {
+    data: demandeData,
+    error: erreurDemande
+  } =
+  await client
+  .from("inscriptions")
+  .select("*")
+  .in("id", ids);
+
+
+  if(erreurDemande){
+
+    alert(
+      "Erreur : " +
+      erreurDemande.message
+    );
+
+    return;
+  }
+
+
+  if(
+    !demandeData ||
+    demandeData.length === 0
+  ){
+
+    alert(
+      "Demande introuvable."
+    );
+
+    return;
+  }
+
+
+  const demande =
+  demandeData[0];
+
+  const dateActuelle =
+  demande.seance;
+
+  const nombreEnfants =
+  demandeData.length;
+
+
+  // ==========================================
+  // TROUVER LE LUNDI DE LA SEMAINE
+  // ==========================================
+
+  const dateDemande =
+  new Date(
+    dateActuelle +
+    "T12:00:00"
+  );
+
+  const jour =
+  dateDemande.getDay();
+
+  const decalageLundi =
+  jour === 0
+    ? -6
+    : 1 - jour;
+
+  const lundi =
+  new Date(dateDemande);
+
+  lundi.setDate(
+    dateDemande.getDate() +
+    decalageLundi
+  );
+
+
+  const dimanche =
+  new Date(lundi);
+
+  dimanche.setDate(
+    lundi.getDate() + 6
+  );
+
+
+  function dateISO(date){
+
+    const annee =
+    date.getFullYear();
+
+    const mois =
+    String(
+      date.getMonth() + 1
+    ).padStart(2,"0");
+
+    const jour =
+    String(
+      date.getDate()
+    ).padStart(2,"0");
+
+    return (
+      annee +
+      "-" +
+      mois +
+      "-" +
+      jour
+    );
+  }
+
+
+  const lundiISO =
+  dateISO(lundi);
+
+  const dimancheISO =
+  dateISO(dimanche);
+
+
+  // ==========================================
+  // RÉCUPÉRER LES SÉANCES DE LA SEMAINE
+  // ==========================================
+
+  const {
+    data: seances,
+    error: erreurSeances
+  } =
+  await client
+  .from("seances")
+  .select("date")
+  .gte(
+    "date",
+    lundiISO
+  )
+  .lte(
+    "date",
+    dimancheISO
+  )
+  .order(
+    "date",
+    {
+      ascending:true
+    }
+  );
+
+
+  if(erreurSeances){
+
+    alert(
+      "Impossible de récupérer les séances."
+    );
+
+    return;
+  }
+
+
+  // ==========================================
+  // RÉCUPÉRER LES DATES ANNULÉES
+  // ==========================================
+
+  const {
+    data: datesAnnulees
+  } =
+  await client
+  .from("dates_annulees")
+  .select("date")
+  .gte(
+    "date",
+    lundiISO
+  )
+  .lte(
+    "date",
+    dimancheISO
+  );
+
+
+  const listeAnnulees =
+  (
+    datesAnnulees || []
+  )
+  .map(
+    x => x.date
+  );
+
+
+  // ==========================================
+  // CHERCHER LES DATES DISPONIBLES
+  // ==========================================
+
+  const datesDisponibles = [];
+
+
+  for(
+    const seance of
+    seances || []
+  ){
+
+    const nouvelleDate =
+    seance.date;
+
+
+    // Ne pas proposer la date actuelle
+
+    if(
+      nouvelleDate ===
+      dateActuelle
+    ){
+      continue;
+    }
+
+
+    // Ne pas proposer une date annulée
+
+    if(
+      listeAnnulees.includes(
+        nouvelleDate
+      )
+    ){
+      continue;
+    }
+
+
+    // ==========================================
+    // VÉRIFICATION DES 30 PLACES
+    // ==========================================
+
+    const {
+      data: inscriptionsDate,
+      error: erreurPlaces
+    } =
+    await client
+    .from("inscriptions")
+    .select(
+      "statut,type_participant"
+    )
+    .eq(
+      "seance",
+      nouvelleDate
+    );
+
+
+    if(erreurPlaces){
+      continue;
+    }
+
+
+    const confirmes =
+    (
+      inscriptionsDate || []
+    )
+    .filter(
+      x =>
+      x.statut !==
+      "En attente"
+    );
+
+
+    const placesRestantes =
+    30 -
+    confirmes.length;
+
+
+    if(
+      placesRestantes <
+      nombreEnfants
+    ){
+      continue;
+    }
+
+
+    // ==========================================
+    // QUOTA AM DE 20
+    // LUNDI ET JEUDI UNIQUEMENT
+    // ==========================================
+
+    const jourNouvelleDate =
+    new Date(
+      nouvelleDate +
+      "T12:00:00"
+    ).getDay();
+
+
+    let placesAMRestantes =
+    null;
+
+
+    if(
+      jourNouvelleDate === 1 ||
+      jourNouvelleDate === 4
+    ){
+
+      const enfantsAMConfirmes =
+      confirmes
+      .filter(
+        x =>
+        x.type_participant ===
+        "assistante_maternelle"
+      )
+      .length;
+
+
+      placesAMRestantes =
+      20 -
+      enfantsAMConfirmes;
+
+
+      if(
+        placesAMRestantes <
+        nombreEnfants
+      ){
+        continue;
+      }
+
+    }
+
+
+    datesDisponibles.push({
+
+      date:
+      nouvelleDate,
+
+      placesRestantes,
+
+      placesAMRestantes
+
+    });
+
+  }
+
+
+  // ==========================================
+  // AUCUNE AUTRE DATE POSSIBLE
+  // ==========================================
+
+  if(
+    datesDisponibles.length === 0
+  ){
+
+    alert(
+      "❌ Aucune autre séance de cette semaine ne peut accueillir les " +
+      nombreEnfants +
+      " enfant(s)."
+    );
+
+    return;
+  }
+
+
+  // ==========================================
+  // PRÉPARER LA LISTE
+  // ==========================================
+
+  const formatter =
+  new Intl.DateTimeFormat(
+    "fr-FR",
+    {
+      weekday:"long",
+      day:"2-digit",
+      month:"2-digit",
+      year:"numeric"
+    }
+  );
+
+
+  let message =
+  "Choisissez la date à proposer :\n\n";
+
+
+  datesDisponibles.forEach(
+    (item,index) => {
+
+      const dateFR =
+      formatter.format(
+        new Date(
+          item.date +
+          "T12:00:00"
+        )
+      );
+
+      message +=
+      (index + 1) +
+      " - " +
+      dateFR +
+      " (" +
+      item.placesRestantes +
+      " place(s) restante(s)";
+
+      if(
+        item.placesAMRestantes !==
+        null
+      ){
+
+        message +=
+        ", " +
+        item.placesAMRestantes +
+        " place(s) AM";
+
+      }
+
+      message +=
+      ")\n";
+
+    }
+  );
+
+
+  message +=
+  "\nTapez le numéro de la date choisie.";
+
+
+  const choix =
+  prompt(message);
+
+
+  if(
+    choix === null
+  ){
+    return;
+  }
+
+
+  const numero =
+  parseInt(
+    choix,
+    10
+  );
+
+
+  if(
+    isNaN(numero) ||
+    numero < 1 ||
+    numero >
+    datesDisponibles.length
+  ){
+
+    alert(
+      "Choix incorrect."
+    );
+
+    return;
+  }
+
+
+  const dateChoisie =
+  datesDisponibles[
+    numero - 1
+  ].date;
+
+
+  const dateChoisieFR =
+  formatter.format(
+    new Date(
+      dateChoisie +
+      "T12:00:00"
+    )
+  );
+
+
+  // ==========================================
+  // POUR L'INSTANT ON NE DÉPLACE PAS
+  // L'INSCRIPTION AUTOMATIQUEMENT
+  // ==========================================
+
+  alert(
+    "✅ Date sélectionnée :\n\n" +
+    dateChoisieFR +
+    "\n\n" +
+    "La demande actuelle reste En attente.\n" +
+    "Nous allons maintenant ajouter l'envoi de la proposition par e-mail."
+  );
 
 }
   async function refuserDemande(ids){
