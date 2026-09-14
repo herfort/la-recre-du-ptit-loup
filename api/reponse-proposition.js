@@ -46,6 +46,7 @@ export default async function handler(req, res) {
       !process.env.SUPABASE_URL ||
       !process.env.SUPABASE_SECRET_KEY
     ) {
+
       console.error(
         "Variables Supabase manquantes"
       );
@@ -54,6 +55,7 @@ export default async function handler(req, res) {
         error:
         "Configuration du serveur incomplète."
       });
+
     }
 
 
@@ -244,12 +246,16 @@ export default async function handler(req, res) {
       if (texte) {
 
         try {
+
           data =
           JSON.parse(texte);
+
         }
         catch {
+
           data =
           texte;
+
         }
 
       }
@@ -341,11 +347,14 @@ export default async function handler(req, res) {
     const nombreEnfants =
     demande.length;
 
+
     const premiereLigne =
     demande[0];
 
+
     const email =
     premiereLigne.email;
+
 
     const typeParticipant =
     premiereLigne.type_participant;
@@ -358,9 +367,12 @@ export default async function handler(req, res) {
     if (action === "refuser") {
 
       return res.status(200).json({
+
         success: true,
+
         message:
         "La proposition a été refusée. La demande initiale reste en attente."
+
       });
 
     }
@@ -585,18 +597,22 @@ export default async function handler(req, res) {
           "T12:00:00"
         );
 
+
         const numeroJour =
         date.getDay();
+
 
         const decalage =
         numeroJour === 0
         ? -6
         : 1 - numeroJour;
 
+
         date.setDate(
           date.getDate() +
           decalage
         );
+
 
         return (
           date.getFullYear() +
@@ -647,7 +663,9 @@ export default async function handler(req, res) {
               )
             )
           ) {
+
             return false;
+
           }
 
 
@@ -655,7 +673,9 @@ export default async function handler(req, res) {
             ligne.statut ===
             "En attente"
           ) {
+
             return false;
+
           }
 
 
@@ -704,8 +724,10 @@ export default async function handler(req, res) {
         method: "PATCH",
 
         headers: {
+
           Prefer:
           "return=representation"
+
         },
 
         body:
@@ -741,6 +763,124 @@ export default async function handler(req, res) {
 
 
     // ==========================================
+    // ENVOI DU MAIL DE CONFIRMATION
+    // APRÈS LE DÉPLACEMENT
+    // ==========================================
+
+    try {
+
+      const enfants =
+      demande.map(
+        ligne =>
+        ligne.enfant
+      );
+
+
+      const protocole =
+      req.headers["x-forwarded-proto"]
+      || "https";
+
+
+      const domaine =
+      req.headers.host;
+
+
+      const urlMail =
+      protocole +
+      "://" +
+      domaine +
+      "/api/send-email";
+
+
+      console.log(
+        "Envoi confirmation vers :",
+        urlMail
+      );
+
+
+      const reponseMail =
+      await fetch(
+        urlMail,
+        {
+
+          method:
+          "POST",
+
+          headers: {
+
+            "Content-Type":
+            "application/json"
+
+          },
+
+          body:
+          JSON.stringify({
+
+            email:
+            premiereLigne.email,
+
+            accompagnateur:
+            premiereLigne.accompagnateur,
+
+            enfants,
+
+            dates: [
+              dateProposee
+            ],
+
+            statut:
+            "Inscrit"
+
+          })
+
+        }
+      );
+
+
+      const texteMail =
+      await reponseMail.text();
+
+
+      console.log(
+        "Réponse send-email :",
+        reponseMail.status,
+        texteMail
+      );
+
+
+      if (
+        !reponseMail.ok
+      ) {
+
+        throw new Error(
+          "send-email a répondu " +
+          reponseMail.status +
+          " : " +
+          texteMail
+        );
+
+      }
+
+
+      console.log(
+        "Mail de confirmation envoyé avec succès."
+      );
+
+    }
+    catch (erreurMail) {
+
+      console.error(
+        "Erreur mail confirmation :",
+        erreurMail
+      );
+
+      // On ne remet PAS l'inscription
+      // en attente si seulement le mail échoue.
+
+    }
+
+
+    // ==========================================
     // SUCCÈS
     // ==========================================
 
@@ -764,107 +904,7 @@ export default async function handler(req, res) {
       erreur
     );
 
-// ==========================================
-// ENVOI DU MAIL DE CONFIRMATION
-// ==========================================
 
-try {
-
-  const enfants =
-  demande.map(
-    ligne => ligne.enfant
-  );
-
-
-  const protocole =
-  req.headers["x-forwarded-proto"]
-  || "https";
-
-
-  const domaine =
-  req.headers.host;
-
-
-  const urlMail =
-  protocole +
-  "://" +
-  domaine +
-  "/api/send-email";
-
-
-  console.log(
-    "Envoi confirmation vers :",
-    urlMail
-  );
-
-
-  const reponseMail =
-  await fetch(
-    urlMail,
-    {
-
-      method: "POST",
-
-      headers: {
-        "Content-Type":
-        "application/json"
-      },
-
-      body:
-      JSON.stringify({
-
-        email:
-        premiereLigne.email,
-
-        accompagnateur:
-        premiereLigne.accompagnateur,
-
-        enfants,
-
-        dates: [
-          dateProposee
-        ],
-
-        statut:
-        "Inscrit"
-
-      })
-
-    }
-  );
-
-
-  const texteMail =
-  await reponseMail.text();
-
-
-  console.log(
-    "Réponse send-email :",
-    reponseMail.status,
-    texteMail
-  );
-
-
-  if (!reponseMail.ok) {
-
-    throw new Error(
-      "send-email a répondu " +
-      reponseMail.status +
-      " : " +
-      texteMail
-    );
-
-  }
-
-}
-catch (erreurMail) {
-
-  console.error(
-    "Erreur mail confirmation :",
-    erreurMail
-  );
-
-}
     return res.status(500).json({
 
       error:
