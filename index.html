@@ -1790,6 +1790,52 @@ async () => {
   await afficherPlaces();
 }
 );
+  // ==========================================
+// CHOIX VISUEL PARENT / ASSISTANTE MATERNELLE
+// ==========================================
+
+function choisirParticipant(type){
+
+  const select =
+  document.getElementById("typeParticipant");
+
+  const parent =
+  document.getElementById("choixParent");
+
+  const assistante =
+  document.getElementById("choixAssistante");
+
+
+  // Met à jour l'ancien select caché
+  select.value = type;
+
+
+  // Retire la sélection visuelle
+  parent.classList.remove("active");
+  assistante.classList.remove("active");
+
+
+  // Affiche le bon choix
+  if(type === "parent"){
+
+    parent.classList.add("active");
+
+  }else{
+
+    assistante.classList.add("active");
+
+  }
+
+
+  // Met à jour le message d'information
+  mettreAJourInfoType();
+
+
+  // Recharge les dates et les places
+  genererDates();
+  afficherPlaces();
+
+}
  function mettreAJourInfoType(){
 
   const type =
