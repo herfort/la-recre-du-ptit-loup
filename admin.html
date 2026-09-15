@@ -3230,7 +3230,31 @@ catch(erreur){
 
     return;
   }
+// ==========================================
+// HISTORIQUE ÉQUITÉ ASSISTANTES MATERNELLES
+// Enregistrement du refus
+// ==========================================
 
+if(demande.type_participant === "assistante_maternelle"){
+
+  const { error: erreurHistorique } =
+  await client
+    .from("historique_am")
+    .insert({
+      email: demande.email,
+      accompagnateur: demande.accompagnateur,
+      seance: demande.seance,
+      decision: "Refusee"
+    });
+
+  if(erreurHistorique){
+    console.error(
+      "Erreur historique AM :",
+      erreurHistorique
+    );
+  }
+
+}
 
   // =====================================
   // EMAIL DE REFUS
