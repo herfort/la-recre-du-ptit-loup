@@ -1199,6 +1199,377 @@ catch(error){
   await chargerBilanAnnuel();
 
 }
+  // ==========================================
+// INSCRIPTION MANUELLE / FORCÉE ADMIN
+// ==========================================
+
+async function ajouterInscriptionManuelle(){
+
+  const zone =
+  document.getElementById("messageManuel");
+
+  const nom =
+  document
+  .getElementById("manuelNom")
+  .value
+  .trim();
+
+  const prenom =
+  document
+  .getElementById("manuelPrenom")
+  .value
+  .trim();
+
+  const email =
+  document
+  .getElementById("manuelEmail")
+  .value
+  .trim();
+
+  const typeParticipant =
+  document
+  .getElementById("manuelType")
+  .value;
+
+  const enfants = [
+
+    document
+    .getElementById("manuelEnfant1")
+    .value
+    .trim(),
+
+    document
+    .getElementById("manuelEnfant2")
+    .value
+    .trim(),
+
+    document
+    .getElementById("manuelEnfant3")
+    .value
+    .trim(),
+
+    document
+    .getElementById("manuelEnfant4")
+    .value
+    .trim()
+
+  ].filter(
+    enfant => enfant !== ""
+  );
+
+  const date =
+  document
+  .getElementById("dateSelect")
+  .value;
+
+
+  // ==========================================
+  // VÉRIFICATION DES CHAMPS
+  // ==========================================
+
+  if(
+    !nom ||
+    !prenom ||
+    !email ||
+    enfants.length === 0 ||
+    !date
+  ){
+
+    zone.innerHTML =
+    "❌ Merci de remplir le nom, le prénom, l'e-mail et au moins un enfant.";
+
+    return;
+
+  }
+
+
+  // ==========================================
+  // VÉRIFICATION E-MAIL
+  // ==========================================
+
+  const emailValide =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+    email
+  );
+
+
+  if(!emailValide){
+
+    zone.innerHTML =
+    "❌ L'adresse e-mail n'est pas valide.";
+
+    return;
+
+  }
+
+
+  // ==========================================
+  // VÉRIFIER SI LA SÉANCE EST ANNULÉE
+  // ==========================================
+
+  const {
+    data: annulation,
+    error: erreurAnnulation
+  } =
+  await client
+  .from("dates_annulees")
+  .select("date")
+  .eq("date", date);
+
+
+  if(erreurAnnulation){
+
+    console.error(
+      erreurAnnulation
+    );
+
+    zone.innerHTML =
+    "❌ Impossible de vérifier la séance.";
+
+    return;
+
+  }
+
+
+  if(
+    annulation &&
+    annulation.length > 0
+  ){
+
+    zone.innerHTML =
+    "❌ Cette séance est annulée.";
+
+    return;
+
+  }
+
+
+  // ==========================================
+  // CONFIRMATION ADMIN
+  //
+  // IMPORTANT :
+  // AUCUN CONTRÔLE :
+  // - 30 PLACES
+  // - QUOTA 20 AM
+  // - 1 SÉANCE AM / SEMAINE
+  // ==========================================
+
+  const dateFR =
+  new Date(
+    date + "T12:00:00"
+  )
+  .toLocaleDateString(
+    "fr-FR",
+    {
+      weekday:"long",
+      day:"numeric",
+      month:"long",
+      year:"numeric"
+    }
+  );
+
+
+  const confirmation =
+  confirm(
+    "Ajouter " +
+    prenom +
+    " " +
+    nom +
+    " à la séance du " +
+    dateFR +
+    " avec " +
+    enfants.length +
+    " enfant(s) ?\n\n" +
+    "Cette inscription sera forcée par l'administration et pourra dépasser les quotas."
+  );
+
+
+  if(!confirmation){
+    return;
+  }
+
+
+  // ==========================================
+  // CRÉATION DES LIGNES
+  // ==========================================
+
+  const accompagnateur =
+  nom + " " + prenom;
+
+
+  const inscriptions =
+  enfants.map(
+    enfant => ({
+
+      accompagnateur:
+      accompagnateur,
+
+      email:
+      email,
+
+      type_participant:
+      typeParticipant,
+
+      enfant:
+      enfant,
+
+      seance:
+      date,
+
+      statut:
+      "Inscrit"
+
+    })
+  );
+
+
+  // ==========================================
+  // INSERTION SUPABASE
+  // ==========================================
+
+  const {
+    error
+  } =
+  await client
+  .from("inscriptions")
+  .insert(
+    inscriptions
+  );
+
+
+  if(error){
+
+    console.error(
+      error
+    );
+
+    zone.innerHTML =
+    "❌ Erreur : " +
+    error.message;
+
+    return;
+
+  }
+
+
+  // ==========================================
+  // ENVOI DU MAIL DE CONFIRMATION
+  // ==========================================
+
+  try{
+
+    const response =
+    await fetch(
+      "/api/send-email",
+      {
+
+        method:"POST",
+
+        headers:{
+          "Content-Type":
+          "application/json"
+        },
+
+        body:
+        JSON.stringify({
+
+          email:
+          email,
+
+          accompagnateur:
+          accompagnateur,
+
+          enfants:
+          enfants,
+
+          dates:[
+            date
+          ],
+
+          statut:
+          "Inscrit"
+
+        })
+
+      }
+    );
+
+
+    if(!response.ok){
+
+      const texte =
+      await response.text();
+
+      console.error(
+        "Erreur mail :",
+        texte
+      );
+
+    }
+
+  }
+  catch(errorMail){
+
+    console.error(
+      "Erreur envoi mail :",
+      errorMail
+    );
+
+  }
+
+
+  // ==========================================
+  // MESSAGE DE SUCCÈS
+  // ==========================================
+
+  zone.innerHTML =
+  "✅ Inscription ajoutée pour " +
+  accompagnateur +
+  ".";
+
+
+  // ==========================================
+  // VIDER LE FORMULAIRE
+  // ==========================================
+
+  document
+  .getElementById("manuelNom")
+  .value = "";
+
+  document
+  .getElementById("manuelPrenom")
+  .value = "";
+
+  document
+  .getElementById("manuelEmail")
+  .value = "";
+
+  document
+  .getElementById("manuelEnfant1")
+  .value = "";
+
+  document
+  .getElementById("manuelEnfant2")
+  .value = "";
+
+  document
+  .getElementById("manuelEnfant3")
+  .value = "";
+
+  document
+  .getElementById("manuelEnfant4")
+  .value = "";
+
+
+  // ==========================================
+  // ACTUALISER ADMIN
+  // ==========================================
+
+  await chargerInscriptions();
+
+  await chargerBilanAnnuel();
+
+}
   async function ajouterOccasionnel(){
 
   const zone =
