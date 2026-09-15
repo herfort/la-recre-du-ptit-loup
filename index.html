@@ -211,6 +211,119 @@ button[type="button"]:hover{
   }
 
 }
+/* ==========================================
+   CHOIX PARENT / ASSISTANTE MATERNELLE
+   ========================================== */
+
+.choix-participant{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:12px 0 10px 0;
+}
+
+.carte-participant{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  min-height:75px;
+  padding:14px;
+
+  background:white;
+  border:2px solid #d8ded9;
+  border-radius:12px;
+
+  cursor:pointer;
+
+  transition:
+    border-color 0.2s,
+    background 0.2s,
+    transform 0.1s;
+
+  box-sizing:border-box;
+}
+
+.carte-participant:hover{
+  border-color:#6da883;
+  background:#f6fbf7;
+}
+
+.carte-participant:active{
+  transform:scale(0.98);
+}
+
+.icone-participant{
+  font-size:30px;
+  flex-shrink:0;
+}
+
+.carte-participant strong{
+  display:block;
+  font-size:15px;
+  color:#333;
+  margin-bottom:4px;
+}
+
+.carte-participant span{
+  display:block;
+  font-size:12px;
+  color:#777;
+  line-height:1.3;
+}
+
+/* Choix sélectionné */
+
+.carte-participant.active{
+  border:3px solid #3f8058;
+  background:#eef8f1;
+}
+
+.carte-participant.active strong{
+  color:#2f7048;
+}
+
+/* Petite coche verte */
+
+.coche-participant{
+  display:none;
+
+  position:absolute;
+  top:7px;
+  right:8px;
+
+  width:22px;
+  height:22px;
+
+  border-radius:50%;
+  background:#3f8058;
+  color:white;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:14px;
+  font-weight:bold;
+}
+
+.carte-participant.active .coche-participant{
+  display:flex;
+}
+
+/* Téléphone */
+
+@media(max-width:600px){
+
+  .choix-participant{
+    grid-template-columns:1fr;
+  }
+
+  .carte-participant{
+    min-height:70px;
+  }
+
+}
 </style>
 </head>
 
