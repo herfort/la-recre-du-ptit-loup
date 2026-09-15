@@ -279,6 +279,74 @@ class="bouton-test">
 <div id="messageTest"></div>
 
 </div>
+  <!-- ==========================================
+     INSCRIPTION MANUELLE / FORCÉE
+=========================================== -->
+
+<div class="test-form">
+
+<h3>➕ Ajouter une inscription manuellement</h3>
+
+<p>
+Cette inscription est ajoutée directement par l'administration.
+Elle peut dépasser les quotas et les limitations habituelles.
+</p>
+
+<input
+id="manuelNom"
+type="text"
+placeholder="Nom">
+
+<input
+id="manuelPrenom"
+type="text"
+placeholder="Prénom">
+
+<input
+id="manuelEmail"
+type="email"
+placeholder="Adresse e-mail">
+
+<select id="manuelType">
+<option value="parent">
+Parent
+</option>
+
+<option value="assistante_maternelle">
+Assistante maternelle
+</option>
+</select>
+
+<input
+id="manuelEnfant1"
+type="text"
+placeholder="Enfant 1">
+
+<input
+id="manuelEnfant2"
+type="text"
+placeholder="Enfant 2 (facultatif)">
+
+<input
+id="manuelEnfant3"
+type="text"
+placeholder="Enfant 3 (facultatif)">
+
+<input
+id="manuelEnfant4"
+type="text"
+placeholder="Enfant 4 (facultatif)">
+
+<button
+type="button"
+onclick="ajouterInscriptionManuelle()"
+class="bouton-test">
+➕ Ajouter cette inscription
+</button>
+
+<div id="messageManuel"></div>
+
+</div>
   <div class="occasionnel-form">
 
 <h3>💶 Ajouter une inscription occasionnelle</h3>
