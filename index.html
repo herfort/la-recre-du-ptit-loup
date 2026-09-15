@@ -229,7 +229,48 @@ placeholder="Nom de l'accompagnateur">
 <input
 id="prenom"
 placeholder="Prénom de l'accompagnateur">
-  <select id="typeParticipant">
+<!-- Choix visuel du type de participant -->
+<div class="choix-participant">
+
+  <div
+    id="choixParent"
+    class="carte-participant active"
+    onclick="choisirParticipant('parent')"
+  >
+    <div class="icone-participant">👨‍👩‍👧</div>
+
+    <div>
+      <strong>Je suis parent</strong>
+      <span>J'inscris mon ou mes enfants</span>
+    </div>
+
+    <div class="coche-participant">✓</div>
+  </div>
+
+
+  <div
+    id="choixAssistante"
+    class="carte-participant"
+    onclick="choisirParticipant('assistante_maternelle')"
+  >
+    <div class="icone-participant">👩‍🍼</div>
+
+    <div>
+      <strong>Je suis assistante maternelle</strong>
+      <span>J'inscris les enfants que j'accompagne</span>
+    </div>
+
+    <div class="coche-participant">✓</div>
+  </div>
+
+</div>
+
+
+<!-- On conserve ce select caché pour le fonctionnement du site -->
+<select
+  id="typeParticipant"
+  style="display:none;"
+>
   <option value="parent">Parent</option>
   <option value="assistante_maternelle">
     Assistante maternelle
