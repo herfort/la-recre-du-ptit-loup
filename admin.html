@@ -3984,6 +3984,12 @@ dessinerTableau(
 "Assistantes maternelles",
 assistantes
 );
+  // Vérifie s'il reste assez de place pour le récapitulatif
+// Sinon, on crée automatiquement une nouvelle page
+if (y > 245) {
+  doc.addPage();
+  y = 20;
+}
  // =========================
 // Statistiques
 // =========================
