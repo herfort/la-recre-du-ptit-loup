@@ -5911,7 +5911,8 @@ const boutonModeJourJ =
 
 if (boutonModeJourJ) {
 
-  let modeJourJActif = false;
+let modeJourJActif =
+  sessionStorage.getItem("modeJourJ") === "true";
 
   boutonModeJourJ.addEventListener(
     "click",
@@ -5919,7 +5920,10 @@ if (boutonModeJourJ) {
 
       modeJourJActif =
         !modeJourJActif;
-
+sessionStorage.setItem(
+  "modeJourJ",
+  modeJourJActif
+);
 
       const cartes =
         document.querySelector(
