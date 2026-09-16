@@ -128,7 +128,7 @@ if (compteurAttente) {
 
 
   afficherInscriptions(data);
-reappliquerModeJourJ();
+
 }
 // ===============================
 // Affichage du tableau
