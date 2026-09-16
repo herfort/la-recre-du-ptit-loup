@@ -5918,6 +5918,53 @@ function reappliquerModeJourJ() {
   }
 
   document.body.classList.add("mode-jour-j");
+  const cartes =
+  document.querySelector(".cartes");
+
+const boutonAutorisations =
+  document.getElementById(
+    "imprimerToutesAutorisations"
+  );
+
+const boutonPlanning =
+  document.getElementById(
+    "telechargerPlanningPhotographe"
+  );
+
+const boutonAjout =
+  document.getElementById(
+    "ajouterReservationAdmin"
+  );
+
+const formulaireAjout =
+  document.getElementById(
+    "formulaireReservationAdmin"
+  );
+
+if (cartes) {
+  cartes.style.display = "none";
+}
+
+if (boutonAutorisations) {
+  boutonAutorisations.style.display = "none";
+}
+
+if (boutonPlanning) {
+  boutonPlanning.style.display = "none";
+}
+
+if (boutonAjout) {
+  boutonAjout.style.display = "none";
+}
+
+if (formulaireAjout) {
+  formulaireAjout.style.display = "none";
+}
+
+if (boutonModeJourJ) {
+  boutonModeJourJ.textContent =
+    "↩️ Quitter le Mode Jour J";
+}
 document
   .querySelectorAll(".bouton-pdf-jour-j")
   .forEach(bouton => {
