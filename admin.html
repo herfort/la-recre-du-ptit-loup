@@ -631,8 +631,51 @@ body.innerHTML += `
 
 <tr>
 
-<td><b>${groupe.accompagnateur}</b></td>
+<td>
+  <b>${groupe.accompagnateur}</b>
 
+  ${
+    groupe.type === "assistante_maternelle"
+    ? (() => {
+
+        const historiqueCetteAM =
+          (historiqueAM || []).filter(h =>
+            h.email &&
+            groupe.email &&
+            h.email.toLowerCase() === groupe.email.toLowerCase()
+          );
+
+        const acceptees =
+          historiqueCetteAM.filter(
+            h => h.decision === "Acceptee"
+          ).length;
+
+        const refusees =
+          historiqueCetteAM.filter(
+            h => h.decision === "Refusee"
+          ).length;
+
+        return `
+          <div style="
+            margin-top:5px;
+            font-size:12px;
+            color:#666;
+          ">
+            Historique :
+            <span style="color:#2e7d32;font-weight:bold;">
+              ✅ ${acceptees}
+            </span>
+            &nbsp;
+            <span style="color:#c62828;font-weight:bold;">
+              ❌ ${refusees}
+            </span>
+          </div>
+        `;
+      })()
+    : ""
+  }
+
+</td>
 <td>${groupe.email || "-"}</td>
 
 <td>${
