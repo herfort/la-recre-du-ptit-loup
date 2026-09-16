@@ -545,7 +545,24 @@ await client
 .select("*")
 .eq("seance",date)
 .order("accompagnateur");
+// ==========================================
+// HISTORIQUE ÉQUITÉ ASSISTANTES MATERNELLES
+// ==========================================
 
+const {
+  data: historiqueAM,
+  error: erreurHistoriqueAM
+} =
+await client
+  .from("historique_am")
+  .select("*");
+
+if(erreurHistoriqueAM){
+  console.error(
+    "Erreur chargement historique AM :",
+    erreurHistoriqueAM
+  );
+}
 const body =
 document.getElementById(
 "tableBody"
