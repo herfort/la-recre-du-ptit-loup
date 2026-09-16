@@ -3890,12 +3890,73 @@ y += 8;
 
 liste.forEach(([nom,g],index)=>{
 
-if(y>265){
+if(y > 265){
 
-doc.addPage();
+  doc.addPage();
+  y = 20;
 
-y=20;
+  // Titre du tableau sur la nouvelle page
+  doc.setFillColor(...vertClair);
 
+  doc.roundedRect(
+    10,
+    y,
+    190,
+    9,
+    2,
+    2,
+    "F"
+  );
+
+  doc.setFontSize(13);
+  doc.setFont("helvetica","bold");
+  doc.setTextColor(0);
+
+  doc.text(
+    titre + " (suite)",
+    15,
+    y + 6
+  );
+
+  y += 12;
+
+  // En-tête du tableau sur la nouvelle page
+  doc.setFillColor(...vertFonce);
+
+  doc.roundedRect(
+    10,
+    y,
+    190,
+    8,
+    1,
+    1,
+    "F"
+  );
+
+  doc.setTextColor(255);
+  doc.setFontSize(11);
+
+  doc.text(
+    "Présence",
+    15,
+    y + 5
+  );
+
+  doc.text(
+    "Accompagnateur",
+    45,
+    y + 5
+  );
+
+  doc.text(
+    "Enfant(s)",
+    120,
+    y + 5
+  );
+
+  doc.setTextColor(0);
+
+  y += 8;
 }
 
 if(index%2===0){
