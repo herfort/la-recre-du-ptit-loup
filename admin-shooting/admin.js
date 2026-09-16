@@ -5908,7 +5908,83 @@ setInterval(() => {
 
 const boutonModeJourJ =
   document.getElementById("modeJourJ");
+function reappliquerModeJourJ() {
 
+  if (
+    sessionStorage.getItem("modeJourJ") !== "true"
+  ) {
+    return;
+  }
+
+  document.body.classList.add("mode-jour-j");
+document
+  .querySelectorAll(".bouton-pdf-jour-j")
+  .forEach(bouton => {
+    bouton.style.display = "none";
+  });
+
+document
+  .querySelectorAll(
+    'button[title="Déplacer le rendez-vous"], button[title="Supprimer la réservation"]'
+  )
+  .forEach(bouton => {
+    bouton.style.display = "none";
+  });
+
+document
+  .querySelectorAll(".bouton-annuler-enfant")
+  .forEach(bouton => {
+    bouton.style.display = "none";
+  });
+  const tableauJourJ =
+  document
+    .querySelector("#listeInscriptions")
+    ?.closest("table");
+
+if (tableauJourJ) {
+
+  const titresAMasquer = [
+    "Type",
+    "Autorisation",
+    "Durée"
+  ];
+
+  tableauJourJ
+    .querySelectorAll("thead th")
+    .forEach((titre, index) => {
+
+      if (
+        titresAMasquer.includes(
+          titre.textContent.trim()
+        )
+      ) {
+
+        titre.style.display = "none";
+
+        tableauJourJ
+          .querySelectorAll("tbody tr")
+          .forEach(ligne => {
+
+            const cellule =
+              ligne.children[index];
+
+            if (cellule) {
+              cellule.style.display = "none";
+            }
+
+          });
+      }
+
+    });
+document
+  .querySelectorAll(".statuts-jour-j button")
+  .forEach(bouton => {
+    bouton.style.fontSize = "16px";
+    bouton.style.padding = "12px 14px";
+    bouton.style.margin = "4px";
+    bouton.style.minHeight = "45px";
+  });
+}
 if (boutonModeJourJ) {
 
 let modeJourJActif =
