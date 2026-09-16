@@ -5985,6 +5985,7 @@ document
     bouton.style.minHeight = "45px";
   });
 }
+  }
 if (boutonModeJourJ) {
 
 let modeJourJActif =
