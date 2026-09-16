@@ -6270,3 +6270,18 @@ if (tableauJourJ) {
   );
 
 }
+// ==========================================
+// RÉACTIVER LE MODE JOUR J APRÈS RECHARGEMENT
+// ==========================================
+
+if (
+  sessionStorage.getItem("modeJourJ") === "true"
+) {
+
+  setTimeout(() => {
+
+    reappliquerModeJourJ();
+
+  }, 300);
+
+}
