@@ -1361,8 +1361,7 @@ const {
     );
 
 
-   await chargerInscriptions();
-reappliquerModeJourJ();
+ location.reload();
 
   }
 
