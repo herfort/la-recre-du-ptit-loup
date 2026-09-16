@@ -4092,30 +4092,46 @@ y
 y += 12;
 
 // =========================
-// Pied de page
+// Pied de page sur toutes les pages
 // =========================
 
-doc.setDrawColor(220);
+const nombrePages = doc.internal.getNumberOfPages();
 
-doc.line(
-10,
-hauteur-18,
-200,
-hauteur-18
-);
+for (let page = 1; page <= nombrePages; page++) {
 
-doc.setFontSize(9);
+  doc.setPage(page);
 
-doc.setTextColor(120);
+  doc.setDrawColor(220);
 
-doc.text(
-"Association La Récré Du P'tit Loup",
-105,
-hauteur-10,
-{
-align:"center"
+  doc.line(
+    10,
+    hauteur - 18,
+    200,
+    hauteur - 18
+  );
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(120);
+
+  doc.text(
+    "Association La Récré Du P'tit Loup",
+    largeur / 2,
+    hauteur - 10,
+    {
+      align: "center"
+    }
+  );
+
+  doc.text(
+    "Page " + page + " / " + nombrePages,
+    195,
+    hauteur - 10,
+    {
+      align: "right"
+    }
+  );
 }
-);
 
 // =========================
 // Sauvegarde
