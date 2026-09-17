@@ -128,7 +128,11 @@ if (compteurAttente) {
 
 
   afficherInscriptions(data);
-
+if (
+  sessionStorage.getItem("modeJourJ") === "true"
+) {
+  reappliquerModeJourJ();
+}
 }
 // ===============================
 // Affichage du tableau
