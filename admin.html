@@ -505,9 +505,20 @@ const select =
 document.getElementById("dateSelect");
 
 select.innerHTML = "";
+// Date d'aujourd'hui au format YYYY-MM-DD
+const aujourdHui = new Date();
+aujourdHui.setHours(0, 0, 0, 0);
 
+const dateAujourdHui =
+  aujourdHui.getFullYear() + "-" +
+  String(aujourdHui.getMonth() + 1).padStart(2, "0") + "-" +
+  String(aujourdHui.getDate()).padStart(2, "0");
 data.forEach(item => {
-
+// Ne pas afficher les dates déjà passées
+// La date d'aujourd'hui reste visible
+if (item.date < dateAujourdHui) {
+  return;
+}
 const annulee =
 datesAnnulees.includes(item.date);
 
