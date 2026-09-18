@@ -3452,28 +3452,30 @@ async function chargerBilanAnnuel(){
   ).size;
 
 
-  const nbParents =
-  new Set(
-    listeInscriptions
-    .filter(
-      i =>
-      i.type_participant ===
-      "parent"
+const nbParents =
+new Set(
+  listeInscriptions
+    .filter(i =>
+      i.type_participant === "parent"
+      && i.email
     )
-    .map(i => i.email)
-  ).size;
+    .map(i =>
+      i.email.trim().toLowerCase()
+    )
+).size;
 
 
-  const nbAssistantes =
-  new Set(
-    listeInscriptions
-    .filter(
-      i =>
-      i.type_participant ===
-      "assistante_maternelle"
+const nbAssistantes =
+new Set(
+  listeInscriptions
+    .filter(i =>
+      i.type_participant === "assistante_maternelle"
+      && i.email
     )
-    .map(i => i.email)
-  ).size;
+    .map(i =>
+      i.email.trim().toLowerCase()
+    )
+).size;
 
 
   // ==========================================
