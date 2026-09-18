@@ -3442,14 +3442,18 @@ async function chargerBilanAnnuel(){
   listeInscriptions.length;
 
 
-  const nbEnfants =
-  new Set(
-    listeInscriptions.map(i =>
-      i.enfant
-      .trim()
-      .toLowerCase()
+ const nbEnfants =
+new Set(
+  listeInscriptions
+    .filter(i => i.enfant)
+    .map(i =>
+      (
+        i.enfant.trim().toLowerCase()
+        + "|" +
+        (i.email || "").trim().toLowerCase()
+      )
     )
-  ).size;
+).size;
 
 
 const nbParents =
