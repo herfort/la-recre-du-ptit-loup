@@ -965,12 +965,30 @@ document
   .getElementById("typeParticipant")
   .value;
 
-  const enfants = [
-    kid1.value.trim(),
-    kid2.value.trim(),
-    kid3.value.trim(),
-    kid4.value.trim()
-  ].filter(x => x !== "");
+const enfants = [
+  {
+    nom: kid1.value.trim(),
+    commune: document.getElementById("communeKid1").value.trim()
+  },
+  {
+    nom: kid2.value.trim(),
+    commune: document.getElementById("communeKid2").value.trim()
+  },
+  {
+    nom: kid3.value.trim(),
+    commune: document.getElementById("communeKid3").value.trim()
+  },
+  {
+    nom: kid4.value.trim(),
+    commune: document.getElementById("communeKid4").value.trim()
+  }
+].filter(enfant => enfant.nom !== "");
+
+const communeAccompagnateur =
+  document
+    .getElementById("communeAccompagnateur")
+    .value
+    .trim();
 
 const dates =
 Array.from(
@@ -1527,29 +1545,35 @@ aBeneficieDansInscriptionActuelle;
     // CRÉER UNE LIGNE PAR ENFANT
     // ========================================
 
-    enfants.forEach(enfant => {
+ enfants.forEach(enfant => {
 
-      inscriptions.push({
+  inscriptions.push({
 
-        accompagnateur,
+    accompagnateur,
 
-        email,
+    email,
 
-        type_participant:
-        typeParticipant,
+    type_participant:
+    typeParticipant,
 
-        enfant,
+    enfant:
+    enfant.nom,
 
-        seance:
-        date,
+    commune_accompagnateur:
+    communeAccompagnateur,
 
-        statut:
-        statutInscription
+    commune_enfant:
+    enfant.commune,
 
-      });
+    seance:
+    date,
 
-    });
+    statut:
+    statutInscription
 
+  });
+
+});
   }
 
 
