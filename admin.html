@@ -3480,7 +3480,56 @@ new Set(
       i.email.trim().toLowerCase()
     )
 ).size;
+// =====================================
+// COMMUNES DES ENFANTS
+// Un enfant n'est compté qu'une seule fois
+// même s'il vient à plusieurs séances
+// =====================================
 
+const enfantsParCommune = new Map();
+
+listeInscriptions
+  .filter(i =>
+    i.enfant &&
+    i.commune_enfant
+  )
+  .forEach(i => {
+
+    const cleEnfant =
+      i.enfant.trim().toLowerCase()
+      + "|" +
+      (i.email || "").trim().toLowerCase();
+
+    if (!enfantsParCommune.has(cleEnfant)) {
+      enfantsParCommune.set(
+        cleEnfant,
+        i.commune_enfant.trim()
+      );
+    }
+
+  });
+
+const communesEnfants = {};
+
+enfantsParCommune.forEach(commune => {
+
+  const nomCommune =
+    commune.charAt(0).toUpperCase()
+    + commune.slice(1).toLowerCase();
+
+  communesEnfants[nomCommune] =
+    (communesEnfants[nomCommune] || 0) + 1;
+
+});
+
+const affichageCommunes =
+  Object.entries(communesEnfants)
+    .sort((a, b) => b[1] - a[1])
+    .map(
+      ([commune, nombre]) =>
+        `🏘️ ${commune} : ${nombre} enfant${nombre > 1 ? "s" : ""}`
+    )
+    .join("<br>");
 
   // ==========================================
   // SÉANCES OCCASIONNELLES À 2 €
