@@ -324,6 +324,52 @@ button[type="button"]:hover{
   }
 
 }
+  /* ============================= */
+/* MENUS ENFANTS */
+/* ============================= */
+
+details {
+  margin: 8px 0;
+  border: 1px solid #d9e5dc;
+  border-radius: 10px;
+  background: #f8fbf9;
+  overflow: hidden;
+}
+
+details summary {
+  padding: 11px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #2f6848;
+  background: #eef7f0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary::after {
+  content: "⌄";
+  font-size: 18px;
+  font-weight: bold;
+}
+
+details[open] summary::after {
+  content: "⌃";
+}
+
+details input {
+  width: calc(100% - 20px);
+  margin: 10px 10px 0 10px;
+}
+
+details input:last-child {
+  margin-bottom: 10px;
+}
 </style>
 </head>
 
