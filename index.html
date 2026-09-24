@@ -1040,7 +1040,7 @@ const enfants = [
   }
 ].filter(enfant => enfant.nom !== "");
 
-const communeAccompagnateur =
+let communeAccompagnateur =
   document
     .getElementById("communeAccompagnateur")
     .value
@@ -1056,7 +1056,14 @@ const { data: anciensEnfants, error: erreurAnciensEnfants } =
     .ilike("email", email);
 
 if (!erreurAnciensEnfants && anciensEnfants) {
+// Récupérer la commune déjà connue de l'accompagnateur
+const ancienAccompagnateur =
+  anciensEnfants.find(i => i.commune_accompagnateur);
 
+if (ancienAccompagnateur && !communeAccompagnateur) {
+  communeAccompagnateur =
+    ancienAccompagnateur.commune_accompagnateur;
+}
   enfants.forEach(enfant => {
 
     const ancien =
@@ -1123,6 +1130,21 @@ Array.from(
 
     return;
   }
+  // ====================================
+// COMMUNE OBLIGATOIRE POUR UN NOUVEL ACCOMPAGNATEUR
+// ====================================
+
+if (!communeAccompagnateur) {
+
+  document.getElementById(
+    "message"
+  ).innerHTML =
+    "❌ Merci d'indiquer votre commune. Cette information n'est demandée que lors de votre première inscription.";
+
+  reactiverBouton();
+
+  return;
+}
 // ====================================
 // COMMUNE OBLIGATOIRE POUR UN NOUVEL ENFANT
 // ====================================
