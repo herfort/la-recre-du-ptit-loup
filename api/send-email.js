@@ -25,10 +25,18 @@ const {
   // FORMATAGE DES ENFANTS
   // ==========================================
 
-  const listeEnfants =
-  (enfants || [])
-  .map(enfant => `• ${enfant}`)
-  .join("<br>");
+const listeEnfants =
+(enfants || [])
+.map(enfant => {
+  const prenom =
+    typeof enfant === "string"
+      ? enfant
+      : (enfant.prenom || enfant.nom || enfant.enfant || "");
+
+  return `• ${prenom}`;
+})
+.filter(ligne => ligne !== "• ")
+.join("<br>");
 
 
   // ==========================================
