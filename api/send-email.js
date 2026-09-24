@@ -73,28 +73,56 @@ const listeEnfants =
 const annulationSecret =
   process.env.ANNULATION_SECRET;
 
-const donneesAnnulation =
-  JSON.stringify({
-    email,
-    dates
-  });
+// ====================================
+// LIENS D'ANNULATION PAR SÉANCE
+// ====================================
 
-const tokenAnnulation =
-  Buffer.from(donneesAnnulation)
-    .toString("base64url");
+const listeDatesAvecAnnulation =
+  (dates || [])
+    .map(date => {
 
-const signatureAnnulation =
-  crypto
-    .createHmac(
-      "sha256",
-      annulationSecret
-    )
-    .update(tokenAnnulation)
-    .digest("hex");
+      const donneesAnnulation =
+        JSON.stringify({
+          email,
+          seance: date
+        });
 
-const lienAnnulation =
-  `https://${req.headers.host}/api/annuler-inscription?token=${encodeURIComponent(tokenAnnulation)}&signature=${encodeURIComponent(signatureAnnulation)}`;
+      const tokenAnnulation =
+        Buffer.from(donneesAnnulation)
+          .toString("base64url");
 
+      const signatureAnnulation =
+        crypto
+          .createHmac(
+            "sha256",
+            annulationSecret
+          )
+          .update(tokenAnnulation)
+          .digest("hex");
+
+      const lienAnnulation =
+        `https://${req.headers.host}/api/annuler-inscription?email=${encodeURIComponent(email)}&seance=${encodeURIComponent(date)}&token=${encodeURIComponent(tokenAnnulation)}&signature=${encodeURIComponent(signatureAnnulation)}`;
+
+      const dateFormatee =
+        new Date(
+          date + "T12:00:00"
+        ).toLocaleDateString(
+          "fr-FR",
+          {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          }
+        );
+
+      return {
+        date,
+        dateFormatee,
+        lienAnnulation
+      };
+
+    });
   // ==========================================
   // DEMANDE EN ATTENTE
   // ==========================================
@@ -431,23 +459,38 @@ encodeURIComponent(dateProposee);
   Si vous ne pouvez finalement plus venir, vous pouvez annuler votre inscription jusqu'au dernier moment :
 </p>
 
-<p style="text-align:center; margin:25px 0;">
-  <a
-    href="${lienAnnulation}"
-    style="
-      display:inline-block;
-      background:#d9534f;
-      color:white;
-      padding:12px 20px;
-      text-decoration:none;
-      border-radius:6px;
-      font-weight:bold;
-    "
-  >
-    ❌ Annuler ma venue
-  </a>
-</p>
+${listeDatesAvecAnnulation.map(item => `
+  <div style="
+    margin:15px 0;
+    padding:15px;
+    background:#f7f7f7;
+    border-radius:8px;
+    text-align:center;
+  ">
 
+    <strong>
+      📅 ${item.dateFormatee}
+    </strong>
+
+    <br><br>
+
+    <a
+      href="${item.lienAnnulation}"
+      style="
+        display:inline-block;
+        background:#d9534f;
+        color:white;
+        padding:10px 18px;
+        text-decoration:none;
+        border-radius:6px;
+        font-weight:bold;
+      "
+    >
+      ❌ Annuler cette séance
+    </a>
+
+  </div>
+`).join("")}
 <p style="font-size:13px; color:#666;">
   Cette annulation libérera automatiquement les places réservées pour vos enfants.
 </p>
