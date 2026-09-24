@@ -1045,7 +1045,35 @@ const communeAccompagnateur =
     .getElementById("communeAccompagnateur")
     .value
     .trim();
+// ====================================
+// RÉCUPÉRER LES COMMUNES DÉJÀ CONNUES
+// ====================================
 
+const { data: anciensEnfants, error: erreurAnciensEnfants } =
+  await client
+    .from("inscriptions")
+    .select("enfant, commune_enfant, commune_accompagnateur")
+    .ilike("email", email);
+
+if (!erreurAnciensEnfants && anciensEnfants) {
+
+  enfants.forEach(enfant => {
+
+    const ancien =
+      anciensEnfants.find(i =>
+        i.enfant &&
+        i.enfant.trim().toLowerCase() ===
+        enfant.nom.trim().toLowerCase() &&
+        i.commune_enfant
+      );
+
+    if (ancien && !enfant.commune) {
+      enfant.commune = ancien.commune_enfant;
+    }
+
+  });
+
+}
 const dates =
 Array.from(
   document.querySelectorAll(
@@ -1095,7 +1123,25 @@ Array.from(
 
     return;
   }
+// ====================================
+// COMMUNE OBLIGATOIRE POUR UN NOUVEL ENFANT
+// ====================================
 
+const enfantSansCommune =
+  enfants.find(enfant => !enfant.commune);
+
+if (enfantSansCommune) {
+
+  document.getElementById(
+    "message"
+  ).innerHTML =
+    `❌ Merci d'indiquer la commune de ${enfantSansCommune.nom}. ` +
+    `Cette information n'est demandée que lors de sa première inscription.`;
+
+  reactiverBouton();
+
+  return;
+}
 
   // ==========================================
   // FONCTION : LUNDI DE LA SEMAINE
