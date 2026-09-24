@@ -81,11 +81,11 @@ const listeDatesAvecAnnulation =
   (dates || [])
     .map(date => {
 
-      const donneesAnnulation =
-        JSON.stringify({
-          email,
-          seance: date
-        });
+   const donneesAnnulation =
+  JSON.stringify({
+    email,
+    dates: [date]
+  });
 
       const tokenAnnulation =
         Buffer.from(donneesAnnulation)
