@@ -9,48 +9,79 @@ export default async function handler(req, res) {
   // RÉCUPÉRATION DES INFORMATIONS DU LIEN
   // ==========================================
 
-  const { email, seance, token } = req.query;
+ const { token, signature } = req.query;
 
-  if (!email || !seance || !token) {
-    return res.status(400).send(`
-      <h2>❌ Lien d'annulation invalide</h2>
-      <p>Les informations nécessaires sont manquantes.</p>
-    `);
-  }
+if (!token || !signature) {
+  return res.status(400).send(`
+    <h2>❌ Lien d'annulation invalide</h2>
+    <p>Les informations nécessaires sont manquantes.</p>
+  `);
+}
 
-  // ==========================================
-  // VÉRIFICATION DU LIEN
-  // ==========================================
+// ====================================
+// VÉRIFICATION DU LIEN
+// ====================================
 
-  const secret = process.env.ANNULATION_SECRET;
+const secret = process.env.ANNULATION_SECRET;
 
-  if (!secret) {
-    console.error("ANNULATION_SECRET manquant");
+if (!secret) {
+  console.error("ANNULATION_SECRET manquant");
 
-    return res.status(500).send(`
-      <h2>❌ Erreur</h2>
-      <p>Le système d'annulation n'est pas correctement configuré.</p>
-    `);
-  }
+  return res.status(500).send(`
+    <h2>❌ Erreur</h2>
+    <p>Le système d'annulation n'est pas correctement configuré.</p>
+  `);
+}
 
-  const tokenAttendu = crypto
-    .createHmac("sha256", secret)
-    .update(email.toLowerCase().trim() + "|" + seance)
-    .digest("hex");
+const signatureAttendue = crypto
+  .createHmac("sha256", secret)
+  .update(token)
+  .digest("hex");
 
-  const tokenValide =
-    token.length === tokenAttendu.length &&
-    crypto.timingSafeEqual(
-      Buffer.from(token),
-      Buffer.from(tokenAttendu)
-    );
+const signatureValide =
+  signature.length === signatureAttendue.length &&
+  crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(signatureAttendue)
+  );
 
-  if (!tokenValide) {
-    return res.status(403).send(`
-      <h2>❌ Lien d'annulation invalide</h2>
-      <p>Ce lien n'est pas valide.</p>
-    `);
-  }
+if (!signatureValide) {
+  return res.status(403).send(`
+    <h2>❌ Lien d'annulation invalide</h2>
+    <p>Ce lien n'est pas valide.</p>
+  `);
+}
+
+// ====================================
+// LIRE LES INFORMATIONS DU TOKEN
+// ====================================
+
+let donneesAnnulation;
+
+try {
+  donneesAnnulation = JSON.parse(
+    Buffer.from(token, "base64url").toString("utf8")
+  );
+} catch (erreur) {
+  console.error("Token illisible :", erreur);
+
+  return res.status(400).send(`
+    <h2>❌ Lien d'annulation invalide</h2>
+    <p>Le lien d'annulation est illisible.</p>
+  `);
+}
+
+const email = donneesAnnulation.email;
+const dates = donneesAnnulation.dates;
+
+if (!email || !Array.isArray(dates) || dates.length === 0) {
+  return res.status(400).send(`
+    <h2>❌ Lien d'annulation invalide</h2>
+    <p>Les informations d'inscription sont incomplètes.</p>
+  `);
+}
+
+const seance = dates[0];
 
   // ==========================================
   // RECHERCHE DES INSCRIPTIONS
