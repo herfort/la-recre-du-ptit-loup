@@ -1,10 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-);
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 
 export default async function handler(req, res) {
 
@@ -59,12 +56,23 @@ export default async function handler(req, res) {
   // RECHERCHE DES INSCRIPTIONS
   // ==========================================
 
-  const { data: inscriptions, error: erreurRecherche } =
-    await supabase
-      .from("inscriptions")
-      .select("id, enfant, statut")
-      .ilike("email", email)
-      .eq("seance", seance);
+const rechercheResponse = await fetch(
+  `${SUPABASE_URL}/rest/v1/inscriptions?email=ilike.${encodeURIComponent(email)}&seance=eq.${encodeURIComponent(seance)}&select=id,enfant,statut`,
+  {
+    headers: {
+      "apikey": SUPABASE_SECRET_KEY,
+      "Authorization": `Bearer ${SUPABASE_SECRET_KEY}`
+    }
+  }
+);
+
+const inscriptions = rechercheResponse.ok
+  ? await rechercheResponse.json()
+  : null;
+
+const erreurRecherche = rechercheResponse.ok
+  ? null
+  : await rechercheResponse.text();
 
   if (erreurRecherche) {
 
@@ -90,12 +98,21 @@ export default async function handler(req, res) {
   // SUPPRESSION DE LA SÉANCE
   // ==========================================
 
-  const { error: erreurSuppression } =
-    await supabase
-      .from("inscriptions")
-      .delete()
-      .ilike("email", email)
-      .eq("seance", seance);
+const suppressionResponse = await fetch(
+  `${SUPABASE_URL}/rest/v1/inscriptions?email=ilike.${encodeURIComponent(email)}&seance=eq.${encodeURIComponent(seance)}`,
+  {
+    method: "DELETE",
+    headers: {
+      "apikey": SUPABASE_SECRET_KEY,
+      "Authorization": `Bearer ${SUPABASE_SECRET_KEY}`,
+      "Prefer": "return=minimal"
+    }
+  }
+);
+
+const erreurSuppression = suppressionResponse.ok
+  ? null
+  : await suppressionResponse.text();
 
   if (erreurSuppression) {
 
