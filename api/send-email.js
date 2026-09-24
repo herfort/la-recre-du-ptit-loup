@@ -66,7 +66,34 @@ const listeEnfants =
   let sujet = "";
 
   let contenu = "";
+// ==========================================
+// LIEN SÉCURISÉ D'ANNULATION
+// ==========================================
 
+const annulationSecret =
+  process.env.ANNULATION_SECRET;
+
+const donneesAnnulation =
+  JSON.stringify({
+    email,
+    dates
+  });
+
+const tokenAnnulation =
+  Buffer.from(donneesAnnulation)
+    .toString("base64url");
+
+const signatureAnnulation =
+  crypto
+    .createHmac(
+      "sha256",
+      annulationSecret
+    )
+    .update(tokenAnnulation)
+    .digest("hex");
+
+const lienAnnulation =
+  `https://${req.headers.host}/api/annuler-inscription?token=${encodeURIComponent(tokenAnnulation)}&signature=${encodeURIComponent(signatureAnnulation)}`;
 
   // ==========================================
   // DEMANDE EN ATTENTE
@@ -400,7 +427,30 @@ encodeURIComponent(dateProposee);
         Nous avons hâte de vous retrouver
         avec les enfants !
       </p>
+<p style="margin-top:25px;">
+  Si vous ne pouvez finalement plus venir, vous pouvez annuler votre inscription jusqu'au dernier moment :
+</p>
 
+<p style="text-align:center; margin:25px 0;">
+  <a
+    href="${lienAnnulation}"
+    style="
+      display:inline-block;
+      background:#d9534f;
+      color:white;
+      padding:12px 20px;
+      text-decoration:none;
+      border-radius:6px;
+      font-weight:bold;
+    "
+  >
+    ❌ Annuler ma venue
+  </a>
+</p>
+
+<p style="font-size:13px; color:#666;">
+  Cette annulation libérera automatiquement les places réservées pour vos enfants.
+</p>
       <p>
         À bientôt,<br>
         <strong>
