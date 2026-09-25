@@ -3530,7 +3530,56 @@ const affichageCommunes =
         `🏘️ ${commune} : ${nombre} enfant${nombre > 1 ? "s" : ""}`
     )
     .join("<br>");
+// =====================================
+// COMMUNES DES ACCOMPAGNANTS
+// Un accompagnant n'est compté qu'une seule fois
+// même s'il vient à plusieurs séances
+// =====================================
 
+const accompagnantsParCommune = new Map();
+
+listeInscriptions
+  .filter(i =>
+    (i.email || i.accompagnateur) &&
+    i.commune_accompagnateur
+  )
+  .forEach(i => {
+
+    const cleAccompagnant =
+      (i.email || i.accompagnateur)
+        .trim()
+        .toLowerCase();
+
+    if (!accompagnantsParCommune.has(cleAccompagnant)) {
+      accompagnantsParCommune.set(
+        cleAccompagnant,
+        i.commune_accompagnateur.trim()
+      );
+    }
+
+  });
+
+const communesAccompagnants = {};
+
+accompagnantsParCommune.forEach(commune => {
+
+  const nomCommune =
+    commune.charAt(0).toUpperCase()
+    + commune.slice(1).toLowerCase();
+
+  communesAccompagnants[nomCommune] =
+    (communesAccompagnants[nomCommune] || 0) + 1;
+
+});
+
+const affichageCommunesAccompagnants =
+  Object.entries(communesAccompagnants)
+    .sort((a, b) => b[1] - a[1])
+    .map(
+      ([commune, nombre]) =>
+        `🏘️ ${commune} : ${nombre} accompagnant${nombre > 1 ? "s" : ""}`
+    )
+    .join("<br>");
   // ==========================================
   // SÉANCES OCCASIONNELLES À 2 €
   //
