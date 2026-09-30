@@ -532,6 +532,37 @@ SUPABASE_URL,
 SUPABASE_KEY
 );
 
+// ==========================================
+// SÉLECTION AUTOMATIQUE DU MOIS SUIVANT
+// ==========================================
+
+const selectMois = document.getElementById("mois");
+
+const maintenant = new Date();
+
+let moisSuivant = maintenant.getMonth() + 1;
+let anneeSuivante = maintenant.getFullYear();
+
+if (moisSuivant > 11) {
+  moisSuivant = 0;
+  anneeSuivante++;
+}
+
+const valeurMoisSuivant =
+  anneeSuivante + "-" +
+  String(moisSuivant + 1).padStart(2, "0");
+
+// Sélectionne le mois suivant uniquement
+// s'il existe dans la liste
+const optionMoisSuivant =
+  selectMois.querySelector(
+    `option[value="${valeurMoisSuivant}"]`
+  );
+
+if (optionMoisSuivant) {
+  selectMois.value = valeurMoisSuivant;
+}
+
 let datesAnnulees = [];
 
 async function chargerDatesAnnulees(){
