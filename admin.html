@@ -827,12 +827,9 @@ const enfantsConfirmes =
 new Set(
   inscriptionsConfirmees.map(
     i =>
-    i.enfant
-    .trim()
-    .toLowerCase()
+    `${i.enfant.trim().toLowerCase()}|${i.email.trim().toLowerCase()}`
   )
 ).size;
-
 
 // ==========================================
 // PARENTS CONFIRMÉS
